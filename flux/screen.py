@@ -11,8 +11,9 @@ class Display:
         self.fake_display = self.display.copy()
 
     def resize(self, size):
+        self.x = size[0]
+        self.y = size[1]
         self.display = pygame.display.set_mode(size, HWSURFACE|DOUBLEBUF|RESIZABLE)
-        self.display.blit(pygame.transform.scale(self.fake_display, size), (0, 0))
 
     def load_to_buffer(self, surface, x=0, y=0):
         self.fake_display.blit(surface, (x, y))
@@ -28,5 +29,6 @@ class Display:
 
     def swap_buffer(self):
         #pygame.display.update()
+        self.display.blit(pygame.transform.scale(self.fake_display, (self.x, self.y)), (0, 0))
         pygame.display.flip()
 
