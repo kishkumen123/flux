@@ -9,8 +9,8 @@ display = engine.init_display((800, 600))
 background = engine.create_surface((100, 100), (200, 255, 255))
 
 poly = engine.create_poly((50, 150, 50), ((100, 100), (40, 40), (60, 60), (200, 100), (200, 200), (100, 200)))
-poly.move_on_press()
-#poly.wireframe()
+poly.editable()
+poly.wireframe()
 
 engine.set_fps(120)
 while engine.is_running():
