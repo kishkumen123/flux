@@ -17,6 +17,24 @@ class Events:
     VIDEORESIZE = pygame.VIDEORESIZE
     VIDEOEXPOSE = pygame.VIDEOEXPOSE
     USEREVENT = pygame.USEREVENT
+    MOUSEBUTTON = {
+        1: False,
+        3: False,
+        2: False,
+    }
 
-    def get(self):
-        return pygame.event.get()
+    EVENTS = []
+
+    @classmethod
+    def event_active(cls, event):
+        event_value = cls.__dict__[event]
+        event_dict = {event.type: event for event in cls.EVENTS}
+        return event_dict.get(event_value)
+
+    @classmethod
+    def update(cls):
+        cls.EVENTS = pygame.event.get()
+
+    @classmethod
+    def get_events(cls):
+        return cls.EVENTS

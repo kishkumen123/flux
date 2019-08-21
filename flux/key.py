@@ -1,7 +1,7 @@
 import pygame
 
 
-class Key:
+class Keys:
     BACKSPACE = pygame.K_BACKSPACE
     TAB       = pygame.K_TAB
     CLEAR     = pygame.K_CLEAR
@@ -135,3 +135,14 @@ class Key:
     POWER     = pygame.K_POWER
     EURO      = pygame.K_EURO
     SCROLLOCK = pygame.K_SCROLLOCK
+    #change this to size of number of keys
+    KEYS_PRESSED = [0] * 600
+
+    @classmethod
+    def key_pressed(cls, key):
+        key_value = cls.__dict__[key]
+        return cls.KEYS_PRESSED[key_value]
+
+    @classmethod
+    def update(cls):
+        cls.KEYS_PRESSED = pygame.key.get_pressed()

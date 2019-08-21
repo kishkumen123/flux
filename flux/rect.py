@@ -1,4 +1,6 @@
 import pygame
+from key import Keys
+from mouse import Mouse
 
 
 class Poly:
@@ -17,9 +19,9 @@ class Poly:
     def editable(self, value=True):
         self._editable = value
 
-    def draw(self, rect=None):
+    def draw(self):
         self.rect = pygame.draw.polygon(self.surface, self.color, self.points, self.width)
-        self.update(rect)
+        self.update()
 
     def intersects_rect_point(self, rect):
         for i, point in enumerate(self.points):
@@ -29,6 +31,7 @@ class Poly:
         return None
 
     def contains_rect(self, rect):
+        # this shit aint working right false positives retarded piece of garbage stanky ass shit
         return self.rect.contains(rect)
 
     def wireframe(self):
@@ -37,29 +40,30 @@ class Poly:
     def fill(self):
         self.width = 0
 
-    def update(self, rect):
-        self.move_rect(rect)
-        self.move_point(rect)
+    def update(self):
+        self.move_rect()
+        self.move_point()
 
-    def move_rect(self, rect):
+    def move_rect(self):
         if self._editable:
-            keys = pygame.key.get_pressed()
-            if pygame.mouse.get_pressed()[0] and not keys[pygame.K_LSHIFT]:
-                if self.mouse_down is False:
-                    self.move_offset = [(self.points[i][0] - pygame.mouse.get_pos()[0], self.points[i][1] - pygame.mouse.get_pos()[1]) for i, _ in enumerate(self.points)]
-                    self.mouse_down = True
+            if self.contains_rect(Mouse.get_rect()):
+                if Mouse.button_pressed("MONE") and not Keys.key_pressed("LSHIFT"):
+                    if self.mouse_down is False:
+                        self.move_offset = [(self.points[i][0] - Mouse.get_pos()[0], self.points[i][1] - Mouse.get_pos()[1]) for i, _ in enumerate(self.points)]
+                        self.mouse_down = True
 
-                if self.contains_rect(rect) and self.move_offset is not None:
-                    for i, _ in enumerate(self.points):
-                        self.points[i] = (pygame.mouse.get_pos()[0] + self.move_offset[i][0], pygame.mouse.get_pos()[1] + self.move_offset[i][1])
-            else:
-                self.mouse_down = False
+                    if self.move_offset is not None:
+                        for i, _ in enumerate(self.points):
+                            self.points[i] = (Mouse.get_pos()[0] + self.move_offset[i][0], Mouse.get_pos()[1] + self.move_offset[i][1])
+                else:
+                    self.mouse_down = False
 
-    def move_point(self, rect):
+    def move_point(self):
         if self._editable:
-            keys = pygame.key.get_pressed()
-            if pygame.mouse.get_pressed()[0] and keys[pygame.K_LSHIFT]:
-                index = self.intersects_rect_point(rect)
+            print("11111111")
+            if Mouse.button_pressed("MONE") and Keys.key_pressed("LSHIFT"):
+                print("222222222")
+                index = self.intersects_rect_point(Mouse.get_rect())
                 if index is not None:
                     if index is not None and pygame.mouse.get_pressed()[0]:
-                        self.points[index] = pygame.mouse.get_pos()
+                        self.points[index] = Mouse.get_pos()

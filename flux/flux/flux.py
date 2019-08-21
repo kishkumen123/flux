@@ -4,7 +4,8 @@
 import pygame
 
 from events import Events
-from key import Key
+from key import Keys
+from mouse import Mouse
 from screen import Display
 from rect import Poly
 
@@ -23,16 +24,13 @@ class Flux:
         self.mouse_rect_color = (250, 0, 0)
         self._mouse_rect = pygame.Rect((0,0,0,0))
         self.poly = None
-        self.keys_pressed = None
-        self.events = None
 
     def init(self):
         pygame.init()
-        self.keys_pressed = pygame.key.get_pressed()
-        self.events = pygame.event.get()
 
     def init_display(self, resolution):
-        self.display = Display(resolution)
+        self.display = Display
+        self.display.init(resolution)
 
         return self.display
 
@@ -87,19 +85,26 @@ class Flux:
         return self._mouse_rect
 
     def key_pressed(self, key):
-        key_value = Key.__dict__[key]
-        return self.keys_pressed[key_value]
+        return Keys.key_pressed(key)
 
     def event_active(self, event):
-        event_value = Events.__dict__[event]
-        event_types = [event.type for event in self.events]
-        return event_value in event_types
+        return Events.event_active(event)
+
+    def mousebutton_pressed(self, button):
+        return Mouse.button_pressed(button)
+
+    def get_mouse(self):
+        return Mouse
+
+    def get_display(self):
+        return Display
 
     def update(self):
         self.update_delta_time()
-        self._mouse_rect = pygame.draw.circle(self.display.fake_display, (250, 0, 0), self.mouse_pos, 5, 0)
-        self.keys_pressed = pygame.key.get_pressed()
-        self.events = pygame.event.get()
+        self._mouse_rect = pygame.draw.circle(self.display.fake_display, (250, 0, 0, 0), self.mouse_pos, 5, 0)
+        Keys.update()
+        Events.update()
+        Mouse.update()
 
     def kill(self):
         self.running = False

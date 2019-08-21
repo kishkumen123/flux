@@ -3,7 +3,7 @@ from flux import Flux
 engine = Flux()
 engine.init()
 
-display = engine.init_display((800, 600))
+display = engine.init_display((1800, 1600))
 
 
 background = engine.create_surface((100, 100), (200, 255, 255))
@@ -21,7 +21,8 @@ while engine.is_running():
     if engine.key_pressed("ESCAPE"): engine.kill()
     if engine.event_active("QUIT"): engine.kill()
 
-    poly.draw(engine.mouse_rect)
+    # this needs to go away, mouse needs to be like key and events, and event has the freaking mouse buttons right now and those needs to be moved to Mouse class
+    poly.draw()
 
     engine.update()
     display.swap_buffer()
