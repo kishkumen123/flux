@@ -13,23 +13,19 @@ poly.editable()
 poly.wireframe()
 
 engine.set_fps(120)
+
 while engine.is_running():
     display.clear_screen()
 
-    for event in engine.events.get():
-        if engine.events.QUIT(event):
-            engine.kill()
-        elif engine.events.KEYDOWN(event):
-            if engine.key.is_ESCAPE(event):
-                engine.kill()
-        elif engine.events.RESIZE(event):
-            pass
-            #display.resize(event.dict["size"])
+    if engine.key_pressed("BACKSPACE"): print("OK")
+    if engine.key_pressed("ESCAPE"): engine.kill()
+    if engine.event_active("QUIT"): engine.kill()
 
     poly.draw(engine.mouse_rect)
 
     engine.update()
     display.swap_buffer()
+
 engine.quit()
 
 

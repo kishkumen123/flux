@@ -135,7 +135,3 @@ class Key:
     POWER     = pygame.K_POWER
     EURO      = pygame.K_EURO
     SCROLLOCK = pygame.K_SCROLLOCK
-
-    def is_ESCAPE(self, event):
-        return event.key == self.ESCAPE
-

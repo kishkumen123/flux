@@ -21,10 +21,6 @@ class Poly:
         self.rect = pygame.draw.polygon(self.surface, self.color, self.points, self.width)
         self.update(rect)
 
-    def move_poly(self):
-        for i, _ in enumerate(self.points):
-            self.points[i] = (pygame.mouse.get_pos()[0] + self.move_offset[i][0], pygame.mouse.get_pos()[1] + self.move_offset[i][1])
-
     def intersects_rect_point(self, rect):
         for i, point in enumerate(self.points):
             if rect.collidepoint(point[0], point[1]):
@@ -54,7 +50,8 @@ class Poly:
                     self.mouse_down = True
 
                 if self.contains_rect(rect) and self.move_offset is not None:
-                    self.move_poly()
+                    for i, _ in enumerate(self.points):
+                        self.points[i] = (pygame.mouse.get_pos()[0] + self.move_offset[i][0], pygame.mouse.get_pos()[1] + self.move_offset[i][1])
             else:
                 self.mouse_down = False
 

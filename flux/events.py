@@ -20,12 +20,3 @@ class Events:
 
     def get(self):
         return pygame.event.get()
-
-    def QUIT(self, event):
-        return event.type == pygame.QUIT
-
-    def KEYDOWN(self, event):
-        return event.type == pygame.KEYDOWN
-
-    def RESIZE(self, event):
-        return event.type == pygame.VIDEORESIZE
