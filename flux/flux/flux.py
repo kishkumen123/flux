@@ -23,7 +23,7 @@ class Flux:
         self.key = Key()
         self._elapsed_time = 0
         self.mouse_rect_color = (250, 0, 0)
-        self._mouse_rect = None
+        self._mouse_rect = pygame.Rect((0,0,0,0))
         self.poly = None
 
     def init(self):
@@ -55,22 +55,6 @@ class Flux:
     def mouse_pos(self):
         return pygame.mouse.get_pos()
 
-    def draw_poly(self, color, points, surface=None, fill=True):
-        if fill: width = 0
-        else: width = 1
-
-        poly = Poly(color, points)
-        if surface:
-            poly.draw(surface)
-            #pygame.draw.polygon(surface, color, points, width)
-        else:
-            poly.draw(self.display.fake_display)
-            #pygame.draw.polygon(self.display.fake_display, color, points, width)
-            index = poly.intersects_rect(self._mouse_rect)
-            poly.move_point(index)
-            #print(pygame.mouse.get_pressed())
-            #print(poly.intersects_rect(self._mouse_rect))
-
     @property
     def delta_time(self):
         return self._delta_time
@@ -79,10 +63,10 @@ class Flux:
     def elapsed_time(self):
         return self._elapsed_time
 
-    def create_poly(self, color, points, surface=None, width=0, fill=True):
+    def create_poly(self, color, points, surface=None, width=0):
         if surface is None:
             surface = self.display.fake_display
-        return Poly(color, points, surface, width, fill)
+        return Poly(color, points, surface, width)
 
     def create_surface(self, size, color):
         surface = pygame.Surface(size).convert()
