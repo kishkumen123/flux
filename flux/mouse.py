@@ -50,4 +50,3 @@ class Mouse:
             cls.MOUSEBUTTON[event.button] = False
 
         cls.Rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
-

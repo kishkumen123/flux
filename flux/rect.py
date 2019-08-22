@@ -48,21 +48,15 @@ class Poly:
         if self._editable:
             if self.contains_rect(Mouse.get_rect()):
                 if Mouse.button_pressed("MONE") and not Keys.key_pressed("LSHIFT"):
-                    if self.mouse_down is False:
-                        self.move_offset = [(self.points[i][0] - Mouse.get_pos()[0], self.points[i][1] - Mouse.get_pos()[1]) for i, _ in enumerate(self.points)]
-                        self.mouse_down = True
-
                     if self.move_offset is not None:
                         for i, _ in enumerate(self.points):
                             self.points[i] = (Mouse.get_pos()[0] + self.move_offset[i][0], Mouse.get_pos()[1] + self.move_offset[i][1])
                 else:
-                    self.mouse_down = False
+                    self.move_offset = [(self.points[i][0] - Mouse.get_pos()[0], self.points[i][1] - Mouse.get_pos()[1]) for i, _ in enumerate(self.points)]
 
     def move_point(self):
         if self._editable:
-            print("11111111")
             if Mouse.button_pressed("MONE") and Keys.key_pressed("LSHIFT"):
-                print("222222222")
                 index = self.intersects_rect_point(Mouse.get_rect())
                 if index is not None:
                     if index is not None and pygame.mouse.get_pressed()[0]:

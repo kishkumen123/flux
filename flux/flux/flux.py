@@ -22,7 +22,7 @@ class Flux:
         self.display = None
         self._elapsed_time = 0
         self.mouse_rect_color = (250, 0, 0)
-        self._mouse_rect = pygame.Rect((0,0,0,0))
+        #self._mouse_rect = pygame.Rect((0,0,0,0))
         self.poly = None
 
     def init(self):
@@ -43,17 +43,6 @@ class Flux:
     def update_delta_time(self):
         self._delta_time = self.clock.tick(self.fps)
         self._elapsed_time += self._delta_time / 1000.0
-
-    def mouse_radius(self):
-        rect = pygame.draw.circle(self.display.fake_display, (250, 0, 0), self.mouse_pos, 5, 0)
-        if rect.collidepoint(200, 200):
-            print(True)
-        else:
-            print(False)
-
-    @property
-    def mouse_pos(self):
-        return pygame.mouse.get_pos()
 
     @property
     def delta_time(self):
@@ -80,10 +69,6 @@ class Flux:
     def is_running(self):
         return self.running
 
-    @property
-    def mouse_rect(self):
-        return self._mouse_rect
-
     def key_pressed(self, key):
         return Keys.key_pressed(key)
 
@@ -101,7 +86,6 @@ class Flux:
 
     def update(self):
         self.update_delta_time()
-        self._mouse_rect = pygame.draw.circle(self.display.fake_display, (250, 0, 0, 0), self.mouse_pos, 5, 0)
         Keys.update()
         Events.update()
         Mouse.update()

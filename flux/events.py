@@ -32,9 +32,10 @@ class Events:
         return event_dict.get(event_value)
 
     @classmethod
+    def get_events(cls):
+        return cls.EVENTS
+
+    @classmethod
     def update(cls):
         cls.EVENTS = pygame.event.get()
 
-    @classmethod
-    def get_events(cls):
-        return cls.EVENTS
