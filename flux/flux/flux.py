@@ -21,8 +21,6 @@ class Flux:
         self.running = True
         self.display = None
         self._elapsed_time = 0
-        self.mouse_rect_color = (250, 0, 0)
-        #self._mouse_rect = pygame.Rect((0,0,0,0))
         self.poly = None
 
     def init(self):
@@ -78,17 +76,12 @@ class Flux:
     def mousebutton_pressed(self, button):
         return Mouse.button_pressed(button)
 
-    def get_mouse(self):
-        return Mouse
-
-    def get_display(self):
-        return Display
-
     def update(self):
         self.update_delta_time()
+
         Keys.update()
-        Events.update()
         Mouse.update()
+        Events.update()
 
     def kill(self):
         self.running = False

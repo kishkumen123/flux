@@ -17,11 +17,6 @@ class Events:
     VIDEORESIZE = pygame.VIDEORESIZE
     VIDEOEXPOSE = pygame.VIDEOEXPOSE
     USEREVENT = pygame.USEREVENT
-    MOUSEBUTTON = {
-        1: False,
-        3: False,
-        2: False,
-    }
 
     EVENTS = []
 
@@ -38,4 +33,3 @@ class Events:
     @classmethod
     def update(cls):
         cls.EVENTS = pygame.event.get()
-
