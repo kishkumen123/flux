@@ -1,6 +1,7 @@
 import pygame
-from key import Keys
+#from key import Keys
 from mouse import Mouse
+from events import events
 
 
 class Poly:
@@ -47,7 +48,7 @@ class Poly:
     def move_rect(self):
         if self._editable:
             if self.contains_rect(Mouse.get_rect()):
-                if Mouse.button_pressed("MONE") and not Keys.key_pressed("LSHIFT"):
+                if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
                     if self.move_offset is not None:
                         for i, _ in enumerate(self.points):
                             self.points[i] = (Mouse.get_pos()[0] + self.move_offset[i][0], Mouse.get_pos()[1] + self.move_offset[i][1])
@@ -56,7 +57,7 @@ class Poly:
 
     def move_point(self):
         if self._editable:
-            if Mouse.button_pressed("MONE") and Keys.key_pressed("LSHIFT"):
+            if events.button_pressed("MONE") and events.key_pressed("LSHIFT"):
                 index = self.intersects_rect_point(Mouse.get_rect())
                 if index is not None:
                     if index is not None and pygame.mouse.get_pressed()[0]:

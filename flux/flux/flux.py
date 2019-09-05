@@ -3,11 +3,13 @@
 
 import pygame
 
-from events import Events
-from key import Keys
+from events import events
+#from key import Keys
 from mouse import Mouse
 from screen import Display
-from rect import Poly
+from poly import Poly
+from console import Console
+from layer import Layer
 
 
 class Flux:
@@ -67,21 +69,26 @@ class Flux:
     def is_running(self):
         return self.running
 
-    def key_pressed(self, key):
-        return Keys.key_pressed(key)
+    def key_pressed(self, key, layer=None):
+        return events.key_pressed(key)
 
-    def event_active(self, event):
-        return Events.event_active(event)
+    def key_pressed_once(self, key, layer=None):
+        return events.key_pressed_once(key, layer)
+
+    #def event_active(self, event, layer=None):
+        #return events.event_active(event, layer)
 
     def mousebutton_pressed(self, button):
         return Mouse.button_pressed(button)
 
     def update(self):
         self.update_delta_time()
+        #Console.update()
+        #print(State.get_layer())
 
-        Keys.update()
+        #Keys.update()
         Mouse.update()
-        Events.update()
+        events.update()
 
     def kill(self):
         self.running = False
