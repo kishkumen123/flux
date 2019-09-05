@@ -74,9 +74,8 @@ class Flux:
     def key_pressed_once(self, key, layer="layer_0"):
         return events.key_pressed_once(key, layer)
 
-    #needs to be reimplemented
-    #def event_active(self, event, layer=None):
-        #return events.event_active(event, layer)
+    def event_triggered(self, event):
+        return events.event_triggered(event)
 
     def mousebutton_pressed(self, button):
         return Mouse.button_pressed(button)
@@ -84,7 +83,6 @@ class Flux:
     def update(self):
         self.update_delta_time()
         Console.update()
-        print(Layer.get_layer())
 
         Mouse.update()
         events.update()

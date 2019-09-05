@@ -17,12 +17,12 @@ engine.set_fps(120)
 while engine.is_running():
     display.clear_screen()
 
-    #if engine.key_pressed("BACKSPACE"):
-    #    print("OK")
+    if engine.key_pressed("BACKSPACE", "layer_all"):
+        print("OK")
     if engine.key_pressed("ESCAPE"):
         engine.kill()
-    #if engine.key_pressed("QUIT"):
-        #engine.kill()
+    if engine.event_triggered("QUIT"):
+        engine.kill()
 
     poly.draw()
 
