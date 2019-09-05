@@ -1,8 +1,7 @@
 import pygame
 from screen import Display
-#from key import Events
 from layer import Layer
-from events import Events
+from events import events
 
 
 class Console:
@@ -25,19 +24,16 @@ class Console:
 
     @classmethod
     def update(cls):
-        if Events.key_pressed("TAB") and Events.key_pressed("LSHIFT"):
+        if events.key_pressed("TAB", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
             cls.y = cls.calc_openess("MAX")
             Layer.set_layer("layer_999")
 
-        if Events.key_pressed("TAB") and not Events.key_pressed("LSHIFT"):
+        if events.key_pressed("TAB", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
             cls.y = cls.calc_openess("MIN")
             Layer.set_layer("layer_999")
 
-        if Events.key_pressed_once("ESCAPE", "layer_999"):
-        #if Events.key_pressed_once("ESCAPE", "layer_999"):
+        if events.key_pressed_once("ESCAPE", "layer_999"):
             cls.y = cls.calc_openess("CLOSED")
-            print("OK")
-            Layer.set_layer("layer_0")
-            #State.pop_layer()
+            Layer.pop_layer()
 
         cls.console = pygame.draw.rect(Display.fake_display, (128, 128, 128), (0, 0, Display.x, cls.y))

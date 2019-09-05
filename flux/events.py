@@ -1,6 +1,6 @@
-import sys
+import pygame
+
 from layer import Layer
-from key import *
 
 
 class Events:
@@ -19,9 +19,18 @@ class Events:
                 new_name = name.replace("K_", "")
                 self.__dict__[new_name] = pygame.__dict__[name]
 
-    def key_pressed(self, key):
-        value = self.__dict__[key]
-        return value in self.keys_pressed
+    def key_pressed(self, key, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            value = self.__dict__[key]
+            return value in self.keys_pressed
+
+    def key_pressed_once(self, key, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            value = self.__dict__[key]
+            if value in self.keys_pressed:
+                self.keys_pressed.remove(value)
+                return True
+        return False
 
     def button_pressed(self, button):
         value = self.__dict__[button]
@@ -35,17 +44,12 @@ class Events:
 
         if event.type == pygame.KEYDOWN:
             self.keys_pressed.append(event.key)
-        if event.type == pygame.KEYUP:
+        if event.type == pygame.KEYUP and event.key in self.keys_pressed:
             self.keys_pressed.remove(event.key)
 
     def update(self):
-        active_layer = Layer.get_layer()
-        print(self.mouse_pressed)
-
         for event in pygame.event.get():
             self.register_keys_pressed(event)
-            if event.type == pygame.QUIT:
-                sys.exit()
 
 
 events = Events()

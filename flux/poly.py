@@ -1,5 +1,4 @@
 import pygame
-#from key import Keys
 from mouse import Mouse
 from events import events
 
