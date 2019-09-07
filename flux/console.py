@@ -5,35 +5,67 @@ from events import events
 
 
 class Console:
-    console = pygame.draw.rect(Display.fake_display, (128, 128, 128), (0, 0, 100, 0))
-    current_opennes = 0
-    max_open = 0.4
-    min_open = 0.1
 
-    openess_dict = {"CLOSED": 0, "MIN": 0.1, "MAX": 0.4}
-    open_type = "CLOSED"
-    y = 0
+    def __init__(self):
+        self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, 100, 0))
+        self.console_textfield = pygame.draw.rect(Display.fake_display, (138, 201, 181), (0, 0, 100, 0))
+        self.current_opennes = 0
+        self.history = ["load level1", "debug on", "wireframe on"]
+        self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
 
-    layer = "layer_999"
+        self.open_amount = "MIN"
+        self.y = 0
 
-    @classmethod
-    def calc_openess(cls, type):
-        cls.open_type = type
-        ratio = cls.openess_dict[cls.open_type]
+        self.layer = "layer_999"
+        self.text = ""
+
+    def calc_openess(self, amount):
+        self.open_amount = amount
+        ratio = self.open_dict[self.open_amount]
         return Display.y * ratio
 
-    @classmethod
-    def update(cls):
+    def update(self):
+        font = pygame.font.Font('freesansbold.ttf', 14)
+
         if events.key_pressed("TAB", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
-            cls.y = cls.calc_openess("MAX")
+            self.y = self.calc_openess("MAX")
             Layer.set_layer("layer_999")
 
         if events.key_pressed("TAB", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
-            cls.y = cls.calc_openess("MIN")
+            self.y = self.calc_openess("MIN")
             Layer.set_layer("layer_999")
 
         if events.key_pressed_once("ESCAPE", "layer_999"):
-            cls.y = cls.calc_openess("CLOSED")
+            self.y = self.calc_openess("CLOSED")
             Layer.pop_layer()
 
-        cls.console = pygame.draw.rect(Display.fake_display, (128, 128, 128), (0, 0, Display.x, cls.y))
+        self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, Display.x, self.y))
+        self.console_textfield = pygame.draw.rect(Display.fake_display, (30, 201, 181), (0, self.y - 20, Display.x, 20))
+
+        if events.key_pressed_once("BACKSPACE", "layer_999"):
+            self.text = self.text[:-1]
+        elif events.key_pressed_any("layer_999"):
+            self.text += str(events.get_keystroke())
+
+        if events.key_pressed_once("RETURN", "layer_999"):
+            self.history.append(self.text)
+            self.text = ""
+
+        input_box = pygame.Rect(0, self.y - 20, Display.x, 20)
+        txt_surface = font.render(self.text, True, (30, 30, 30))
+        width = max(200, txt_surface.get_width() + 10)
+        input_box.w = width
+        Display.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+        pygame.draw.rect(Display.fake_display, (30, 201, 181), input_box, 2)
+
+        for i, value in enumerate(reversed(self.history)):
+            text = font.render(value, True, (30, 30, 30))
+
+            text_rect = text.get_rect()
+            text_rect.x = 5
+            text_rect.y = self.y - 40 - (20 * i)
+            Display.blit_text(text, text_rect)
+
+
+
+console = Console()

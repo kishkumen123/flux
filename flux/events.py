@@ -1,4 +1,5 @@
 import pygame
+import string
 
 from layer import Layer
 
@@ -13,6 +14,8 @@ class Events:
         self.MMIDDLE = 2
         self.MTWO = 3
         self.events_list = []
+        self.keystroke = None
+        self.keystroke_list = []
 
         self.assign_keys()
 
@@ -27,6 +30,17 @@ class Events:
                     self.events_list.append(constant)
                     self.__dict__[name] = pygame.__dict__[name]
 
+    def key_pressed_any(self, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            return True if len(self.keystroke_list) > 0 else False
+        return False
+
+    def get_keystroke(self):
+        key = self.keystroke_list[0]
+        self.keystroke_list = self.keystroke_list[1:]
+        return str(key)
+
+    # capital letters are not working
     def key_pressed(self, key, layer="layer_0"):
         if layer == Layer.get_layer() or layer == "layer_all":
             value = self.__dict__.get(key)
@@ -57,6 +71,8 @@ class Events:
     def register_keys_pressed(self, event):
         if event.type == pygame.KEYDOWN:
             self.keys_pressed.append(event.key)
+            if str(event.unicode) in (string.digits + string.ascii_letters) or str(event.unicode) == " ":
+                self.keystroke_list.append(str(event.unicode))
         if event.type == pygame.KEYUP and event.key in self.keys_pressed:
             self.keys_pressed.remove(event.key)
 

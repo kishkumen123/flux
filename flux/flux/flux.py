@@ -7,8 +7,7 @@ from events import events
 from mouse import Mouse
 from screen import Display
 from poly import Poly
-from console import Console
-from layer import Layer
+from console import console
 
 
 class Flux:
@@ -82,7 +81,7 @@ class Flux:
 
     def update(self):
         self.update_delta_time()
-        Console.update()
+        console.update()
 
         Mouse.update()
         events.update()

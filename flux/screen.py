@@ -16,6 +16,14 @@ class Display:
         cls.fake_display = cls.display.copy()
 
     @classmethod
+    def blit_text(cls, text, rect):
+        cls.fake_display.blit(text, rect)
+
+    @classmethod
+    def blit(cls, rect, coords):
+        cls.fake_display.blit(rect, coords)
+
+    @classmethod
     def resize(cls, size):
         cls.x = size[0]
         cls.y = size[1]
