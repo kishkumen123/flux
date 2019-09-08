@@ -13,7 +13,7 @@ class Console:
         self.history = ["load level1", "debug on", "wireframe on"]
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
 
-        self.open_amount = "MIN"
+        self.open_amount = "CLOSED"
         self.y = 0
 
         self.layer = "layer_999"
@@ -28,20 +28,20 @@ class Console:
         font = pygame.font.Font('freesansbold.ttf', 14)
 
         if events.key_pressed("TAB", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
-            self.y = self.calc_openess("MAX")
-            Layer.set_layer("layer_999")
+            if self.open_amount == "MAX":
+                self.y = self.calc_openess("CLOSED")
+                Layer.pop_layer()
+            else:
+                self.y = self.calc_openess("MAX")
+                Layer.set_layer("layer_999")
 
         if events.key_pressed_once("TAB", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MIN":
                 self.y = self.calc_openess("CLOSED")
-                Layer.set_layer("layer_0")
+                Layer.pop_layer()
             else:
                 self.y = self.calc_openess("MIN")
                 Layer.set_layer("layer_999")
-
-        if events.key_pressed_once("ESCAPE", "layer_999"):
-            self.y = self.calc_openess("CLOSED")
-            Layer.pop_layer()
 
         self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, Display.x, self.y))
         self.console_textfield = pygame.draw.rect(Display.fake_display, (30, 201, 181), (0, self.y - 20, Display.x, 20))

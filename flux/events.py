@@ -34,7 +34,6 @@ class Events:
             for event in self.events_triggered:
                 if event.type == value:
                     return event.key
-
         return None
 
     # capital letters are not working
