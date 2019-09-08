@@ -14,6 +14,8 @@ class Console:
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
 
         self.open_amount = "CLOSED"
+        self.openess = 0
+        self.target_openess = 0
         self.y = 0
 
         self.layer = "layer_999"
@@ -22,26 +24,31 @@ class Console:
     def calc_openess(self, amount):
         self.open_amount = amount
         ratio = self.open_dict[self.open_amount]
-        return Display.y * ratio
+        self.target_openess = Display.y * ratio
 
-    def update(self):
+    def update(self, delta_time):
         font = pygame.font.Font('freesansbold.ttf', 14)
 
         if events.key_pressed("TAB", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MAX":
-                self.y = self.calc_openess("CLOSED")
+                self.calc_openess("CLOSED")
                 Layer.pop_layer()
             else:
-                self.y = self.calc_openess("MAX")
+                self.calc_openess("MAX")
                 Layer.set_layer("layer_999")
 
         if events.key_pressed_once("TAB", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MIN":
-                self.y = self.calc_openess("CLOSED")
+                self.calc_openess("CLOSED")
                 Layer.pop_layer()
             else:
-                self.y = self.calc_openess("MIN")
+                self.calc_openess("MIN")
                 Layer.set_layer("layer_999")
+
+        if self.y > self.target_openess:
+            self.y -= 1 * delta_time
+        if self.y < self.target_openess:
+            self.y += 1 * delta_time
 
         self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, Display.x, self.y))
         self.console_textfield = pygame.draw.rect(Display.fake_display, (30, 201, 181), (0, self.y - 20, Display.x, 20))

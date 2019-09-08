@@ -17,7 +17,7 @@ engine.set_fps(120)
 while engine.is_running():
     display.clear_screen()
 
-    if engine.key_pressed("ESCAPE", "layer_0"):
+    if engine.key_pressed("ESCAPE", "layer_all"):
         engine.kill()
     if engine.event_triggered("QUIT"):
         engine.kill()

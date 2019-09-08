@@ -81,7 +81,7 @@ class Flux:
 
     def update(self):
         self.update_delta_time()
-        console.update()
+        console.update(self.delta_time)
 
         Mouse.update()
         events.update()
