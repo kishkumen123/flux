@@ -76,7 +76,7 @@ class Events:
 
     def register_text_input_event(self, event):
         if event.type == pygame.KEYDOWN:
-            if str(event.unicode) in (string.digits + string.ascii_letters + " "):
+            if str(event.unicode) in (string.digits + string.ascii_letters + string.punctuation + " "):
                 text_input_event = pygame.event.Event(self.TEXT_INPUT_EVENT, {"key": str(event.unicode)})
                 pygame.event.post(text_input_event)
 

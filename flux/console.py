@@ -20,14 +20,19 @@ class Console:
 
         self.layer = "layer_999"
         self.text = ""
+        self.pause = False
+
+    def log(self, msg):
+        if not self.pause:
+            self.history.append(msg)
 
     def calc_openess(self, amount):
         self.open_amount = amount
         ratio = self.open_dict[self.open_amount]
         self.target_openess = Display.y * ratio
 
-    def update(self, delta_time):
-        font = pygame.font.Font('freesansbold.ttf', 14)
+    def update(self, dt):
+        font = pygame.font.SysFont('Consolas', 18)
 
         if events.key_pressed("TAB", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MAX":
@@ -46,12 +51,17 @@ class Console:
                 Layer.set_layer("layer_999")
 
         if self.y > self.target_openess:
-            self.y -= 1 * delta_time
-        if self.y < self.target_openess:
-            self.y += 1 * delta_time
+            self.y -= 1000 * dt
+            if self.y < self.target_openess:
+                self.y = self.target_openess
 
-        self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, Display.x, self.y))
-        self.console_textfield = pygame.draw.rect(Display.fake_display, (30, 201, 181), (0, self.y - 20, Display.x, 20))
+        if self.y < self.target_openess:
+            self.y += 1000 * dt
+            if self.y > self.target_openess:
+                self.y = self.target_openess
+
+        self.console_background = pygame.draw.rect(Display.fake_display, (39, 40, 34), (0, 0, Display.x, self.y))
+        self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
 
         key = events.handle_text_input_event("layer_999")
         if key:
@@ -62,19 +72,16 @@ class Console:
             self.history.append(self.text)
             self.text = ""
 
-        input_box = pygame.Rect(0, self.y - 20, Display.x, 20)
-        txt_surface = font.render(self.text, True, (30, 30, 30))
-        width = max(200, txt_surface.get_width() + 10)
-        input_box.w = width
-        Display.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
-        pygame.draw.rect(Display.fake_display, (30, 201, 181), input_box, 2)
+        txt_surface = font.render(self.text, True, (255, 175, 0))
+        Display.blit(txt_surface, (self.console_textfield.x + 5, self.console_textfield.y + 2))
+        pygame.draw.rect(Display.fake_display, (60, 61, 56), self.console_textfield, 2)
 
         for i, value in enumerate(reversed(self.history)):
-            text = font.render(value, True, (30, 30, 30))
+            text = font.render(value, True, (255, 175, 0))
 
             text_rect = text.get_rect()
             text_rect.x = 5
-            text_rect.y = self.y - 40 - (20 * i)
+            text_rect.y = self.y - 45 - (20 * i)
             Display.blit_text(text, text_rect)
 
 

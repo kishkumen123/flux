@@ -12,7 +12,7 @@ from console import console
 
 class Flux:
 
-    def __init__(self, play_time=0, fps=30):
+    def __init__(self, play_time=0, fps=60):
         self.fps = fps
         self.play_time = play_time
         self.clock = pygame.time.Clock()
@@ -39,7 +39,7 @@ class Flux:
         return self.clock.get_fps()
 
     def update_delta_time(self):
-        self._delta_time = self.clock.tick(self.fps)
+        self._delta_time = self.clock.tick(self.fps) / 1000
         self._elapsed_time += self._delta_time / 1000.0
 
     @property
