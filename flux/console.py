@@ -31,9 +31,13 @@ class Console:
             self.y = self.calc_openess("MAX")
             Layer.set_layer("layer_999")
 
-        if events.key_pressed("TAB", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
-            self.y = self.calc_openess("MIN")
-            Layer.set_layer("layer_999")
+        if events.key_pressed_once("TAB", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
+            if self.open_amount == "MIN":
+                self.y = self.calc_openess("CLOSED")
+                Layer.set_layer("layer_0")
+            else:
+                self.y = self.calc_openess("MIN")
+                Layer.set_layer("layer_999")
 
         if events.key_pressed_once("ESCAPE", "layer_999"):
             self.y = self.calc_openess("CLOSED")
@@ -65,7 +69,6 @@ class Console:
             text_rect.x = 5
             text_rect.y = self.y - 40 - (20 * i)
             Display.blit_text(text, text_rect)
-
 
 
 console = Console()

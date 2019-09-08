@@ -23,6 +23,10 @@ class Events:
             if "K_" in name:
                 new_name = name.replace("K_", "")
                 self.__dict__[new_name] = pygame.__dict__[name]
+            else:
+                constant = pygame.__dict__[name]
+                if type(constant) == int:
+                    self.__dict__[name] = pygame.__dict__[name]
 
     def handle_text_input_event(self, layer="layer_0"):
         if layer == Layer.get_layer() or layer == "layer_all":
