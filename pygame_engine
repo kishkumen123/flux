@@ -58,3 +58,15 @@ IMPROVEMENTS:
 	make calls through engine not graphics library, (every call should be an engine call at some point.
 		pygame calls should be happening in the background)
 	...
+
+
+---TODO---
+
+text input:
+	cursor
+	movable curosor with arrows
+	edite at cursor position
+	tab complete 
+	hold repeat on text input and backspace - needs to be handled in events as part of key_pressed bool True or another type of key pressed
+	process input as commands, maybe dont add to history anymore and instead output recognized command success "success command - %s" and unrecognized command fail "unrecognized command - %s"
+	
