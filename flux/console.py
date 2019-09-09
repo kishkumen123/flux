@@ -60,29 +60,30 @@ class Console:
             if self.y > self.target_openess:
                 self.y = self.target_openess
 
-        self.console_background = pygame.draw.rect(Display.fake_display, (39, 40, 34), (0, 0, Display.x, self.y))
-        self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
+        if self.y != 0:
+            self.console_background = pygame.draw.rect(Display.fake_display, (39, 40, 34), (0, 0, Display.x, self.y))
 
-        key = events.handle_text_input_event("layer_999")
-        if key:
-            self.text += key
-        if events.key_pressed_once("BACKSPACE", "layer_999"):
-            self.text = self.text[:-1]
-        if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
-            self.history.append(self.text)
-            self.text = ""
+            key = events.handle_text_input_event("layer_999")
+            if key:
+                self.text += key
+            if events.key_pressed_once("BACKSPACE", "layer_999"):
+                self.text = self.text[:-1]
+            if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
+                self.history.append(self.text)
+                self.text = ""
 
-        txt_surface = font.render(self.text, True, (255, 175, 0))
-        Display.blit(txt_surface, (self.console_textfield.x + 5, self.console_textfield.y + 2))
-        pygame.draw.rect(Display.fake_display, (60, 61, 56), self.console_textfield, 2)
+            input_box = pygame.Rect(0, self.y - 22, Display.x, 22)
+            self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), input_box)
+            txt_surface = font.render(self.text, True, (255, 175, 0))
+            Display.blit(txt_surface, (input_box.x + 5, input_box.y + 2))
 
-        for i, value in enumerate(reversed(self.history)):
-            text = font.render(value, True, (255, 175, 0))
+            for i, value in enumerate(reversed(self.history)):
+                text = font.render(value, True, (255, 175, 0))
 
-            text_rect = text.get_rect()
-            text_rect.x = 5
-            text_rect.y = self.y - 45 - (20 * i)
-            Display.blit_text(text, text_rect)
+                text_rect = text.get_rect()
+                text_rect.x = 5
+                text_rect.y = self.y - 40 - (20 * i)
+                Display.blit_text(text, text_rect)
 
 
 console = Console()

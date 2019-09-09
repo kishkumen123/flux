@@ -1,0 +1,60 @@
+Engine names: 
+	Flux Engine
+
+approuch:
+	Engine development environment (entire implementation of engine which uses pygame in the background)
+		engine imports pygame
+	Sandbox development environment (sandbox to use engine in order to test and play with its components)
+		sandbox imports engine, which imports pygame (so anything thats not improved/implemented can just use pygame directry)
+
+GUI:
+	console(allows you to look at values and variables, load levels and worlds, debug and so on so forth)
+		big console, small console, both toggle
+	prefabs(drag and drop prefabs into the game)
+	folder/file manager(create sub directories and manage your game files and assets)
+	pause, frame by frame stepping feature, (maybe rewind)(pause button, left right arrows, play button)(play x speed 0.1-1-5)
+	recording feature(to play back segments of gameplay and look at values and variables as they change)
+	drag drop tiles (mouse)
+	resizable tiles (mouse)
+	resizable coliders (mouse)
+	changable variables(xyz, size, ext)
+
+OTHER:
+	parent child relationships
+	optional? ecs (have the work flow complete so that user can just create entities, give them components,
+		and have systems interact with those components if they exist in the world)
+
+	layers, layer indicators to show only things on certain layers or toggle on off
+		small numbers indicating what layer each sprite/image is on
+
+
+	mouse wheel zoom in/out (maybe)
+	left mouse hold drag left right up down (camera)
+
+	debug release modes. Have debug elements not present when you release
+		create a way to release an installer/exe
+	hotloading
+	logging
+	asserts
+	screenshots
+
+Quality of life:
+
+
+Engine:
+	make entry point
+	key codes
+	renderer
+	window
+	events: there are built in events, but want to look into writing my own. Should have an event buffer with an event bus
+		and process them during the "event" part of the update stage
+	loading images/sprites/ects
+
+IMPROVEMENTS:
+	make sprite sheets easier
+	make standard pygame stuff easier (drawing, etc)
+	make font/text better
+	make a renderer
+	make calls through engine not graphics library, (every call should be an engine call at some point.
+		pygame calls should be happening in the background)
+	...
