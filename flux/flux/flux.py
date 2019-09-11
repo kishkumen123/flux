@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pygame
+import globals
 
 from events import events
 from mouse import Mouse
@@ -18,7 +19,6 @@ class Flux:
         self.clock = pygame.time.Clock()
         self._delta_time = 0
         self.miliseconds = 0
-        self.running = True
         self.display = None
         self._elapsed_time = 0
         self.poly = None
@@ -65,7 +65,7 @@ class Flux:
         pygame.quit()
 
     def is_running(self):
-        return self.running
+        return globals.running
 
     def key_pressed(self, key, layer="layer_0"):
         return events.key_pressed(key, layer)
@@ -87,4 +87,4 @@ class Flux:
         events.update()
 
     def kill(self):
-        self.running = False
+        globals.running = False

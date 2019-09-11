@@ -2,15 +2,17 @@ import pygame
 from screen import Display
 from layer import Layer
 from events import events
+from commands import init_commands, run_command
 
 
 class Console:
+    init_commands()
 
     def __init__(self):
         self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, 100, 0))
         self.console_textfield = pygame.draw.rect(Display.fake_display, (138, 201, 181), (0, 0, 100, 0))
         self.current_opennes = 0
-        self.history = ["load level1", "debug on", "wireframe on"]
+        self.history = []
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
 
         self.open_amount = "CLOSED"
@@ -22,14 +24,13 @@ class Console:
         self.text = ""
         self.pause = False
 
-    def log(self, msg):
-        if not self.pause:
-            self.history.append(msg)
-
     def calc_openess(self, amount):
         self.open_amount = amount
         ratio = self.open_dict[self.open_amount]
         self.target_openess = Display.y * ratio
+
+    def add_to_history(self, command):
+        self.history.append(command)
 
     def update(self, dt):
         font = pygame.font.SysFont('Consolas', 18)
@@ -69,7 +70,8 @@ class Console:
             if events.key_pressed_once("BACKSPACE", "layer_999"):
                 self.text = self.text[:-1]
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
-                self.history.append(self.text)
+                self.add_to_history(self.text)
+                run_command(self.text)
                 self.text = ""
 
             input_box = pygame.Rect(0, self.y - 22, Display.x, 22)
