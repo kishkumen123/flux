@@ -63,10 +63,12 @@ IMPROVEMENTS:
 ---TODO---
 
 text input:
-	cursor
+	blinking cursor
 	movable curosor with arrows
 	edite at cursor position
 	tab complete 
 	hold repeat on text input and backspace - needs to be handled in events as part of key_pressed bool True or another type of key pressed
+	wrapping lines
+done:
 	process input as commands, maybe dont add to history anymore and instead output recognized command success "success command - %s" and unrecognized command fail "unrecognized command - %s"
 	
