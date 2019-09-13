@@ -1,9 +1,7 @@
 import globals
-#from console import console
 
 commands = []
 
-#all these prints need to be changed to console.add_to_history() once we fix the circular import issue
 
 class CommandInfo:
     name = None
@@ -13,8 +11,11 @@ class CommandInfo:
 
 
 def init_commands():
-    add_command("ls", command_ls, 1, 1)
     add_command("quit", command_quit)
+    add_command("ls", command_ls, 1, 10)
+    add_command("a", command_a, 0, 3)
+    add_command("b", command_b, 1, 3)
+    add_command("c", command_c, 2, 4)
 
 
 def run_command(command_string):
@@ -30,18 +31,18 @@ def run_command(command_string):
         if command_name == command.name:
 
             if argument_count < command.arg_count_min or argument_count > command.arg_count_max:
-                if command.arg_count_min == command.arg_count_max:
-                    min_string = "" if command.arg_count_min == 1 else "s"
-                    print("Error: %s requires exactly %s argument%s - %s given" % (command_name, command.arg_count_min, min_string, argument_count))
-                    return
                 min_string = "" if command.arg_count_min == 1 else "s"
                 max_string = "" if command.arg_count_max == 1 else "s"
-                print("Error: %s requires at least %s argument%s and at most %s argument%s - %s given" % (command_name, command.arg_count_min, min_string, command.arg_count_max, max_string, argument_count))
+                if command.arg_count_min == command.arg_count_max:
+                    command_output("Error: %s requires exactly %s argument%s - %s given" % (command_name, command.arg_count_min, min_string, argument_count))
+                    return
+                command_output("Error: %s requires at least %s argument%s and at most %s argument%s - %s given" % (command_name, command.arg_count_min, min_string, command.arg_count_max, max_string, argument_count))
                 return
 
             command.proc(non_command_arguments)
             return
-    print("Command %s - not known" % command_name)
+    #command_output("Command %s - not known" % command_name)
+    command_output("Command %s not know - arguments %s" % (command_name, non_command_arguments))
 
 
 def add_command(name, proc, arg_count_min=0, arg_count_max=0):
@@ -53,21 +54,36 @@ def add_command(name, proc, arg_count_min=0, arg_count_max=0):
     commands.append(info)
 
 
-#def command_output(command):
-    #console.add_to_histroy(command)
+def command_output(command):
+    globals.history.append(command)
+
+
+def command_a(arguments):
+    command_output("We called a with arguments: %s" % arguments)
+
+
+def command_b(arguments):
+    command_output("We called b with arguments: %s" % arguments)
+
+
+def command_c(arguments):
+    command_output("We called c with arguments: %s" % arguments)
 
 
 def command_ls(arguments):
-    print("We called ls with arguments: %s" % arguments)
-    #command_output("We called ls!!")
+    command_output("We called ls with arguments: %s" % arguments)
+    command_output("We called ls!!")
 
 
 def command_quit(arguments):
     #command_output("Quiting Flux")
-    print("We called quit. existing flux!")
+    command_output("We called quit. existing flux!")
     globals.running = False
 
 
-init_commands()
-run_command("na")
-run_command("ls")
+#`init_commands()
+#`run_command("na")
+#`run_command("ls ldkfja      l dfjal djkf asdasd       alkfj")
+#`run_command("a")
+#`run_command("b 1")
+#`run_command("c 1 2")

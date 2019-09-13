@@ -1,4 +1,6 @@
 import pygame
+import globals
+
 from screen import Display
 from layer import Layer
 from events import events
@@ -12,7 +14,6 @@ class Console:
         self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, 100, 0))
         self.console_textfield = pygame.draw.rect(Display.fake_display, (138, 201, 181), (0, 0, 100, 0))
         self.current_opennes = 0
-        self.history = []
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
 
         self.open_amount = "CLOSED"
@@ -30,7 +31,7 @@ class Console:
         self.target_openess = Display.y * ratio
 
     def add_to_history(self, command):
-        self.history.append(command)
+        globals.history.append(command)
 
     def update(self, dt):
         font = pygame.font.SysFont('Consolas', 18)
@@ -70,7 +71,7 @@ class Console:
             if events.key_pressed_once("BACKSPACE", "layer_999"):
                 self.text = self.text[:-1]
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
-                self.add_to_history(self.text)
+                #self.add_to_history(self.text)
                 run_command(self.text)
                 self.text = ""
 
@@ -79,7 +80,7 @@ class Console:
             txt_surface = font.render(self.text, True, (255, 175, 0))
             Display.blit(txt_surface, (input_box.x + 5, input_box.y + 2))
 
-            for i, value in enumerate(reversed(self.history)):
+            for i, value in enumerate(reversed(globals.history)):
                 text = font.render(value, True, (255, 175, 0))
 
                 text_rect = text.get_rect()
