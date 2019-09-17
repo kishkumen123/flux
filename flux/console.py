@@ -12,7 +12,10 @@ class Console:
 
     def __init__(self):
         self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, 100, 0))
-        self.console_textfield = pygame.draw.rect(Display.fake_display, (138, 201, 181), (0, 0, 100, 0))
+        self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, 0, 100, 0))
+        self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (0, 2, 15, 0))
+        self.curser_position_y = 15
+        self.curser_position_x = 5
         self.current_opennes = 0
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
 
@@ -71,14 +74,17 @@ class Console:
             if events.key_pressed_once("BACKSPACE", "layer_999"):
                 self.text = self.text[:-1]
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
-                #self.add_to_history(self.text)
                 run_command(self.text)
                 self.text = ""
 
-            input_box = pygame.Rect(0, self.y - 22, Display.x, 22)
-            self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), input_box)
+            self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
             txt_surface = font.render(self.text, True, (255, 175, 0))
-            Display.blit(txt_surface, (input_box.x + 5, input_box.y + 2))
+            real_cursor_position = self.curser_position_x + txt_surface.get_width()
+            if globals.cursor_underscore:
+                self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (real_cursor_position, self.y - 0, 8, 0))
+            else:
+                self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (real_cursor_position, self.y - 20, 10, 18))
+            Display.fake_display.blit(txt_surface, (self.console_textfield.x + 5, self.console_textfield.y + 2))
 
             for i, value in enumerate(reversed(globals.history)):
                 text = font.render(value, True, (255, 175, 0))

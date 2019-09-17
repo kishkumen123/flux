@@ -12,7 +12,7 @@ class CommandInfo:
 
 def init_commands():
     add_command("quit", command_quit)
-    add_command("ls", command_ls, 1, 10)
+    add_command("ls", command_ls, 1, 1)
     add_command("a", command_a, 0, 3)
     add_command("b", command_b, 1, 3)
     add_command("c", command_c, 2, 4)
@@ -41,8 +41,7 @@ def run_command(command_string):
 
             command.proc(non_command_arguments)
             return
-    #command_output("Command %s - not known" % command_name)
-    command_output("Command %s not know - arguments %s" % (command_name, non_command_arguments))
+    command_output("Command %s not known - arguments %s" % (command_name, non_command_arguments))
 
 
 def add_command(name, proc, arg_count_min=0, arg_count_max=0):
