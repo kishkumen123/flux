@@ -20,7 +20,6 @@ class Console:
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
 
         self.open_amount = "CLOSED"
-        self.openess = 0
         self.target_openess = 0
         self.y = 0
 
@@ -35,6 +34,17 @@ class Console:
 
     def add_to_history(self, command):
         globals.history.append(command)
+
+    def animate_console(self, dt):
+        if self.y > self.target_openess:
+            self.y -= 1000 * dt
+            if self.y < self.target_openess:
+                self.y = self.target_openess
+
+        if self.y < self.target_openess:
+            self.y += 1000 * dt
+            if self.y > self.target_openess:
+                self.y = self.target_openess
 
     def update(self, dt):
         font = pygame.font.SysFont('Consolas', 18)
@@ -55,18 +65,8 @@ class Console:
                 self.calc_openess("MIN")
                 Layer.set_layer("layer_999")
 
-        if self.y > self.target_openess:
-            self.y -= 1000 * dt
-            if self.y < self.target_openess:
-                self.y = self.target_openess
-
-        if self.y < self.target_openess:
-            self.y += 1000 * dt
-            if self.y > self.target_openess:
-                self.y = self.target_openess
-
-        if self.y != 0:
-            self.console_background = pygame.draw.rect(Display.fake_display, (39, 40, 34), (0, 0, Display.x, self.y))
+        self.animate_console(dt)
+        if self.y > 0:
 
             key = events.handle_text_input_event("layer_999")
             if key:
@@ -77,13 +77,15 @@ class Console:
                 run_command(self.text)
                 self.text = ""
 
+            self.console_background = pygame.draw.rect(Display.fake_display, (39, 40, 34), (0, 0, Display.x, self.y))
             self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
+
             txt_surface = font.render(self.text, True, (255, 175, 0))
-            real_cursor_position = self.curser_position_x + txt_surface.get_width()
+            cursor_position_offset = self.curser_position_x + txt_surface.get_width()
             if globals.cursor_underscore:
-                self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (real_cursor_position, self.y - 0, 8, 0))
+                self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (cursor_position_offset, self.y - 0, 8, 0))
             else:
-                self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (real_cursor_position, self.y - 20, 10, 18))
+                self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (cursor_position_offset, self.y - 20, 10, 18))
             Display.fake_display.blit(txt_surface, (self.console_textfield.x + 5, self.console_textfield.y + 2))
 
             for i, value in enumerate(reversed(globals.history)):
