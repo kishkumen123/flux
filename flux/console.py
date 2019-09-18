@@ -54,7 +54,6 @@ class Console:
         self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
 
     def draw_cursor(self, txt_surface):
-        #sub_amount = self.cursor_index if self.cursor_index is not None else self.cursor_length
         sub_amount = self.cursor_length if self.cursor_length == self.cursor_index or self.cursor_index is None else self.cursor_index
         cursor_position_offset = self.cursor_position_x + txt_surface.get_width() - (10 * (self.cursor_length - sub_amount))
         if globals.cursor_underscore:
@@ -75,6 +74,10 @@ class Console:
         left = self.text[:self.cursor_index]
         right = self.text[self.cursor_index:]
         self.text = left + key + right
+        if self.cursor_index:
+            self.cursor_index += 1
+        else:
+            self.cursor_index = 1
 
     def update(self, dt):
         font = pygame.font.SysFont('Consolas', 18)
@@ -102,10 +105,7 @@ class Console:
 
             key = events.handle_text_input_event("layer_999")
             if key:
-                if self.cursor_index != self.cursor_length and self.cursor_index is not None:
-                    self.add_text_at_cursor(key)
-                else:
-                    self.text += key
+                self.add_text_at_cursor(key)
             if events.key_pressed_once("BACKSPACE", "layer_999"):
                 self.text = self.text[:-1]
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
@@ -123,13 +123,16 @@ class Console:
                 if self.cursor_index is not None:
                     if self.cursor_index < self.cursor_length:
                         self.cursor_index += 1
+                    if self.cursor_index == self.cursor_length:
+                        self.cursor_index = None
 
             if events.key_pressed_once("UP", "layer_999"):
                 if self.history_index is None:
                     self.history_index = self.history_length
-                if self.history_index != 0:
+                if self.history_index > 0:
                     self.history_index -= 1
-                self.text = globals.history_input[self.history_index]
+                if len(globals.history_input):
+                    self.text = globals.history_input[self.history_index]
             if events.key_pressed_once("DOWN", "layer_999"):
                 if self.history_index is not None:
                     self.history_index += 1

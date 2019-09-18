@@ -27,6 +27,7 @@ def run_command(command_string):
     non_command_arguments = command_array[1:]
     argument_count = len(non_command_arguments)
     command_input(command_string)
+    print(non_command_arguments)
 
     for command in commands:
         if command_name == command.name:
