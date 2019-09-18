@@ -14,19 +14,21 @@ class Console:
         self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, 100, 0))
         self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, 0, 100, 0))
         self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (0, 2, 15, 0))
-        self.curser_position_y = 15
-        self.curser_position_x = 5
+        self.cursor_position_y = 15
+        self.cursor_position_x = 5
         self.current_opennes = 0
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
         self.history_length = len(globals.history_input)
         self.history_index = None
+        self.text = ""
+        self.cursor_length = len(self.text)
+        self.cursor_index = None
 
         self.open_amount = "CLOSED"
         self.target_openess = 0
         self.y = 0
 
         self.layer = "layer_999"
-        self.text = ""
         self.pause = False
 
     def calc_openess(self, amount):
@@ -52,7 +54,9 @@ class Console:
         self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
 
     def draw_cursor(self, txt_surface):
-        cursor_position_offset = self.curser_position_x + txt_surface.get_width()
+        #sub_amount = self.cursor_index if self.cursor_index is not None else self.cursor_length
+        sub_amount = self.cursor_length if self.cursor_length == self.cursor_index or self.cursor_index is None else self.cursor_index
+        cursor_position_offset = self.cursor_position_x + txt_surface.get_width() - (10 * (self.cursor_length - sub_amount))
         if globals.cursor_underscore:
             self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (cursor_position_offset, self.y - 0, 8, 0))
         else:
@@ -67,9 +71,15 @@ class Console:
             text_rect.y = self.y - 40 - (20 * i)
             Display.blit_text(text, text_rect)
 
+    def add_text_at_cursor(self, key):
+        left = self.text[:self.cursor_index]
+        right = self.text[self.cursor_index:]
+        self.text = left + key + right
+
     def update(self, dt):
         font = pygame.font.SysFont('Consolas', 18)
         self.history_length = len(globals.history_input)
+        self.cursor_length = len(self.text)
 
         if events.key_pressed("TAB", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MAX":
@@ -92,17 +102,28 @@ class Console:
 
             key = events.handle_text_input_event("layer_999")
             if key:
-                self.text += key
+                if self.cursor_index != self.cursor_length and self.cursor_index is not None:
+                    self.add_text_at_cursor(key)
+                else:
+                    self.text += key
             if events.key_pressed_once("BACKSPACE", "layer_999"):
                 self.text = self.text[:-1]
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
                 run_command(self.text)
                 self.text = ""
                 self.history_index = None
+                self.cursor_index = None
+
             if events.key_pressed_once("LEFT", "layer_999"):
-                pass
+                if self.cursor_index is None:
+                    self.cursor_index = self.cursor_length
+                if self.cursor_index > 0:
+                    self.cursor_index -= 1
             if events.key_pressed_once("RIGHT", "layer_999"):
-                pass
+                if self.cursor_index is not None:
+                    if self.cursor_index < self.cursor_length:
+                        self.cursor_index += 1
+
             if events.key_pressed_once("UP", "layer_999"):
                 if self.history_index is None:
                     self.history_index = self.history_length
