@@ -64,11 +64,12 @@ IMPROVEMENTS:
 
 text input:
 	blinking cursor
-	movable curosor with arrows
-	edite at cursor position
 	tab complete 
 	hold repeat on text input and backspace - needs to be handled in events as part of key_pressed bool True or another type of key pressed
 	wrapping lines
+	pressing down to 0 index doesnt bring pap textbox text, needs to come back
 done:
+	movable curosor with arrows
+	edite at cursor position
+	up down arrow to go to history
 	process input as commands, maybe dont add to history anymore and instead output recognized command success "success command - %s" and unrecognized command fail "unrecognized command - %s"
-	

@@ -81,12 +81,13 @@ class Console:
             self.cursor_index = 1
 
     def remove_text_at_cursor(self):
-        left = self.text[:self.cursor_index-1]
-        right = self.text[self.cursor_index:]
-        self.text = left + right
+        if self.cursor_index is not None:
+            left = self.text[:self.cursor_index-1]
+            right = self.text[self.cursor_index:]
+            self.text = left + right
 
-        if self.cursor_index > 0:
-            self.cursor_index -= 1
+            if self.cursor_index > 0:
+                self.cursor_index -= 1
 
     def run_command(self, text):
         run_command(text)
@@ -135,8 +136,6 @@ class Console:
                 if self.cursor_index is not None:
                     if self.cursor_index < self.cursor_length:
                         self.cursor_index += 1
-                        #if self.cursor_index >= self.cursor_index:
-                            #self.cursor_index -= 1
                     if self.cursor_index == self.cursor_length:
                         self.cursor_index = None
 
