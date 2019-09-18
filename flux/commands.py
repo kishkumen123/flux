@@ -26,6 +26,7 @@ def run_command(command_string):
     command_name = command_array[0]
     non_command_arguments = command_array[1:]
     argument_count = len(non_command_arguments)
+    command_input(command_string)
 
     for command in commands:
         if command_name == command.name:
@@ -41,7 +42,7 @@ def run_command(command_string):
 
             command.proc(non_command_arguments)
             return
-    command_output("Command %s not known - arguments %s" % (command_name, non_command_arguments))
+    command_output("Command [%s] not known" % command_name)
 
 
 def add_command(name, proc, arg_count_min=0, arg_count_max=0):
@@ -54,7 +55,11 @@ def add_command(name, proc, arg_count_min=0, arg_count_max=0):
 
 
 def command_output(command):
-    globals.history.append(command)
+    globals.history_output.append(command)
+
+
+def command_input(command):
+    globals.history_input.append(command)
 
 
 def command_a(arguments):

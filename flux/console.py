@@ -18,6 +18,8 @@ class Console:
         self.curser_position_x = 5
         self.current_opennes = 0
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
+        self.history_length = len(globals.history_input)
+        self.history_index = None
 
         self.open_amount = "CLOSED"
         self.target_openess = 0
@@ -32,9 +34,6 @@ class Console:
         ratio = self.open_dict[self.open_amount]
         self.target_openess = Display.y * ratio
 
-    def add_to_history(self, command):
-        globals.history.append(command)
-
     def animate_console(self, dt):
         if self.y > self.target_openess:
             self.y -= 1000 * dt
@@ -46,8 +45,31 @@ class Console:
             if self.y > self.target_openess:
                 self.y = self.target_openess
 
+    def draw_background(self):
+        self.console_background = pygame.draw.rect(Display.fake_display, (39, 40, 34), (0, 0, Display.x, self.y))
+
+    def draw_textfield(self):
+        self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
+
+    def draw_cursor(self, txt_surface):
+        cursor_position_offset = self.curser_position_x + txt_surface.get_width()
+        if globals.cursor_underscore:
+            self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (cursor_position_offset, self.y - 0, 8, 0))
+        else:
+            self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (cursor_position_offset, self.y - 20, 10, 18))
+
+    def draw_history(self, font):
+        for i, value in enumerate(reversed(globals.history_output)):
+            text = font.render(value, True, (255, 175, 0))
+
+            text_rect = text.get_rect()
+            text_rect.x = 5
+            text_rect.y = self.y - 40 - (20 * i)
+            Display.blit_text(text, text_rect)
+
     def update(self, dt):
         font = pygame.font.SysFont('Consolas', 18)
+        self.history_length = len(globals.history_input)
 
         if events.key_pressed("TAB", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MAX":
@@ -76,25 +98,34 @@ class Console:
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
                 run_command(self.text)
                 self.text = ""
-
-            self.console_background = pygame.draw.rect(Display.fake_display, (39, 40, 34), (0, 0, Display.x, self.y))
-            self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
+                self.history_index = None
+            if events.key_pressed_once("LEFT", "layer_999"):
+                pass
+            if events.key_pressed_once("RIGHT", "layer_999"):
+                pass
+            if events.key_pressed_once("UP", "layer_999"):
+                if self.history_index is None:
+                    self.history_index = self.history_length
+                if self.history_index != 0:
+                    self.history_index -= 1
+                self.text = globals.history_input[self.history_index]
+            if events.key_pressed_once("DOWN", "layer_999"):
+                if self.history_index is not None:
+                    self.history_index += 1
+                    if self.history_index >= self.history_length:
+                        self.history_index = None
+                        self.text = ""
+                    else:
+                        self.text = globals.history_input[self.history_index]
 
             txt_surface = font.render(self.text, True, (255, 175, 0))
-            cursor_position_offset = self.curser_position_x + txt_surface.get_width()
-            if globals.cursor_underscore:
-                self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (cursor_position_offset, self.y - 0, 8, 0))
-            else:
-                self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (cursor_position_offset, self.y - 20, 10, 18))
+
+            self.draw_background()
+            self.draw_textfield()
+            self.draw_cursor(txt_surface)
+            self.draw_history(font)
+
             Display.fake_display.blit(txt_surface, (self.console_textfield.x + 5, self.console_textfield.y + 2))
-
-            for i, value in enumerate(reversed(globals.history)):
-                text = font.render(value, True, (255, 175, 0))
-
-                text_rect = text.get_rect()
-                text_rect.x = 5
-                text_rect.y = self.y - 40 - (20 * i)
-                Display.blit_text(text, text_rect)
 
 
 console = Console()

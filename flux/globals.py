@@ -1,3 +1,4 @@
 running = True
-history = []
+history_output = []
+history_input = []
 cursor_underscore = True
