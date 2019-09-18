@@ -54,6 +54,7 @@ class Console:
         self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
 
     def draw_cursor(self, txt_surface):
+        self.cursor_length = len(self.text)
         sub_amount = self.cursor_length if self.cursor_length == self.cursor_index or self.cursor_index is None else self.cursor_index
         cursor_position_offset = self.cursor_position_x + txt_surface.get_width() - (10 * (self.cursor_length - sub_amount))
         if globals.cursor_underscore:
@@ -74,10 +75,24 @@ class Console:
         left = self.text[:self.cursor_index]
         right = self.text[self.cursor_index:]
         self.text = left + key + right
-        if self.cursor_index:
+        if self.cursor_index is not None and self.cursor_index >= 0:
             self.cursor_index += 1
         else:
             self.cursor_index = 1
+
+    def remove_text_at_cursor(self):
+        left = self.text[:self.cursor_index-1]
+        right = self.text[self.cursor_index:]
+        self.text = left + right
+
+        if self.cursor_index > 0:
+            self.cursor_index -= 1
+
+    def run_command(self, text):
+        run_command(text)
+        self.text = ""
+        self.history_index = None
+        self.cursor_index = None
 
     def update(self, dt):
         font = pygame.font.SysFont('Consolas', 18)
@@ -107,12 +122,9 @@ class Console:
             if key:
                 self.add_text_at_cursor(key)
             if events.key_pressed_once("BACKSPACE", "layer_999"):
-                self.text = self.text[:-1]
+                self.remove_text_at_cursor()
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
-                run_command(self.text)
-                self.text = ""
-                self.history_index = None
-                self.cursor_index = None
+                self.run_command(self.text)
 
             if events.key_pressed_once("LEFT", "layer_999"):
                 if self.cursor_index is None:
@@ -123,6 +135,8 @@ class Console:
                 if self.cursor_index is not None:
                     if self.cursor_index < self.cursor_length:
                         self.cursor_index += 1
+                        #if self.cursor_index >= self.cursor_index:
+                            #self.cursor_index -= 1
                     if self.cursor_index == self.cursor_length:
                         self.cursor_index = None
 
