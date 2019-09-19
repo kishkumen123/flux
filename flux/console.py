@@ -21,6 +21,7 @@ class Console:
         self.history_length = len(globals.history_input)
         self.history_index = None
         self.text = ""
+        self.stored_text = self.text
         self.cursor_length = len(self.text)
         self.cursor_index = None
 
@@ -142,6 +143,7 @@ class Console:
             if events.key_pressed_once("UP", "layer_999"):
                 if self.history_index is None:
                     self.history_index = self.history_length
+                    self.stored_text = self.text
                 if self.history_index > 0:
                     self.history_index -= 1
                 if len(globals.history_input):
@@ -151,9 +153,15 @@ class Console:
                     self.history_index += 1
                     if self.history_index >= self.history_length:
                         self.history_index = None
-                        self.text = ""
+                        self.text = self.stored_text
+                        self.stored_text = ""
                     else:
                         self.text = globals.history_input[self.history_index]
+
+            if events.key_pressed_once("HOME", "layer_999"):
+                self.cursor_index = 0
+            if events.key_pressed_once("END", "layer_999"):
+                self.cursor_index = self.cursor_length
 
             txt_surface = font.render(self.text, True, (255, 175, 0))
 
