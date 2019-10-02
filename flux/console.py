@@ -82,7 +82,7 @@ class Console:
             self.cursor_index = 1
 
     def remove_text_at_cursor(self):
-        if self.cursor_index is not None:
+        if self.cursor_index is not None and self.cursor_index > 0:
             left = self.text[:self.cursor_index-1]
             right = self.text[self.cursor_index:]
             self.text = left + right
@@ -120,20 +120,20 @@ class Console:
         self.animate_console(dt)
         if self.y > 0:
 
-            key = events.handle_text_input_event("layer_999")
+            key = events.handle_text_input_event_repeat("layer_999")
             if key:
                 self.add_text_at_cursor(key)
-            if events.key_pressed_once("BACKSPACE", "layer_999"):
+            if events.key_pressed_repeat("BACKSPACE", "layer_999"):
                 self.remove_text_at_cursor()
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
                 self.run_command(self.text)
 
-            if events.key_pressed_once("LEFT", "layer_999"):
+            if events.key_pressed_repeat("LEFT", "layer_999"):
                 if self.cursor_index is None:
                     self.cursor_index = self.cursor_length
                 if self.cursor_index > 0:
                     self.cursor_index -= 1
-            if events.key_pressed_once("RIGHT", "layer_999"):
+            if events.key_pressed_repeat("RIGHT", "layer_999"):
                 if self.cursor_index is not None:
                     if self.cursor_index < self.cursor_length:
                         self.cursor_index += 1
@@ -148,6 +148,8 @@ class Console:
                     self.history_index -= 1
                 if len(globals.history_input):
                     self.text = globals.history_input[self.history_index]
+                    self.cursor_length = len(self.text)
+                    self.cursor_index = self.cursor_length
             if events.key_pressed_once("DOWN", "layer_999"):
                 if self.history_index is not None:
                     self.history_index += 1
@@ -157,6 +159,8 @@ class Console:
                         self.stored_text = ""
                     else:
                         self.text = globals.history_input[self.history_index]
+                    self.cursor_length = len(self.text)
+                    self.cursor_index = self.cursor_length
 
             if events.key_pressed_once("HOME", "layer_999"):
                 self.cursor_index = 0

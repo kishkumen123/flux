@@ -79,7 +79,6 @@ def command_ls(arguments):
     command_output("We called ls with arguments: %s" % arguments)
     command_output("We called ls!!")
 
-
 def command_quit(arguments):
     #command_output("Quiting Flux")
     command_output("We called quit. existing flux!")

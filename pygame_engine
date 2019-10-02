@@ -63,12 +63,12 @@ IMPROVEMENTS:
 ---TODO---
 
 text input:
-	blinking cursor
 	tab complete 
 	hold repeat on text input and backspace - needs to be handled in events as part of key_pressed bool True or another type of key pressed
 	wrapping lines
-	pressing down to 0 index doesnt bring pap textbox text, needs to come back
+	mouse scrollwheel for output
 done:
+	pressing down to 0 index doesnt bring back textbox text, needs to come back
 	movable curosor with arrows
 	edite at cursor position
 	up down arrow to go to history
