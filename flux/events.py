@@ -29,7 +29,7 @@ class Events:
         self.second_tick_txt = False
         self.repeat_timer_txt = 0.05
         self.first_stroke_timer_txt = 0.5
-        self.last_key_pressed_text = None
+        self.last_key_pressed_txt = None
 
         self.valid_text_list = string.digits + string.ascii_letters + string.punctuation + " "
 
@@ -51,6 +51,39 @@ class Events:
                 if event.type == self.TEXT_INPUT_EVENT_DOWN:
                     return event.key
         return None
+
+    def handle_text_input_event_repeat(self, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            for event in self.events_triggered:
+                if event.type == self.TEXT_INPUT_EVENT_DOWN:
+                    last_key_pressed = event.key
+                    if self.last_key_pressed_txt != last_key_pressed:
+                        self.start_ticks_txt = None
+                        self.first_click_txt = False
+                        self.second_tick_txt = False
+                    self.last_key_pressed_txt = last_key_pressed
+                if event.type == self.TEXT_INPUT_EVENT_UP:
+                    if event.key == self.last_key_pressed_txt:
+                        self.last_key_pressed_txt = None
+
+            if self.last_key_pressed_txt is not None:
+                if self.start_ticks_txt is None:
+                    self.start_ticks_txt = pygame.time.get_ticks()
+                elapsed_time = (pygame.time.get_ticks() - self.start_ticks_txt) / 1000
+                if self.first_click_txt is False:
+                    self.first_click_txt = True
+                    return self.last_key_pressed_txt
+                elif elapsed_time > self.first_stroke_timer_txt and self.second_tick_txt is False:
+                    self.second_tick_txt = True
+                    self.start_ticks_txt = None
+                elif elapsed_time > self.repeat_timer_txt and self.second_tick_txt:
+                    self.start_ticks_txt = None
+                    return self.last_key_pressed_txt
+            else:
+                self.start_ticks_txt = None
+                self.first_click_txt = False
+                self.second_tick_txt = False
+                return None
 
     def key_pressed_repeat(self, key, layer="layer_0"):
         if layer == Layer.get_layer() or layer == "layer_all":
@@ -82,77 +115,6 @@ class Events:
                 self.second_tick = False
                 self.last_key_pressed = None
                 return False
-
-    def handle_text_input_event_repeat(self, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
-            for event in self.events_triggered:
-                if event.type == self.TEXT_INPUT_EVENT_DOWN:
-                    last_key_pressed = event.key
-                    if self.last_key_pressed_text != last_key_pressed:
-                        self.start_ticks_txt = None
-                        self.first_click_txt = False
-                        self.second_tick_txt = False
-                    self.last_key_pressed_text = last_key_pressed
-                if event.type == self.TEXT_INPUT_EVENT_UP:
-                    if event.key == self.last_key_pressed_text:
-                        self.last_key_pressed_text = None
-
-            print(self.last_key_pressed_text)
-            if self.last_key_pressed_text is not None:
-                if self.start_ticks_txt is None:
-                    self.start_ticks_txt = pygame.time.get_ticks()
-                elapsed_time = (pygame.time.get_ticks() - self.start_ticks_txt) / 1000
-                if self.first_click_txt is False:
-                    self.first_click_txt = True
-                    return self.last_key_pressed_text
-                if elapsed_time > self.first_stroke_timer_txt and self.second_tick_txt is False:
-                    self.second_tick_txt = True
-                    self.start_ticks_txt = None
-                if elapsed_time > self.repeat_timer_txt and self.second_tick_txt:
-                    self.start_ticks_txt = None
-                    return self.last_key_pressed_text
-                #elif self.last_key_pressed_text != event.key:
-                    #print(11)
-                    #return None
-                else:
-                    self.start_ticks_txt = None
-                    self.first_click_txt = False
-                    self.second_tick_txt = False
-                    #self.last_key_pressed_text = None
-                    return None
-
-    #def handle_text_input_event_repeat(self, layer="layer_0"):
-    #    if layer == Layer.get_layer() or layer == "layer_all":
-    #        for event in self.events_triggered:
-    #            if event.type == self.TEXT_INPUT_EVENT_DOWN:
-    #                last_key_pressed = event.key
-    #                if self.last_key_pressed_text != last_key_pressed:
-    #                    self.start_ticks_txt = None
-    #                    self.first_click_txt = False
-    #                    self.second_tick_txt = False
-    #                self.last_key_pressed_text = last_key_pressed
-    #                if self.start_ticks_txt is None:
-    #                    self.start_ticks_txt = pygame.time.get_ticks()
-    #                elapsed_time = (pygame.time.get_ticks() - self.start_ticks_txt) / 1000
-    #                if self.first_click_txt is False:
-    #                    self.first_click_txt = True
-    #                    return event.key
-    #                if elapsed_time > self.first_stroke_timer_txt and self.second_tick_txt is False:
-    #                    self.second_tick_txt = True
-    #                    self.start_ticks_txt = None
-    #                if elapsed_time > self.repeat_timer_txt and self.second_tick_txt:
-    #                    self.start_ticks_txt = None
-    #                    return event.key
-    #            #elif self.last_key_pressed_text != event.key:
-    #            #print(11)
-    #            #return None
-    #            else:
-    #                print(11)
-    #                self.start_ticks_txt = None
-    #                self.first_click_txt = False
-    #                self.second_tick_txt = False
-    #                self.last_key_pressed_text = None
-    #                return None
 
     # capital letters are not working
     def key_pressed(self, key, layer="layer_0"):
