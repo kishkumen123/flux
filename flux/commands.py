@@ -13,6 +13,7 @@ class CommandInfo:
 def init_commands():
     add_command("quit", command_quit)
     add_command("ls", command_ls, 1, 1)
+    add_command("clear", command_clear)
     add_command("a", command_a, 0, 3)
     add_command("b", command_b, 1, 3)
     add_command("c", command_c, 2, 4)
@@ -78,6 +79,12 @@ def command_c(arguments):
 def command_ls(arguments):
     command_output("We called ls with arguments: %s" % arguments)
     command_output("We called ls!!")
+
+
+def command_clear(arguments):
+    globals.history_output = []
+    command_output("history cleared!")
+
 
 def command_quit(arguments):
     #command_output("Quiting Flux")

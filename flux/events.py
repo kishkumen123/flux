@@ -10,6 +10,8 @@ class Events:
         self.keys_pressed = []
         self.mouse_pressed = []
         self.events_triggered = []
+        self.mouse_wheel_down = False
+        self.mouse_wheel_up = False
 
         self.MONE = 1
         self.MMIDDLE = 2
@@ -85,6 +87,20 @@ class Events:
                 self.second_tick_txt = False
                 return None
 
+    # capital letters are not working
+    def key_pressed(self, key, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            value = self.__dict__.get(key)
+            return value in self.keys_pressed
+
+    def key_pressed_once(self, key, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            value = self.__dict__.get(key)
+            if value in self.keys_pressed:
+                self.keys_pressed.remove(value)
+                return True
+        return False
+
     def key_pressed_repeat(self, key, layer="layer_0"):
         if layer == Layer.get_layer() or layer == "layer_all":
             value = self.__dict__.get(key)
@@ -116,20 +132,6 @@ class Events:
                 self.last_key_pressed = None
                 return False
 
-    # capital letters are not working
-    def key_pressed(self, key, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
-            value = self.__dict__.get(key)
-            return value in self.keys_pressed
-
-    def key_pressed_once(self, key, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
-            value = self.__dict__.get(key)
-            if value in self.keys_pressed:
-                self.keys_pressed.remove(value)
-                return True
-        return False
-
     def button_pressed(self, button):
         value = self.__dict__.get(button)
         return value in self.mouse_pressed
@@ -142,9 +144,14 @@ class Events:
 
         return False
 
-    def register_buttons_pressed(self, event):
+    def register_mouse_buttons_pressed(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_pressed.append(event.button)
+            if event.button == 5:
+                self.mouse_wheel_down = True
+            if event.button == 4:
+                self.mouse_wheel_up = True
+
         if event.type == pygame.MOUSEBUTTONUP:
             self.mouse_pressed.remove(event.button)
 
@@ -167,8 +174,11 @@ class Events:
     def update(self):
         self.events_triggered = pygame.event.get()
 
+        self.mouse_wheel_down = False
+        self.mouse_wheel_up = False
+
         for event in self.events_triggered:
-            self.register_buttons_pressed(event)
+            self.register_mouse_buttons_pressed(event)
             self.register_keys_pressed(event)
             self.register_text_input_event(event)
 

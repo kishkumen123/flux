@@ -15,7 +15,7 @@ class Mouse:
 
     @classmethod
     def button_pressed(cls, button):
-        mappings = {"MONE": 0, "MMIDDLE": 1, "MTWO": 2}
+        mappings = {"MONE": 0, "MMIDDLE": 1, "MTWO": 2, "WUP": 4, "WDOWN": 5}
         return cls.__dict__["MOUSEBUTTON"][mappings[button]]
 
     @classmethod

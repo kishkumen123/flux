@@ -4,6 +4,7 @@ import globals
 from screen import Display
 from layer import Layer
 from events import events
+from mouse import Mouse
 from commands import init_commands, run_command
 
 
@@ -24,6 +25,7 @@ class Console:
         self.stored_text = self.text
         self.cursor_length = len(self.text)
         self.cursor_index = None
+        self.scrollable = False
 
         self.open_amount = "CLOSED"
         self.target_openess = 0
@@ -31,6 +33,7 @@ class Console:
 
         self.layer = "layer_999"
         self.pause = False
+        self.mouse_wheel_offset = 0
 
     def calc_openess(self, amount):
         self.open_amount = amount
@@ -69,8 +72,13 @@ class Console:
 
             text_rect = text.get_rect()
             text_rect.x = 5
-            text_rect.y = self.y - 40 - (20 * i)
-            Display.blit_text(text, text_rect)
+            text_rect.y = self.y - 40 - (20 * i) + self.mouse_wheel_offset
+            if text_rect.y < 0:
+                self.scrollable = True
+            else:
+                self.scrollable = False
+            if text_rect.y < self.y - 20:
+                Display.blit_text(text, text_rect)
 
     def add_text_at_cursor(self, key):
         left = self.text[:self.cursor_index]
@@ -119,6 +127,14 @@ class Console:
 
         self.animate_console(dt)
         if self.y > 0:
+
+            if Mouse.get_pos()[1] < self.y:
+                if events.mouse_wheel_down:
+                    if self.mouse_wheel_offset != 0:
+                        self.mouse_wheel_offset -= 20
+                if events.mouse_wheel_up:
+                    if self.scrollable:
+                        self.mouse_wheel_offset += 20
 
             key = events.handle_text_input_event_repeat("layer_999")
             if key:
