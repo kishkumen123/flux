@@ -63,11 +63,15 @@ IMPROVEMENTS:
 ---TODO---
 
 text input:
-	tab complete 
-	hold repeat on text input and backspace - needs to be handled in events as part of key_pressed bool True or another type of key pressed
-	wrapping lines
-	mouse scrollwheel for output
+    important:
+        tab complete
+        copy paste to clipboard
+        print() to my console
+    not important:
+        wrapping lines
 done:
+	hold repeat on text input and backspace - needs to be handled in events as part of key_pressed bool True or another type of key pressed
+	mouse scrollwheel for output
 	pressing down to 0 index doesnt bring back textbox text, needs to come back
 	movable curosor with arrows
 	edite at cursor position

@@ -4,6 +4,7 @@ commands = []
 
 
 class CommandInfo:
+    tooltip = ""
     name = None
     proc = None
     arg_count_min = None
@@ -11,12 +12,10 @@ class CommandInfo:
 
 
 def init_commands():
-    add_command("quit", command_quit)
-    add_command("ls", command_ls, 1, 1)
-    add_command("clear", command_clear)
-    add_command("a", command_a, 0, 3)
-    add_command("b", command_b, 1, 3)
-    add_command("c", command_c, 2, 4)
+    add_command("ls", command_ls, 1, 1, "doesnt do anything usefull")
+    add_command("quit", command_quit, tooltip="quit the engine")
+    add_command("clear", command_clear, tooltip="clears console history")
+    add_command("help", command_help, 0, 1, tooltip="lists all commands")
 
 
 def run_command(command_string):
@@ -28,7 +27,6 @@ def run_command(command_string):
     non_command_arguments = command_array[1:]
     argument_count = len(non_command_arguments)
     command_input(command_string)
-    print(non_command_arguments)
 
     for command in commands:
         if command_name == command.name:
@@ -47,12 +45,13 @@ def run_command(command_string):
     command_output("Command [%s] not known" % command_name)
 
 
-def add_command(name, proc, arg_count_min=0, arg_count_max=0):
+def add_command(name, proc, arg_count_min=0, arg_count_max=0, tooltip=""):
     info = CommandInfo()
     info.name = name
     info.proc = proc
     info.arg_count_min = arg_count_min
     info.arg_count_max = arg_count_max
+    info.tooltip = tooltip
     commands.append(info)
 
 
@@ -87,14 +86,25 @@ def command_clear(arguments):
 
 
 def command_quit(arguments):
-    #command_output("Quiting Flux")
     command_output("We called quit. existing flux!")
     globals.running = False
 
 
-#`init_commands()
-#`run_command("na")
-#`run_command("ls ldkfja      l dfjal djkf asdasd       alkfj")
-#`run_command("a")
-#`run_command("b 1")
-#`run_command("c 1 2")
+def command_help(arguments):
+    if arguments:
+        found = False
+        for command in commands:
+            if command.name == arguments[0]:
+                command_output(command.name + " - " + command.tooltip)
+                found = True
+
+        if not found:
+            command_output(str(arguments[0]) + " - Unkown command")
+    else:
+        for command in commands:
+            command_output(command.name + " - " + command.tooltip)
+
+
+# TODO: logs to console
+def log():
+    pass

@@ -22,18 +22,18 @@ class Events:
         self.start_ticks = None
         self.first_click = False
         self.second_tick = False
-        self.repeat_timer = 0.05
-        self.first_stroke_timer = 0.5
+        self.repeat_timer = 0.04
+        self.first_stroke_timer = 0.4
         self.last_key_pressed = None
 
         self.start_ticks_txt = None
         self.first_click_txt = False
         self.second_tick_txt = False
-        self.repeat_timer_txt = 0.05
-        self.first_stroke_timer_txt = 0.5
+        self.repeat_timer_txt = 0.04
+        self.first_stroke_timer_txt = 0.4
         self.last_key_pressed_txt = None
 
-        self.valid_text_list = string.digits + string.ascii_letters + string.punctuation + " "
+        self.valid_text_list = string.digits + string.ascii_letters + string.punctuation + " space"
 
         self.assign_keys()
 
@@ -168,7 +168,11 @@ class Events:
                 pygame.event.post(text_input_event)
         if event.type == pygame.KEYUP:
             if pygame.key.name(event.key) in self.valid_text_list:
-                text_input_event = pygame.event.Event(self.TEXT_INPUT_EVENT_UP, {"type": "text_input_UP", "key": pygame.key.name(event.key)})
+                if pygame.key.name(event.key) == "space":
+                    key = " "
+                else:
+                    key = pygame.key.name(event.key)
+                text_input_event = pygame.event.Event(self.TEXT_INPUT_EVENT_UP, {"type": "text_input_up", "key": key})
                 pygame.event.post(text_input_event)
 
     def update(self):
