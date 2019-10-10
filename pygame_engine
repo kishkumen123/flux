@@ -64,12 +64,13 @@ IMPROVEMENTS:
 
 text input:
     important:
-        tab complete
+        tab complete from commands - second tab gets next item in list
+        ctrl r for history
         copy paste to clipboard
-        print() to my console
     not important:
         wrapping lines
 done:
+    print() to my console
 	hold repeat on text input and backspace - needs to be handled in events as part of key_pressed bool True or another type of key pressed
 	mouse scrollwheel for output
 	pressing down to 0 index doesnt bring back textbox text, needs to come back

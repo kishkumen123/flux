@@ -5,7 +5,7 @@ from screen import Display
 from layer import Layer
 from events import events
 from mouse import Mouse
-from commands import init_commands, run_command
+from commands import init_commands, run_command, get_commands
 
 
 class Console:
@@ -24,7 +24,7 @@ class Console:
         self.text = ""
         self.stored_text = self.text
         self.cursor_length = len(self.text)
-        self.cursor_index = None
+        self.cursor_index = 0
         self.scrollable = False
 
         self.open_amount = "CLOSED"
@@ -34,6 +34,7 @@ class Console:
         self.layer = "layer_999"
         self.pause = False
         self.mouse_wheel_offset = 0
+        self.auto_complete_command = ""
 
     def calc_openess(self, amount):
         self.open_amount = amount
@@ -102,13 +103,47 @@ class Console:
         run_command(text)
         self.text = ""
         self.history_index = None
-        self.cursor_index = None
+        self.cursor_index = 0
+
+    def set_auto_complete_command(self):
+        commands_found = []
+        if self.text != self.auto_complete_command:
+
+            for command in get_commands():
+                found = False
+
+                for index, letter in enumerate(self.text):
+                    if index < len(command.name):
+                        if letter == command.name[index]:
+                            found = True
+                        else:
+                            found = False
+                            break
+
+                if not found:
+                    if command.name in commands_found:
+                        commands_found.remove(command.name)
+                    continue
+                if found and command.name not in commands_found:
+                    commands_found.append(command.name)
+                elif command.name in commands_found:
+                    commands_found.remove(command.name)
+
+            if len(self.text) > 0 and len(commands_found) > 0:
+                commands_found.sort()
+                self.auto_complete_command = commands_found[0]
+            else:
+                self.auto_complete_command = ""
+
+    def adjust_cursor_position(self):
+        self.cursor_index = len(self.text)
 
     def update(self, dt):
         font = pygame.font.SysFont('Consolas', 18)
         self.history_length = len(globals.history_input)
         self.cursor_length = len(self.text)
 
+        #need to fix open/big open with tilda and not RSHIFT or TAB
         if events.key_pressed("TAB", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MAX":
                 self.calc_openess("CLOSED")
@@ -127,6 +162,7 @@ class Console:
 
         self.animate_console(dt)
         if self.y > 0:
+            self.set_auto_complete_command()
 
             if Mouse.get_pos()[1] < self.y:
                 if events.mouse_wheel_down:
@@ -139,22 +175,18 @@ class Console:
             key = events.handle_text_input_event_repeat("layer_999")
             if key:
                 self.add_text_at_cursor(key)
+
             if events.key_pressed_repeat("BACKSPACE", "layer_999"):
                 self.remove_text_at_cursor()
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
                 self.run_command(self.text)
 
             if events.key_pressed_repeat("LEFT", "layer_999"):
-                if self.cursor_index is None:
-                    self.cursor_index = self.cursor_length
                 if self.cursor_index > 0:
                     self.cursor_index -= 1
             if events.key_pressed_repeat("RIGHT", "layer_999"):
-                if self.cursor_index is not None:
-                    if self.cursor_index < self.cursor_length:
-                        self.cursor_index += 1
-                    if self.cursor_index == self.cursor_length:
-                        self.cursor_index = None
+                if self.cursor_index < self.cursor_length:
+                    self.cursor_index += 1
 
             if events.key_pressed_once("UP", "layer_999"):
                 if self.history_index is None:
@@ -182,8 +214,14 @@ class Console:
                 self.cursor_index = 0
             if events.key_pressed_once("END", "layer_999"):
                 self.cursor_index = self.cursor_length
+            if events.key_pressed_once("RSHIFT", "layer_999"):
+                self.text = self.auto_complete_command
+                self.auto_complete_command = ""
+                self.adjust_cursor_position()
 
             txt_surface = font.render(self.text, True, (255, 175, 0))
+            #text_difference = self.auto_complete_command[len(self.text):]
+            txt_surface_autocomplete = font.render(self.auto_complete_command, True, (255, 175, 0))
 
             self.draw_background()
             self.draw_textfield()
@@ -191,6 +229,7 @@ class Console:
             self.draw_history(font)
 
             Display.fake_display.blit(txt_surface, (self.console_textfield.x + 5, self.console_textfield.y + 2))
+            #Display.fake_display.blit(txt_surface_autocomplete, (self.console_textfield.x + 5 + len(self.text), self.console_textfield.y + 2))
 
 
 console = Console()

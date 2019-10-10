@@ -14,8 +14,15 @@ class CommandInfo:
 def init_commands():
     add_command("ls", command_ls, 1, 1, "doesnt do anything usefull")
     add_command("quit", command_quit, tooltip="quit the engine")
+    add_command("exit", command_quit, tooltip="quit the engine")
     add_command("clear", command_clear, tooltip="clears console history")
+    add_command("cloar", command_clear, tooltip="clears console history")
     add_command("help", command_help, 0, 1, tooltip="lists all commands")
+    add_command("hep", command_help, 0, 1, tooltip="lists all commands")
+
+
+def get_commands():
+    return commands
 
 
 def run_command(command_string):
@@ -56,23 +63,11 @@ def add_command(name, proc, arg_count_min=0, arg_count_max=0, tooltip=""):
 
 
 def command_output(command):
-    globals.history_output.append(command)
+    globals.history_output.append(str(command))
 
 
 def command_input(command):
     globals.history_input.append(command)
-
-
-def command_a(arguments):
-    command_output("We called a with arguments: %s" % arguments)
-
-
-def command_b(arguments):
-    command_output("We called b with arguments: %s" % arguments)
-
-
-def command_c(arguments):
-    command_output("We called c with arguments: %s" % arguments)
 
 
 def command_ls(arguments):
@@ -103,8 +98,3 @@ def command_help(arguments):
     else:
         for command in commands:
             command_output(command.name + " - " + command.tooltip)
-
-
-# TODO: logs to console
-def log():
-    pass

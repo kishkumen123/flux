@@ -1,5 +1,6 @@
 import pygame
 import string
+from commands import command_output
 
 from layer import Layer
 
@@ -172,6 +173,9 @@ class Events:
                     key = " "
                 else:
                     key = pygame.key.name(event.key)
+
+                if event.mod:
+                    key = key.upper()
                 text_input_event = pygame.event.Event(self.TEXT_INPUT_EVENT_UP, {"type": "text_input_up", "key": key})
                 pygame.event.post(text_input_event)
 
@@ -182,6 +186,7 @@ class Events:
         self.mouse_wheel_up = False
 
         for event in self.events_triggered:
+            print(event)
             self.register_mouse_buttons_pressed(event)
             self.register_keys_pressed(event)
             self.register_text_input_event(event)
