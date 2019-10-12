@@ -1,4 +1,5 @@
 import pygame
+from layer import Layer
 from screen import Display
 
 
@@ -14,9 +15,11 @@ class Mouse:
         return cls.Rect
 
     @classmethod
-    def button_pressed(cls, button):
-        mappings = {"MONE": 0, "MMIDDLE": 1, "MTWO": 2, "WUP": 4, "WDOWN": 5}
-        return cls.__dict__["MOUSEBUTTON"][mappings[button]]
+    def button_pressed(cls, button, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            mappings = {"MONE": 0, "MMIDDLE": 1, "MTWO": 2, "WUP": 4, "WDOWN": 5}
+            return cls.__dict__["MOUSEBUTTON"][mappings[button]]
+        return False
 
     @classmethod
     def update(cls):

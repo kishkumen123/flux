@@ -12,19 +12,20 @@ class Console:
     init_commands()
 
     def __init__(self):
+        self.text = ""
         self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, 100, 0))
         self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, 0, 100, 0))
         self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (0, 2, 15, 0))
         self.cursor_position_y = 15
         self.cursor_position_x = 5
+        self.cursor_length = len(self.text)
+        self.cursor_index = 0
+        self.cursor_color = (200, 200, 200)
         self.current_opennes = 0
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
         self.history_length = len(globals.history_input)
         self.history_index = None
-        self.text = ""
         self.stored_text = self.text
-        self.cursor_length = len(self.text)
-        self.cursor_index = 0
         self.scrollable = False
         self.search_history = False
 
@@ -37,7 +38,7 @@ class Console:
         self.mouse_wheel_offset = 0
         self.auto_complete_command = ""
 
-    def calc_openess(self, amount):
+    def set_openess(self, amount):
         self.open_amount = amount
         ratio = self.open_dict[self.open_amount]
         self.target_openess = Display.y * ratio
@@ -63,10 +64,10 @@ class Console:
         self.cursor_length = len(self.text)
         sub_amount = self.cursor_length if self.cursor_length == self.cursor_index or self.cursor_index is None else self.cursor_index
         cursor_position_offset = self.cursor_position_x + txt_surface.get_width() - (10 * (self.cursor_length - sub_amount))
-        if globals.cursor_underscore:
-            self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (cursor_position_offset, self.y - 0, 8, 0))
+        if globals.cursor_underscored:
+            self.cursor = pygame.draw.rect(Display.fake_display, self.cursor_color, (cursor_position_offset, self.y - 0, 8, 0))
         else:
-            self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (cursor_position_offset, self.y - 20, 10, 18))
+            self.cursor = pygame.draw.rect(Display.fake_display, self.cursor_color, (cursor_position_offset, self.y - 20, 10, 18))
 
     def draw_history(self, font):
         for i, value in enumerate(reversed(globals.history_output)):
@@ -137,19 +138,14 @@ class Console:
         commands_found = []
         for command in get_commands():
             found = False
-            if self.text != command.name:
-                for index, letter in enumerate(self.text):
-                    if index < len(command.name):
-                        if letter == command.name[index]:
-                            found = True
-                        else:
-                            found = False
-                            break
+            for index, letter in enumerate(self.text):
+                if len(self.text) <= len(command.name):
+                    if letter == command.name[index]:
+                        found = True
+                    else:
+                        found = False
+                        break
 
-            if not found:
-                if command.name in commands_found:
-                    commands_found.remove(command.name)
-                continue
             if found and command.name not in commands_found:
                 commands_found.append(command.name)
             elif command.name in commands_found:
@@ -169,27 +165,27 @@ class Console:
         self.history_length = len(globals.history_input)
         self.cursor_length = len(self.text)
 
+        if events.key_pressed_once("ESCAPE", "layer_999"):
+            self.set_openess("CLOSED")
+            Layer.pop_layer()
         if events.key_pressed("BACKQUOTE", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MAX":
-                self.calc_openess("CLOSED")
+                self.set_openess("CLOSED")
                 Layer.pop_layer()
             else:
-                self.calc_openess("MAX")
+                self.set_openess("MAX")
                 Layer.set_layer("layer_999")
 
         if events.key_pressed_once("BACKQUOTE", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MIN":
-                self.calc_openess("CLOSED")
+                self.set_openess("CLOSED")
                 Layer.pop_layer()
             else:
-                self.calc_openess("MIN")
+                self.set_openess("MIN")
                 Layer.set_layer("layer_999")
 
         self.animate_console(dt)
         if self.y > 0:
-            print(self.auto_complete_command)
-            self.set_auto_complete_command()
-
             if Mouse.get_pos()[1] < self.y:
                 if events.mouse_wheel_down:
                     if self.mouse_wheel_offset != 0:
@@ -205,13 +201,9 @@ class Console:
             if events.key_pressed_repeat("BACKSPACE", "layer_999"):
                 self.remove_text_at_cursor()
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
-                if self.auto_complete_command is not "":
-                    self.text = self.auto_complete_command
-                    self.auto_complete_command = ""
-                    self.adjust_cursor_position()
-                else:
-                    self.run_command(self.text)
-                    self.search_history = False
+                self.cursor_color = (200, 200, 200)
+                self.run_command(self.text)
+                self.search_history = False
 
             if events.key_pressed_repeat("LEFT", "layer_999"):
                 if self.cursor_index > 0:
@@ -248,13 +240,15 @@ class Console:
                 self.cursor_index = self.cursor_length
             if events.key_pressed_once("TAB", "layer_999"):
                 self.text = self.auto_complete_command
-                self.auto_complete_command = ""
                 self.adjust_cursor_position()
             if events.key_pressed("LCTRL", "layer_all") and events.key_pressed_once("r", "layer_all"):
                 self.search_history = True
 
             if self.search_history:
+                self.cursor_color = (200, 20, 20)
                 self.set_search_history()
+            else:
+                self.set_auto_complete_command()
 
             txt_surface = font.render(self.text, True, (255, 175, 0))
             text_difference = self.auto_complete_command[len(self.text):]

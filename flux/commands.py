@@ -16,9 +16,9 @@ def init_commands():
     add_command("quit", command_quit, tooltip="quit the engine")
     add_command("exit", command_quit, tooltip="quit the engine")
     add_command("clear", command_clear, tooltip="clears console history")
-    add_command("cloar", command_clear, tooltip="clears console history")
+    add_command("clearapple", command_clear, tooltip="clears console history")
     add_command("help", command_help, 0, 1, tooltip="lists all commands")
-    add_command("hep", command_help, 0, 1, tooltip="lists all commands")
+    add_command("cursor_underscored", command_cursor_underscored, 1, 1, tooltip="changes whether the cursor is underscored or full (0, 1)")
 
 
 def get_commands():
@@ -32,24 +32,24 @@ def run_command(command_string):
 
     command_name = command_array[0]
     non_command_arguments = command_array[1:]
-    argument_count = len(non_command_arguments)
+    #argument_count = len(non_command_arguments)
     command_input(command_string)
 
     for command in commands:
         if command_name == command.name:
 
-            if argument_count < command.arg_count_min or argument_count > command.arg_count_max:
-                min_string = "" if command.arg_count_min == 1 else "s"
-                max_string = "" if command.arg_count_max == 1 else "s"
-                if command.arg_count_min == command.arg_count_max:
-                    command_output("Error: %s requires exactly %s argument%s - %s given" % (command_name, command.arg_count_min, min_string, argument_count))
-                    return
-                command_output("Error: %s requires at least %s argument%s and at most %s argument%s - %s given" % (command_name, command.arg_count_min, min_string, command.arg_count_max, max_string, argument_count))
-                return
+            #if argument_count < command.arg_count_min or argument_count > command.arg#_count_max:
+            #    min_string = "" if command.arg_count_min == 1 else "s"
+            #    max_string = "" if command.arg_count_max == 1 else "s"
+            #    if command.arg_count_min == command.arg_count_max:
+            #        command_output("Error: %s requires exactly %s argument%s - %s given" % (command_na#me, command.arg_count_min, min_string, argument_count))
+            #        return
+            #    command_output("Error: %s requires at least %s argument%s and at most %s argument%s - %s given" % (command_name, command.arg_count_min, min_string, command.arg_count_max, max_string, argument_count))
+            #    return
 
             command.proc(non_command_arguments)
             return
-    command_output("Command [%s] not known" % command_name)
+    command_output("Uknown command \"%s\"" % command_name)
 
 
 def add_command(name, proc, arg_count_min=0, arg_count_max=0, tooltip=""):
@@ -83,6 +83,16 @@ def command_clear(arguments):
 def command_quit(arguments):
     command_output("We called quit. existing flux!")
     globals.running = False
+
+
+def command_cursor_underscored(arguments):
+    if len(arguments) == 0:
+        command_output("\"cursor_underscored\" = \"%s\"" % globals.cursor_underscored)
+    elif arguments[0] == "0" or arguments[0] == "1":
+        globals.cursor_underscored = int(arguments[0])
+        command_output("\"cursor_underscored\" = \"%s\"" % globals.cursor_underscored)
+    else:
+        command_output("invalid arguments. 0 or 1")
 
 
 def command_help(arguments):

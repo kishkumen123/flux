@@ -134,15 +134,19 @@ class Events:
                 self.last_key_pressed = None
                 return False
 
-    def button_pressed(self, button):
-        value = self.__dict__.get(button)
-        return value in self.mouse_pressed
+    def button_pressed(self, button, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            value = self.__dict__.get(button)
+            return value in self.mouse_pressed
 
-    def event_triggered(self, event_name):
-        value = self.__dict__.get(event_name)
-        for event in self.events_triggered:
-            if value == event.type:
-                return True
+        return False
+
+    def event_triggered(self, event_name, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            value = self.__dict__.get(event_name)
+            for event in self.events_triggered:
+                if value == event.type:
+                    return True
 
         return False
 
