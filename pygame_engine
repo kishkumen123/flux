@@ -62,6 +62,11 @@ IMPROVEMENTS:
 
 ---TODO---
 
+bugs:
+    also looks like there is a text_input and repeat functionality built in... pygame.key.___
+    special symbols on key up arnt registering cause they are mod=1
+    if ` or ~ it auto registers are text input, so need to accept on next key down
+
 text input:
     important:
         tab complete from commands - second tab gets next item in list

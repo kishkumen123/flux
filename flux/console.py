@@ -26,6 +26,7 @@ class Console:
         self.cursor_length = len(self.text)
         self.cursor_index = 0
         self.scrollable = False
+        self.search_history = False
 
         self.open_amount = "CLOSED"
         self.target_openess = 0
@@ -105,13 +106,38 @@ class Console:
         self.history_index = None
         self.cursor_index = 0
 
+    def set_search_history(self):
+        commands_found = []
+        for command in globals.history_input:
+            found = False
+            for index, letter in enumerate(self.text):
+                if index < len(command):
+                    if letter == command[index]:
+                        found = True
+                    else:
+                        found = False
+                        break
+
+            if not found:
+                if command in commands_found:
+                    commands_found.remove(command)
+                continue
+            if found and command not in commands_found:
+                commands_found.append(command)
+            elif command in commands_found:
+                commands_found.remove(command)
+
+        if len(self.text) > 0 and len(commands_found) > 0:
+            commands_found.sort()
+            self.auto_complete_command = commands_found[0]
+        else:
+            self.auto_complete_command = ""
+
     def set_auto_complete_command(self):
         commands_found = []
-        if self.text != self.auto_complete_command:
-
-            for command in get_commands():
-                found = False
-
+        for command in get_commands():
+            found = False
+            if self.text != command.name:
                 for index, letter in enumerate(self.text):
                     if index < len(command.name):
                         if letter == command.name[index]:
@@ -120,20 +146,20 @@ class Console:
                             found = False
                             break
 
-                if not found:
-                    if command.name in commands_found:
-                        commands_found.remove(command.name)
-                    continue
-                if found and command.name not in commands_found:
-                    commands_found.append(command.name)
-                elif command.name in commands_found:
+            if not found:
+                if command.name in commands_found:
                     commands_found.remove(command.name)
+                continue
+            if found and command.name not in commands_found:
+                commands_found.append(command.name)
+            elif command.name in commands_found:
+                commands_found.remove(command.name)
 
-            if len(self.text) > 0 and len(commands_found) > 0:
-                commands_found.sort()
-                self.auto_complete_command = commands_found[0]
-            else:
-                self.auto_complete_command = ""
+        if len(self.text) > 0 and len(commands_found) > 0:
+            commands_found.sort()
+            self.auto_complete_command = commands_found[0]
+        else:
+            self.auto_complete_command = ""
 
     def adjust_cursor_position(self):
         self.cursor_index = len(self.text)
@@ -143,8 +169,7 @@ class Console:
         self.history_length = len(globals.history_input)
         self.cursor_length = len(self.text)
 
-        #need to fix open/big open with tilda and not RSHIFT or TAB
-        if events.key_pressed("TAB", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
+        if events.key_pressed("BACKQUOTE", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MAX":
                 self.calc_openess("CLOSED")
                 Layer.pop_layer()
@@ -152,7 +177,7 @@ class Console:
                 self.calc_openess("MAX")
                 Layer.set_layer("layer_999")
 
-        if events.key_pressed_once("TAB", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
+        if events.key_pressed_once("BACKQUOTE", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MIN":
                 self.calc_openess("CLOSED")
                 Layer.pop_layer()
@@ -162,6 +187,7 @@ class Console:
 
         self.animate_console(dt)
         if self.y > 0:
+            print(self.auto_complete_command)
             self.set_auto_complete_command()
 
             if Mouse.get_pos()[1] < self.y:
@@ -179,7 +205,13 @@ class Console:
             if events.key_pressed_repeat("BACKSPACE", "layer_999"):
                 self.remove_text_at_cursor()
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
-                self.run_command(self.text)
+                if self.auto_complete_command is not "":
+                    self.text = self.auto_complete_command
+                    self.auto_complete_command = ""
+                    self.adjust_cursor_position()
+                else:
+                    self.run_command(self.text)
+                    self.search_history = False
 
             if events.key_pressed_repeat("LEFT", "layer_999"):
                 if self.cursor_index > 0:
@@ -214,14 +246,19 @@ class Console:
                 self.cursor_index = 0
             if events.key_pressed_once("END", "layer_999"):
                 self.cursor_index = self.cursor_length
-            if events.key_pressed_once("RSHIFT", "layer_999"):
+            if events.key_pressed_once("TAB", "layer_999"):
                 self.text = self.auto_complete_command
                 self.auto_complete_command = ""
                 self.adjust_cursor_position()
+            if events.key_pressed("LCTRL", "layer_all") and events.key_pressed_once("r", "layer_all"):
+                self.search_history = True
+
+            if self.search_history:
+                self.set_search_history()
 
             txt_surface = font.render(self.text, True, (255, 175, 0))
-            #text_difference = self.auto_complete_command[len(self.text):]
-            txt_surface_autocomplete = font.render(self.auto_complete_command, True, (255, 175, 0))
+            text_difference = self.auto_complete_command[len(self.text):]
+            txt_surface_autocomplete = font.render(text_difference, True, (120, 80, 0))
 
             self.draw_background()
             self.draw_textfield()
@@ -229,7 +266,7 @@ class Console:
             self.draw_history(font)
 
             Display.fake_display.blit(txt_surface, (self.console_textfield.x + 5, self.console_textfield.y + 2))
-            #Display.fake_display.blit(txt_surface_autocomplete, (self.console_textfield.x + 5 + len(self.text), self.console_textfield.y + 2))
+            Display.fake_display.blit(txt_surface_autocomplete, (self.console_textfield.x + 5 + txt_surface.get_width(), self.console_textfield.y + 2))
 
 
 console = Console()

@@ -1,6 +1,5 @@
 import pygame
 import string
-from commands import command_output
 
 from layer import Layer
 
@@ -35,6 +34,8 @@ class Events:
         self.last_key_pressed_txt = None
 
         self.valid_text_list = string.digits + string.ascii_letters + string.punctuation + " space"
+        self.valid_text_list = self.valid_text_list.replace("`", "")
+        self.valid_text_list = self.valid_text_list.replace("~", "")
 
         self.assign_keys()
 
@@ -186,7 +187,6 @@ class Events:
         self.mouse_wheel_up = False
 
         for event in self.events_triggered:
-            print(event)
             self.register_mouse_buttons_pressed(event)
             self.register_keys_pressed(event)
             self.register_text_input_event(event)
