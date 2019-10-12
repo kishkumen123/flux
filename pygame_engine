@@ -68,13 +68,16 @@ bugs:
     if ` or ~ it auto registers are text input, so need to accept on next key down
 
 text input:
+    improvements:
+        tab completes should turn into a second layer that shows a list of all
+        the available commands
     important:
-        tab complete from commands - second tab gets next item in list
-        ctrl r for history
         copy paste to clipboard
     not important:
         wrapping lines
 done:
+    tab complete from commands - second tab gets next item in list
+    ctrl r for history
     print() to my console
 	hold repeat on text input and backspace - needs to be handled in events as part of key_pressed bool True or another type of key pressed
 	mouse scrollwheel for output
