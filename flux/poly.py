@@ -48,8 +48,10 @@ class Poly:
         self.width = 0
 
     def update(self):
-        self.move_rect()
-        self.move_point()
+        if globals.focus is not None:
+            if globals.focus.name == self.name:
+                self.move_rect()
+                self.move_point()
 
     def move_rect(self):
         if globals.editor:
