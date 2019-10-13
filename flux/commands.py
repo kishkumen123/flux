@@ -12,11 +12,10 @@ class CommandInfo:
 
 
 def init_commands():
-    add_command("ls", command_ls, 1, 1, "doesnt do anything usefull")
+    add_command("editor", command_editor, tooltip="enables/disables editor mode")
     add_command("quit", command_quit, tooltip="quit the engine")
     add_command("exit", command_quit, tooltip="quit the engine")
     add_command("clear", command_clear, tooltip="clears console history")
-    add_command("clearapple", command_clear, tooltip="clears console history")
     add_command("help", command_help, 0, 1, tooltip="lists all commands")
     add_command("cursor_underscored", command_cursor_underscored, 1, 1, tooltip="changes whether the cursor is underscored or full (0, 1)")
 
@@ -32,9 +31,9 @@ def run_command(command_string):
 
     command_name = command_array[0]
     non_command_arguments = command_array[1:]
-    #argument_count = len(non_command_arguments)
     command_input(command_string)
 
+    #argument_count = len(non_command_arguments)
     for command in commands:
         if command_name == command.name:
 
@@ -83,6 +82,16 @@ def command_clear(arguments):
 def command_quit(arguments):
     command_output("We called quit. existing flux!")
     globals.running = False
+
+
+def command_editor(arguments):
+    if len(arguments) == 0:
+        command_output("\"editor\" = \"%s\"" % globals.editor)
+    elif arguments[0] == "0" or arguments[0] == "1":
+        globals.editor = int(arguments[0])
+        command_output("\"editor\" = \"%s\"" % globals.editor)
+    else:
+        command_output("invalid arguments. 0 or 1")
 
 
 def command_cursor_underscored(arguments):

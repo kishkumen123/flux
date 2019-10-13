@@ -1,11 +1,15 @@
+import globals
 import pygame
-from mouse import Mouse
+
+from mouse import mouse
 from events import events
 
 
 class Poly:
 
-    def __init__(self, color, points, surface, width=0):
+    def __init__(self, name, layer, color, points, surface, width=0):
+        self.layer = layer
+        self.name = name
         self.color = color
         self.points = list(points)
         self.width = width
@@ -15,6 +19,9 @@ class Poly:
         self.mouse_down = False
         self.pos_on_click = (0, 0)
         self.move_offset = None
+
+    def get_rect(self):
+        return self.rect
 
     def editable(self, value=True):
         self._editable = value
@@ -30,7 +37,7 @@ class Poly:
 
         return None
 
-    def contains_rect(self, rect):
+    def contains(self, rect):
         # this shit aint working right false positives retarded piece of garbage stanky ass shit
         return self.rect.contains(rect)
 
@@ -45,19 +52,21 @@ class Poly:
         self.move_point()
 
     def move_rect(self):
-        if self._editable:
-            if self.contains_rect(Mouse.get_rect()):
+        if globals.editor:
+            if self.contains(mouse.get_rect()):
                 if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
+                    mouse.focus = self
                     if self.move_offset is not None:
                         for i, _ in enumerate(self.points):
-                            self.points[i] = (Mouse.get_pos()[0] + self.move_offset[i][0], Mouse.get_pos()[1] + self.move_offset[i][1])
+                            self.points[i] = (mouse.get_pos()[0] + self.move_offset[i][0], mouse.get_pos()[1] + self.move_offset[i][1])
                 else:
-                    self.move_offset = [(self.points[i][0] - Mouse.get_pos()[0], self.points[i][1] - Mouse.get_pos()[1]) for i, _ in enumerate(self.points)]
+                    self.move_offset = [(self.points[i][0] - mouse.get_pos()[0], self.points[i][1] - mouse.get_pos()[1]) for i, _ in enumerate(self.points)]
 
     def move_point(self):
-        if self._editable:
+        if globals.editor:
             if events.button_pressed("MONE") and events.key_pressed("LSHIFT"):
-                index = self.intersects_rect_point(Mouse.get_rect())
+                mouse.focus = self
+                index = self.intersects_rect_point(mouse.get_rect())
                 if index is not None:
                     if index is not None and pygame.mouse.get_pressed()[0]:
-                        self.points[index] = Mouse.get_pos()
+                        self.points[index] = mouse.get_pos()

@@ -33,11 +33,23 @@ class Events:
         self.first_stroke_timer_txt = 0.4
         self.last_key_pressed_txt = None
 
-        self.valid_text_list = string.digits + string.ascii_letters + string.punctuation + " space"
+        self.valid_text_list = string.digits + string.ascii_letters + string.punctuation + " "
         self.valid_text_list = self.valid_text_list.replace("`", "")
         self.valid_text_list = self.valid_text_list.replace("~", "")
 
         self.assign_keys()
+
+    def key_converter(self, key):
+        if 87 <= key <= 122:
+            binary = bin(key)
+            new_binary = binary[:3] + "0" + binary[4:]
+            new_ascii = int(new_binary, 2)
+            new_key = chr(new_ascii)
+        else:
+            actual_key = chr(key)
+            mappings = {"1": "!", "2": "@", "3": "#", "4": "$", "5": "%", "6": "^", "7": "&", "8": "*", "9": "(", "0": ")", "-": "_", "=": "+", "[": "{", "]": "}", ";": ":", "'": "\"", ",": "<", ".": ">", "/": "?"}
+            new_key = mappings[actual_key]
+        return new_key
 
     def assign_keys(self):
         for name in dir(pygame):
@@ -179,9 +191,10 @@ class Events:
                 else:
                     key = pygame.key.name(event.key)
 
-                if event.mod:
-                    key = key.upper()
+                if event.mod == 1 or event.mod == 2:
+                    key = self.key_converter(event.key)
                 text_input_event = pygame.event.Event(self.TEXT_INPUT_EVENT_UP, {"type": "text_input_up", "key": key})
+                print(key)
                 pygame.event.post(text_input_event)
 
     def update(self):
@@ -191,6 +204,7 @@ class Events:
         self.mouse_wheel_up = False
 
         for event in self.events_triggered:
+            print(event)
             self.register_mouse_buttons_pressed(event)
             self.register_keys_pressed(event)
             self.register_text_input_event(event)

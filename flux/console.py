@@ -4,7 +4,7 @@ import globals
 from screen import Display
 from layer import Layer
 from events import events
-from mouse import Mouse
+from mouse import mouse
 from commands import init_commands, run_command, get_commands
 
 
@@ -186,7 +186,7 @@ class Console:
 
         self.animate_console(dt)
         if self.y > 0:
-            if Mouse.get_pos()[1] < self.y:
+            if mouse.get_pos()[1] < self.y:
                 if events.mouse_wheel_down:
                     if self.mouse_wheel_offset != 0:
                         self.mouse_wheel_offset -= 20

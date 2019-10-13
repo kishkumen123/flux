@@ -5,7 +5,7 @@ import pygame
 import globals
 
 from events import events
-from mouse import Mouse
+from mouse import mouse
 from screen import Display
 from poly import Poly
 from console import console
@@ -21,7 +21,6 @@ class Flux:
         self.miliseconds = 0
         self.display = None
         self._elapsed_time = 0
-        self.poly = None
 
     def init(self):
         pygame.init()
@@ -50,10 +49,24 @@ class Flux:
     def elapsed_time(self):
         return self._elapsed_time
 
-    def create_poly(self, color, points, surface=None, width=0):
+    def get_poly_dict(self):
+        return globals.poly_dict
+
+    def draw_poly(self):
+        for poly in globals.poly_dict:
+            poly.draw()
+
+    def create_poly(self, name, layer, color, points, surface=None, width=0):
         if surface is None:
             surface = self.display.fake_display
-        return Poly(color, points, surface, width)
+
+        #if layer not in globals.poly_dict.keys():
+        #    globals.poly_dict[layer] = []
+
+        temp = Poly(name, layer, color, points, surface, width)
+        globals.poly_dict.append(temp)
+
+        return temp
 
     def create_surface(self, size, color):
         surface = pygame.Surface(size).convert()
@@ -77,13 +90,13 @@ class Flux:
         return events.event_triggered(event, layer)
 
     def mousebutton_pressed(self, button, layer="layer_0"):
-        return Mouse.button_pressed(button, layer)
+        return mouse.button_pressed(button, layer)
 
     def update(self):
         self.update_delta_time()
         console.update(self.delta_time)
 
-        Mouse.update()
+        mouse.update()
         events.update()
 
     def kill(self):
