@@ -10,7 +10,6 @@ class Mouse:
 
     def __init__(self):
         self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
-        self.focus = None
 
     def get_pos(self):
         return pygame.mouse.get_pos()
@@ -28,14 +27,17 @@ class Mouse:
         self.rect.contains(rect)
 
     def update(self):
-        self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
+        if globals.editor:
+            self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
+            for obj in globals.poly_dict:
+                if obj.contains(self.rect):
+                    if events.button_pressed("MONE"):
+                        globals.focus = obj
 
-        for obj in globals.poly_dict:
-            if obj.contains(self.rect):
-                if events.button_pressed("MONE"):
-                    self.focus = obj
-
-        #print(self.focus)
+            if globals.focus is not None:
+                print(globals.focus.name)
+        else:
+            pass
 
 
 mouse = Mouse()
