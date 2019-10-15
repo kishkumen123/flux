@@ -27,28 +27,33 @@ class Mouse:
     def contains(self, rect):
         self.rect.contains(rect)
 
+    def calc_selector_highlighter_color(self, color):
+        r = 0
+        g = 0
+        b = 0
+        if color[0] + 100 <= 255:
+            r = color[0] + 100
+        else:
+            r = color[0] - 155
+        if color[1] + 100 <= 255:
+            g = color[1] + 100
+        else:
+            g = color[1] - 155
+        if color[2] + 100 <= 255:
+            b = color[2] + 100
+        else:
+            b = color[2] - 155
+        return (r, g, b)
+
+    # potential bug where it doesnt verify that the selection is different and ends up moving the new selection before recalculating postion - i think
+    # its more when my mouse is very close to an endge of one object and also on top of another object, possible double evaluations to True
+    # but also not really sure what is happening - more debugging needed
     def update(self):
         if globals.editor:
             if globals.get_selection():
-                color = globals.get_selection().color
-                r = None
-                g = None
-                b = None
-                if color[0] + 100 <= 255:
-                    r = color[0] + 100
-                else:
-                    r = color[0] - 155
-                if color[1] + 100 <= 255:
-                    g = color[1] + 100
-                else:
-                    g = color[1] - 155
-                if color[2] + 100 <= 255:
-                    b = color[2] + 100
-                else:
-                    b = color[2] - 155
-                new_color = (r, g, b)
+                color = self.calc_selector_highlighter_color(globals.get_selection().color)
 
-                self.selection_rect = pygame.draw.polygon(Display.fake_display, new_color, tuple(globals.get_selection().points), 3)
+                self.selection_rect = pygame.draw.polygon(Display.fake_display, color, tuple(globals.get_selection().points), 3)
 
             self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
             if events.button_pressed_once("MONE"):
@@ -56,9 +61,9 @@ class Mouse:
                 for obj in globals.poly_dict:
                     if obj.contains(self.rect):
                         found_obj = obj
+                        break
 
                 globals.set_selection(found_obj)
-            print(globals.get_selection())
 
         else:
             pass
