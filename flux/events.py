@@ -9,6 +9,7 @@ class Events:
     def __init__(self):
         self.keys_pressed = []
         self.mouse_pressed = []
+        self.mouse_pressed_once = []
         self.events_triggered = []
         self.mouse_wheel_down = False
         self.mouse_wheel_up = False
@@ -146,6 +147,15 @@ class Events:
                 self.last_key_pressed = None
                 return False
 
+    def button_pressed_once(self, button, layer="layer_0"):
+        if layer == Layer.get_layer() or layer == "layer_all":
+            value = self.__dict__.get(button)
+            if value in self.mouse_pressed_once:
+                self.mouse_pressed_once.remove(value)
+                return value
+
+        return False
+
     def button_pressed(self, button, layer="layer_0"):
         if layer == Layer.get_layer() or layer == "layer_all":
             value = self.__dict__.get(button)
@@ -165,6 +175,7 @@ class Events:
     def register_mouse_buttons_pressed(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_pressed.append(event.button)
+            self.mouse_pressed_once.append(event.button)
             if event.button == 5:
                 self.mouse_wheel_down = True
             if event.button == 4:
@@ -172,6 +183,8 @@ class Events:
 
         if event.type == pygame.MOUSEBUTTONUP:
             self.mouse_pressed.remove(event.button)
+            if event.button in self.mouse_pressed_once:
+                self.mouse_pressed_once.remove(event.button)
 
     def register_keys_pressed(self, event):
         if event.type == pygame.KEYDOWN:
@@ -182,7 +195,6 @@ class Events:
     def register_text_input_event(self, event):
         if event.type == pygame.KEYDOWN:
             if str(event.unicode) in self.valid_text_list:
-                print(event.key)
                 text_input_event = pygame.event.Event(self.TEXT_INPUT_EVENT_DOWN, {"type": "text_input_down", "key": str(event.unicode)})
                 pygame.event.post(text_input_event)
         if event.type == pygame.KEYUP:

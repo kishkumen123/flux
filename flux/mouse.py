@@ -29,13 +29,15 @@ class Mouse:
     def update(self):
         if globals.editor:
             self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
-            for obj in globals.poly_dict:
-                if obj.contains(self.rect):
-                    if events.button_pressed("MONE"):
-                        globals.focus = obj
+            if events.button_pressed_once("MONE"):
+                found_obj = None
+                for obj in globals.poly_dict:
+                    if obj.contains(self.rect):
+                        found_obj = obj
 
-            if globals.focus is not None:
-                print(globals.focus.name)
+                globals.set_selection(found_obj)
+            print(globals.get_selection())
+
         else:
             pass
 

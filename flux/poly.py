@@ -30,7 +30,7 @@ class Poly:
         self.rect = pygame.draw.polygon(self.surface, self.color, self.points, self.width)
         self.update()
 
-    def intersects_rect_point(self, rect):
+    def intersects_point(self, rect):
         for i, point in enumerate(self.points):
             if rect.collidepoint(point[0], point[1]):
                 return i
@@ -48,27 +48,31 @@ class Poly:
         self.width = 0
 
     def update(self):
-        if globals.focus is not None:
-            if globals.focus.name == self.name:
-                self.move_rect()
-                self.move_point()
+        if globals.editor:
+            if globals.get_selection() is not None:
+                if globals.get_selection().name == self.name:
+                    self.move_rect()
+                    self.move_point()
 
     def move_rect(self):
         if globals.editor:
             if self.contains(mouse.get_rect()):
                 if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
-                    mouse.focus = self
                     if self.move_offset is not None:
                         for i, _ in enumerate(self.points):
                             self.points[i] = (mouse.get_pos()[0] + self.move_offset[i][0], mouse.get_pos()[1] + self.move_offset[i][1])
+                    else:
+                        self.move_offset = [(self.points[i][0] - mouse.get_pos()[0], self.points[i][1] - mouse.get_pos()[1]) for i, _ in enumerate(self.points)]
                 else:
-                    self.move_offset = [(self.points[i][0] - mouse.get_pos()[0], self.points[i][1] - mouse.get_pos()[1]) for i, _ in enumerate(self.points)]
+                    self.move_offset = None
 
     def move_point(self):
         if globals.editor:
             if events.button_pressed("MONE") and events.key_pressed("LSHIFT"):
-                mouse.focus = self
-                index = self.intersects_rect_point(mouse.get_rect())
+                index = self.intersects_point(mouse.get_rect())
                 if index is not None:
                     if index is not None and pygame.mouse.get_pressed()[0]:
                         self.points[index] = mouse.get_pos()
+
+    def __str__(self):
+        return self.name
