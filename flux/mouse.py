@@ -10,6 +10,7 @@ class Mouse:
 
     def __init__(self):
         self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
+        self.selection_rect = None
 
     def get_pos(self):
         return pygame.mouse.get_pos()
@@ -28,6 +29,27 @@ class Mouse:
 
     def update(self):
         if globals.editor:
+            if globals.get_selection():
+                color = globals.get_selection().color
+                r = None
+                g = None
+                b = None
+                if color[0] + 100 <= 255:
+                    r = color[0] + 100
+                else:
+                    r = color[0] - 155
+                if color[1] + 100 <= 255:
+                    g = color[1] + 100
+                else:
+                    g = color[1] - 155
+                if color[2] + 100 <= 255:
+                    b = color[2] + 100
+                else:
+                    b = color[2] - 155
+                new_color = (r, g, b)
+
+                self.selection_rect = pygame.draw.polygon(Display.fake_display, new_color, tuple(globals.get_selection().points), 3)
+
             self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
             if events.button_pressed_once("MONE"):
                 found_obj = None
