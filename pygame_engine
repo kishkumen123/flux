@@ -67,6 +67,15 @@ bugs:
     special symbols on key up arnt registering cause they are mod=1
     if ` or ~ it auto registers are text input, so need to accept on next key down
 
+level:
+    saving/loading maps
+
+object selection:
+    create layers for polygons - to improve selection process, to improve draw order,
+        more console commands
+    adding console commands for selected object - showing data, deleting, maybe creating
+    selection many through right click
+
 text input:
     improvements:
         tab completes should turn into a second layer that shows a list of all

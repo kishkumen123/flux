@@ -18,6 +18,7 @@ def init_commands():
     add_command("clear", command_clear, tooltip="clears console history")
     add_command("help", command_help, 0, 1, tooltip="lists all commands")
     add_command("cursor_underscored", command_cursor_underscored, 1, 1, tooltip="changes whether the cursor is underscored or full (0, 1)")
+    add_command("selection_data", command_selection_data, tooltip="shows selection data")
 
 
 def get_commands():
@@ -102,6 +103,16 @@ def command_cursor_underscored(arguments):
         command_output("\"cursor_underscored\" = \"%s\"" % globals.cursor_underscored)
     else:
         command_output("invalid arguments. 0 or 1")
+
+
+def command_selection_data(arguments):
+    if len(arguments) == 0:
+        if globals.get_selection() is not None:
+            command_output("\"selection_data\" = \"%s\"" % globals.get_selection().points)
+        else:
+            command_output("No selection found")
+    else:
+        command_output("command takes 0 arguments")
 
 
 def command_help(arguments):
