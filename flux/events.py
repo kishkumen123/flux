@@ -41,15 +41,18 @@ class Events:
         self.assign_keys()
 
     def key_converter(self, key):
-        if 87 <= key <= 122:
+        actual_key = chr(key)
+        mappings = {"1": "!", "2": "@", "3": "#", "4": "$", "5": "%", "6": "^", "7": "&", "8": "*", "9": "(", "0": ")", "-": "_", "=": "+", "[": "{", "]": "}", ";": ":", "'": "\"", ",": "<", ".": ">", "/": "?", "\\": "|"}
+
+        if actual_key in mappings.keys():
+            new_key = mappings[actual_key]
+        elif 87 <= key <= 122:
             binary = bin(key)
             new_binary = binary[:3] + "0" + binary[4:]
             new_ascii = int(new_binary, 2)
             new_key = chr(new_ascii)
         else:
-            actual_key = chr(key)
-            mappings = {"1": "!", "2": "@", "3": "#", "4": "$", "5": "%", "6": "^", "7": "&", "8": "*", "9": "(", "0": ")", "-": "_", "=": "+", "[": "{", "]": "}", ";": ":", "'": "\"", ",": "<", ".": ">", "/": "?"}
-            new_key = mappings[actual_key]
+            raise("KEY MAPPINGS ARE MEST UP ON KEY %s PLEASE LOOK INTO IT RIGHT FUCKING NOW" % key)
         return new_key
 
     def assign_keys(self):

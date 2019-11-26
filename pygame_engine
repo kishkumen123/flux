@@ -67,9 +67,6 @@ bugs:
     special symbols on key up arnt registering cause they are mod=1
     if ` or ~ it auto registers are text input, so need to accept on next key down
 
-level:
-    saving/loading maps
-
 object selection:
     create layers for polygons - to improve selection process, to improve draw order,
         more console commands
@@ -95,3 +92,5 @@ done:
 	edite at cursor position
 	up down arrow to go to history
 	process input as commands, maybe dont add to history anymore and instead output recognized command success "success command - %s" and unrecognized command fail "unrecognized command - %s"
+    saving/loading maps
+
