@@ -1,9 +1,10 @@
-
+*.pyc
 test/
 .idea/
 venv/
 env/
 *.egg-info
-__pycache__
-flux/__pycache__
-sandbox/__pycache__
+__pycache__/*
+*/__pycache__/*
+*/dist/*
+*/build/*
