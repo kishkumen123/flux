@@ -131,6 +131,7 @@ def command_save_level(arguments):
             for poly in globals.poly_dict:
                 poly_data = {"name": poly.name, "layer": poly.layer, "color": poly.color, "points": poly.points, "width": poly.width}
                 data["poly"].append(poly_data)
+            #figure out how to indent but not indent lists
             json.dump(data, f)
     else:
         command_output("command takes 1 argument of filename")
@@ -157,6 +158,8 @@ def command_level(arguments):
 def command_new_level(arguments):
     if len(arguments) == 0:
         globals.poly_dict = []
+        globals.selection = None
+        globals.selection_list = []
     else:
         command_output("command takes 0 argument of filename")
 

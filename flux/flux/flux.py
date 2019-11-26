@@ -9,6 +9,7 @@ from mouse import mouse
 from screen import Display
 from poly import Poly
 from console import console
+from commands import run_command
 
 
 class Flux:
@@ -24,6 +25,7 @@ class Flux:
 
     def init(self):
         pygame.init()
+        run_command("level one")
 
     def init_display(self, resolution):
         self.display = Display
