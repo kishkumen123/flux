@@ -1,6 +1,10 @@
 import globals
+import json
+import os
 
-commands = []
+from poly import Poly
+
+commands = {}
 
 
 class CommandInfo:
@@ -13,6 +17,9 @@ class CommandInfo:
 
 def init_commands():
     add_command("editor", command_editor, tooltip="enables/disables editor mode")
+    add_command("save_level", command_save_level, 1, 1, tooltip="saves the current level to a file")
+    add_command("new_level", command_new_level, tooltip="creates a blank new level")
+    add_command("level", command_level, 1, 1, tooltip="loads level")
     add_command("quit", command_quit, tooltip="quit the engine")
     add_command("exit", command_quit, tooltip="quit the engine")
     add_command("clear", command_clear, tooltip="clears console history")
@@ -22,34 +29,34 @@ def init_commands():
 
 
 def get_commands():
-    return commands
+    return commands.values()
+
+
+def get_commands_names():
+    return commands.keys()
+
+
+def get_command(command_name):
+    if command_name in commands.keys():
+        return commands[command_name]
+
+    return None
 
 
 def run_command(command_string):
-
     command_array = list(filter(None, command_string.split(" ")))
-    if not len(command_array): return
+    if not len(command_array):
+        return
 
     command_name = command_array[0]
-    non_command_arguments = command_array[1:]
+    command_arguments = command_array[1:]
     command_input(command_string)
 
-    #argument_count = len(non_command_arguments)
-    for command in commands:
-        if command_name == command.name:
-
-            #if argument_count < command.arg_count_min or argument_count > command.arg#_count_max:
-            #    min_string = "" if command.arg_count_min == 1 else "s"
-            #    max_string = "" if command.arg_count_max == 1 else "s"
-            #    if command.arg_count_min == command.arg_count_max:
-            #        command_output("Error: %s requires exactly %s argument%s - %s given" % (command_na#me, command.arg_count_min, min_string, argument_count))
-            #        return
-            #    command_output("Error: %s requires at least %s argument%s and at most %s argument%s - %s given" % (command_name, command.arg_count_min, min_string, command.arg_count_max, max_string, argument_count))
-            #    return
-
-            command.proc(non_command_arguments)
-            return
-    command_output("Uknown command \"%s\"" % command_name)
+    command = get_command(command_name)
+    if command is not None:
+        command.proc(command_arguments)
+    else:
+        command_output("Uknown command \"%s\"" % command_name)
 
 
 def add_command(name, proc, arg_count_min=0, arg_count_max=0, tooltip=""):
@@ -59,7 +66,7 @@ def add_command(name, proc, arg_count_min=0, arg_count_max=0, tooltip=""):
     info.arg_count_min = arg_count_min
     info.arg_count_max = arg_count_max
     info.tooltip = tooltip
-    commands.append(info)
+    commands[str(name)] = info
 
 
 def command_output(command):
@@ -115,16 +122,52 @@ def command_selection_data(arguments):
         command_output("command takes 0 arguments")
 
 
+def command_save_level(arguments):
+    if len(arguments) == 1:
+        path = os.path.join(os.getcwd(), "levels", str(arguments[0]))
+
+        data = {"poly": []}
+        with open(path, "w") as f:
+            for poly in globals.poly_dict:
+                poly_data = {"name": poly.name, "layer": poly.layer, "color": poly.color, "points": poly.points, "width": poly.width}
+                data["poly"].append(poly_data)
+            json.dump(data, f)
+    else:
+        command_output("command takes 1 argument of filename")
+
+
+def command_level(arguments):
+    if len(arguments) == 1:
+        path = os.path.join(os.getcwd(), "levels", str(arguments[0]))
+
+        if os.path.exists(path):
+            globals.poly_dict = []
+            globals.selection = None
+            with open(path, "r") as f:
+                data = json.load(f)
+                for obj in data["poly"]:
+                    poly = Poly(obj["name"], obj["layer"], obj["color"], obj["points"], None, obj["width"])
+                    globals.poly_dict.append(poly)
+        else:
+            command_output("filename %s does not exist" % str(arguments[0]))
+    else:
+        command_output("command takes 1 argument of filename")
+
+
+def command_new_level(arguments):
+    if len(arguments) == 0:
+        globals.poly_dict = []
+    else:
+        command_output("command takes 0 argument of filename")
+
+
 def command_help(arguments):
     if arguments:
-        found = False
-        for command in commands:
-            if command.name == arguments[0]:
-                command_output(command.name + " - " + command.tooltip)
-                found = True
-
-        if not found:
+        command = get_command(arguments[0])
+        if command is not None:
+            command_output(command.name + " - " + command.tooltip)
+        else:
             command_output(str(arguments[0]) + " - Unkown command")
     else:
-        for command in commands:
+        for command in get_commands():
             command_output(command.name + " - " + command.tooltip)

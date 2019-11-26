@@ -60,13 +60,10 @@ class Flux:
         if surface is None:
             surface = self.display.fake_display
 
-        #if layer not in globals.poly_dict.keys():
-        #    globals.poly_dict[layer] = []
+        poly = Poly(name, layer, color, points, surface, width)
+        globals.poly_dict.append(poly)
 
-        temp = Poly(name, layer, color, points, surface, width)
-        globals.poly_dict.append(temp)
-
-        return temp
+        return poly
 
     def create_surface(self, size, color):
         surface = pygame.Surface(size).convert()

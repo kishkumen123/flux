@@ -3,6 +3,7 @@ import pygame
 
 from mouse import mouse
 from events import events
+from screen import Display
 
 
 class Poly:
@@ -27,6 +28,9 @@ class Poly:
         self._editable = value
 
     def draw(self):
+        if self.surface is None:
+            self.surface = Display.fake_display
+
         self.rect = pygame.draw.polygon(self.surface, self.color, self.points, self.width)
         self.update()
 
