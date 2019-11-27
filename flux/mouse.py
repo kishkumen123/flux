@@ -14,6 +14,8 @@ class Mouse:
         self.calced = False
         self.point_at_click = None
         self.move_offset = None
+        self.focus = None
+        self.focus_index = None
 
     def get_pos(self):
         return pygame.mouse.get_pos()
@@ -54,13 +56,18 @@ class Mouse:
             self.calced = True
             return pygame.mouse.get_pos()
 
+    def move_point(self, obj):
+        for i, point in enumerate(obj.points):
+            if self.rect.collidepoint(point[0], point[1]):
+                self.focus = obj
+                self.focus_index = i
+
     def move_rect(self, obj):
-        if self.rect.colliderect(obj.rect):
-            if self.move_offset is not None:
-                for i, _ in enumerate(obj.points):
-                    obj.points[i] = (self.get_pos()[0] + self.move_offset[i][0], self.get_pos()[1] + self.move_offset[i][1])
-            else:
-                self.move_offset = [(obj.points[i][0] - mouse.get_pos()[0], obj.points[i][1] - mouse.get_pos()[1]) for i, _ in enumerate(obj.points)]
+        if obj.move_offset is not None:
+            for i, _ in enumerate(obj.points):
+                obj.points[i] = (self.get_pos()[0] + obj.move_offset[i][0], self.get_pos()[1] + obj.move_offset[i][1])
+        else:
+            obj.move_offset = [(obj.points[i][0] - mouse.get_pos()[0], obj.points[i][1] - mouse.get_pos()[1]) for i, _ in enumerate(obj.points)]
 
     def update(self):
         if globals.editor:
@@ -75,7 +82,7 @@ class Mouse:
                 found_obj = None
                 #this needs to traverse the list from top to bottom layer later
                 for obj in globals.poly_dict:
-                    if obj.contains(self.rect):
+                    if obj.rect.collidepoint(self.get_pos()):
                         found_obj = obj
 
                 if found_obj:
@@ -102,11 +109,21 @@ class Mouse:
                 if globals.selection_list:
                     globals.selection = None
 
-            if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
-                for obj in globals.selection_list:
-                    self.move_rect(obj)
+            if events.button_pressed("MONE") and events.key_pressed("LSHIFT"):
+                if self.focus is None:
+                    for obj in globals.poly_dict:
+                        self.move_point(obj)
+                else:
+                    self.focus.points[self.focus_index] = self.get_pos()
             else:
-                self.move_offset = None
+                self.focus = None
+                self.focus_index = None
+
+            for obj in globals.selection_list:
+                if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
+                    self.move_rect(obj)
+                else:
+                    obj.move_offset = None
         else:
             pass
 

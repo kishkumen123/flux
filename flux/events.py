@@ -9,7 +9,7 @@ class Events:
     def __init__(self):
         self.keys_pressed = []
         self.mouse_pressed = []
-        self.mouse_released = []
+        self.mouse_released = None
         self.mouse_pressed_once = []
         self.events_triggered = []
         self.mouse_wheel_down = False
@@ -170,8 +170,8 @@ class Events:
     def button_released(self, button, layer="layer_0"):
         if layer == Layer.get_layer() or layer == "layer_all":
             value = self.__dict__.get(button)
-            if value in self.mouse_released:
-                self.mouse_released.remove(value)
+            if value == self.mouse_released:
+                self.mouse_released = None
                 return True
 
         return False
@@ -196,8 +196,7 @@ class Events:
 
         if event.type == pygame.MOUSEBUTTONUP:
             self.mouse_pressed.remove(event.button)
-            if event.button not in self.mouse_released:
-                self.mouse_released.append(event.button)
+            self.mouse_released = event.button
             if event.button in self.mouse_pressed_once:
                 self.mouse_pressed_once.remove(event.button)
 

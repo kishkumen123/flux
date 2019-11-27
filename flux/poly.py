@@ -1,8 +1,6 @@
 import globals
 import pygame
 
-from mouse import mouse
-from events import events
 from screen import Display
 
 
@@ -53,30 +51,9 @@ class Poly:
 
     def update(self):
         if globals.editor:
-            if globals.get_selection() is not None:
-                if globals.get_selection().name == self.name:
-                    #self.move_rect()
-                    self.move_point()
-                else:
-                    self.move_offset = None
-
-    def move_rect(self):
-        if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
-            if self.contains(mouse.get_rect()):
-                if self.move_offset is not None:
-                    for i, _ in enumerate(self.points):
-                        self.points[i] = (mouse.get_pos()[0] + self.move_offset[i][0], mouse.get_pos()[1] + self.move_offset[i][1])
-                else:
-                    self.move_offset = [(self.points[i][0] - mouse.get_pos()[0], self.points[i][1] - mouse.get_pos()[1]) for i, _ in enumerate(self.points)]
+            pass
         else:
-            self.move_offset = None
-
-    def move_point(self):
-        if events.button_pressed("MONE") and events.key_pressed("LSHIFT"):
-            index = self.intersects_point(mouse.get_rect())
-            if index is not None:
-                if index is not None and pygame.mouse.get_pressed()[0]:
-                    self.points[index] = mouse.get_pos()
+            pass
 
     def __str__(self):
         return self.name
