@@ -71,7 +71,6 @@ object selection:
     create layers for polygons - to improve selection process, to improve draw order,
         more console commands
     adding console commands for selected object - showing data, deleting, maybe creating
-    selection many through right click
 
 text input:
     improvements:

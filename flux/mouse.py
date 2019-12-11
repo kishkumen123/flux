@@ -119,6 +119,7 @@ class Mouse:
                 self.focus = None
                 self.focus_index = None
 
+            # this for loop should be in the if statement, this is super inefficient
             for obj in globals.selection_list:
                 if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
                     self.move_rect(obj)

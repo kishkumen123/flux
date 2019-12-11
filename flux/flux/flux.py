@@ -10,6 +10,8 @@ from screen import Display
 from poly import Poly
 from console import console
 from commands import run_command
+from player import Player
+from grid_generator import GridGenerator
 
 
 class Flux:
@@ -66,6 +68,15 @@ class Flux:
         globals.poly_dict.append(poly)
 
         return poly
+
+    def generate_world(self, view_distance=2000, chunk_size=800, scale=10, octaves=2, persistence=0.3, lacunarity=4, seed=1, offset=(0, 0), color_height_map=None):
+        self.grid_generator = GridGenerator(view_distance, chunk_size, scale, octaves, persistence, lacunarity, seed, offset, color_height_map)
+
+        return self.grid_generator
+
+    def create_player(self):
+        globals.player = Player()
+        return globals.player
 
     def create_surface(self, size, color):
         surface = pygame.Surface(size).convert()

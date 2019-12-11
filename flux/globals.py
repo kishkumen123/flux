@@ -6,6 +6,7 @@ editor = 1
 poly_dict = []
 selection = None
 selection_list = []
+player = None
 
 
 def draw():
