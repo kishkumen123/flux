@@ -5,11 +5,9 @@ if __name__ == "__main__":
     engine = Flux()
     engine.init()
 
-    engine.ui.create_panel("panel1", size=[250, 500], position=[300, 300], debug=True, layer="layer_0")
+    engine.ui.create_panel("panel1", size=[250, 500], position=[150, 150], debug=True, layer="layer_0")
     engine.ui.create_button("button1", parent="panel1", size=[100, 50], position=[50, 50])
-    engine.ui.create_button("button1", parent="panel1", size=[100, 50], position=[50, 125])
-    engine.ui.create_button("button1", parent="panel1", size=[100, 50], position=[50, 200])
-    engine.ui.create_button("button1", parent="panel1", size=[100, 50], position=[50, 275])
+    engine.ui.create_slider("slider1", parent="panel1", sl_range=[0, 5], size=[100, 15], position=[50, 125])
 
     display = engine.init_display((1280, 720))
     background = engine.create_surface((100, 100), (200, 255, 255))

@@ -16,6 +16,15 @@ def convert_rgb_to_int(rgb):
     return i
 
 
+def translate_range_from_to():
+    pass
+
+
+def convert_num_range(old_range, new_range, old_value):
+    new_value = (((old_value - old_range[0]) * (new_range[1] - new_range[0])) / (old_range[1] - old_range[0])) + new_range[0]
+    return new_value
+
+
 def color_lerp(c1, c2, t):
     result = (((t - (-1)) * (1 - 0)) / (1 - (-1))) + 0
 

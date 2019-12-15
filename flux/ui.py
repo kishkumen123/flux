@@ -1,6 +1,6 @@
-import pygame
 from ui_panel import Panel
 from ui_button import Button
+from ui_slider import Slider
 
 
 class UI:
@@ -23,7 +23,16 @@ class UI:
             kwargs["position"] = [0, 0]
 
         panel = self.panels[parent]
-        panel.attach_button(Button(name, parent, panel.position, **kwargs))
+        panel.attach(Button(name, parent, panel.position, **kwargs))
+
+    def create_slider(self, name, parent, sl_range, **kwargs):
+        if kwargs.get("size") is None:
+            kwargs["size"] = [50, 100]
+        if kwargs.get("position") is None:
+            kwargs["position"] = [0, 0]
+
+        panel = self.panels[parent]
+        panel.attach(Slider(name, parent, panel.position, sl_range, **kwargs))
 
     def show_panel(self, name):
         self.panels[name].show = True
@@ -35,6 +44,7 @@ class UI:
         for panel in self.panels.values():
             if panel.show:
                 panel.draw()
+                panel.update()
 
 
 ui = UI()

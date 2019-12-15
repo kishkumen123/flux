@@ -14,15 +14,17 @@ class Panel:
         self.show = show
         self.rect = pygame.Rect(position, size)
         self.color = color
-        self.buttons = []
-        #this guy later
         self.components = []
 
-    def attach_button(self, button):
-        self.buttons.append(button)
+    def attach(self, component):
+        self.components.append(component)
 
     def draw(self):
         pygame.draw.rect(Display.fake_display, self.color, self.rect)
-        for button in self.buttons:
-            button.draw()
+        for component in self.components:
+            component.draw()
+
+    def update(self):
+        for component in self.components:
+            component.update()
 

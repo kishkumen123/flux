@@ -16,3 +16,6 @@ class Button:
 
     def draw(self):
         pygame.draw.rect(Display.fake_display, self.color, self.rect)
+
+    def update(self):
+        pass
