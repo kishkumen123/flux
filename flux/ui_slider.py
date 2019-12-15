@@ -7,7 +7,7 @@ from fmath import convert_num_range
 
 class Slider:
 
-    def __init__(self, name, parent, world_position, sl_range, size=None, position=None, color=(128, 0, 128), round_int=False):
+    def __init__(self, name, parent, world_position, sl_range, size=None, position=None, color=(128, 0, 128), round_int=False, starting_value=0):
         self.name = name
         self.parent = parent
         self.size = size
@@ -20,12 +20,14 @@ class Slider:
         self.left_bound = pygame.Rect(self.local_position, (2, size[1]))
         self.right_bound = pygame.Rect((self.local_position[0] + size[0], self.local_position[1]), (2, size[1]))
         self.bar = pygame.Rect((self.local_position[0], self.local_position[1] + size[1]/2), (size[0], 2))
-        self.knob_x = self.local_position[0] + size[0]/2
+        self.value = starting_value
+        self.knob_x = convert_num_range(self.sl_range, (self.local_position[0], self.local_position[0] + self.size[0] - 20), starting_value)
         self.knob = pygame.Rect((self.knob_x, self.local_position[1]), (20, size[1]))
-        self.value = self.sl_range[1]/2
         self.movable_knob = False
         self.calc_diff = False
+        self.font = pygame.font.SysFont('Consolas', 22)
         self.difference = 0
+        self.value_surface = self.font.render(str(self.value), True, (50, 50, 50))
 
     def draw(self):
         pygame.draw.rect(Display.fake_display, self.color, self.left_bound)
@@ -53,5 +55,8 @@ class Slider:
             self.value = convert_num_range((self.local_position[0], self.local_position[0] + self.size[0] - 20), self.sl_range, self.knob_x)
             if self.round_int:
                 self.value = round(self.value)
-            print(self.value)
+                self.value_surface = self.font.render(str(self.value), True, (50, 50, 50))
+            else:
+                self.value_surface = self.font.render(str(round(self.value, 2)), True, (50, 50, 50))
+        Display.fake_display.blit(self.value_surface, (self.local_position[0] + self.size[0] + 20, self.local_position[1] - 5))
 
