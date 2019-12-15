@@ -23,7 +23,7 @@ class Panel:
 
     def draw(self):
         pygame.draw.rect(Display.fake_display, self.color, self.rect)
-        for component in self.components:
+        for i, component in enumerate(self.components):
             component.draw()
 
     def update(self):
