@@ -41,6 +41,7 @@ class Slider:
                 self.movable_knob = True
         if events.button_released("MONE", "layer_0"):
             self.movable_knob = False
+            self.calc_diff = False
 
         if self.movable_knob:
             if not self.calc_diff:
