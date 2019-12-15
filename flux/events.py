@@ -40,6 +40,7 @@ class Events:
         self.valid_text_list = self.valid_text_list.replace("~", "")
 
         self.assign_keys()
+        # print(self.__dict__) to see all of my keys and their interger values
 
     def key_converter(self, key):
         actual_key = chr(key)
@@ -234,6 +235,5 @@ class Events:
             self.register_mouse_buttons_pressed(event)
             self.register_keys_pressed(event)
             self.register_text_input_event(event)
-
 
 events = Events()

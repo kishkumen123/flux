@@ -10,8 +10,8 @@ from screen import Display
 from poly import Poly
 from console import console
 from commands import run_command
-from player import Player
 from grid_generator import GridGenerator
+from ui import ui
 
 
 class Flux:
@@ -24,10 +24,12 @@ class Flux:
         self.miliseconds = 0
         self.display = None
         self._elapsed_time = 0
+        self.ui = None
 
     def init(self):
         pygame.init()
         run_command("level one")
+        self.ui = ui
 
     def init_display(self, resolution):
         self.display = Display
@@ -74,10 +76,6 @@ class Flux:
 
         return self.grid_generator
 
-    def create_player(self):
-        globals.player = Player()
-        return globals.player
-
     def create_surface(self, size, color):
         surface = pygame.Surface(size).convert()
         surface.fill(color)
@@ -105,6 +103,7 @@ class Flux:
     def update(self):
         self.update_delta_time()
         console.update(self.delta_time)
+        self.ui.update()
 
         mouse.update()
         events.update()

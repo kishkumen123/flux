@@ -62,6 +62,12 @@ IMPROVEMENTS:
 
 ---TODO---
 
+universal draw:
+    please do this asap omfg
+
+sprite layers:
+    need to have layers for sprite to determine draw order and have it easily modifiable
+
 bugs:
     also looks like there is a text_input and repeat functionality built in... pygame.key.___
     special symbols on key up arnt registering cause they are mod=1

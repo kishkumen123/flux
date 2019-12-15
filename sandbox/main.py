@@ -5,11 +5,15 @@ if __name__ == "__main__":
     engine = Flux()
     engine.init()
 
+    engine.ui.create_panel("panel1", size=[250, 500], position=[300, 300], debug=True, layer="layer_0")
+    engine.ui.create_button("button1", parent="panel1", size=[100, 50], position=[50, 50])
+    engine.ui.create_button("button1", parent="panel1", size=[100, 50], position=[50, 125])
+    engine.ui.create_button("button1", parent="panel1", size=[100, 50], position=[50, 200])
+    engine.ui.create_button("button1", parent="panel1", size=[100, 50], position=[50, 275])
+
     display = engine.init_display((1280, 720))
     background = engine.create_surface((100, 100), (200, 255, 255))
     engine.set_fps(120)
-
-    player = engine.create_player()
 
     height_map = [
         ((66, 167, 245), -0.8),
@@ -22,21 +26,24 @@ if __name__ == "__main__":
         ((232, 232, 230), 1)
     ]
 
-    #world = engine.generate_world(color_height_map=height_map)
-    world = engine.generate_world()
+    #world = engine.generate_world(scale=40, color_height_map=height_map)
+    #world = engine.generate_world()
     move_speed = 0.7
 
     while engine.is_running():
         display.clear_screen()
 
-        if engine.key_pressed("a", "layer_0"):
-            world.move(x=-move_speed)
-        if engine.key_pressed("d", "layer_0"):
-            world.move(x=move_speed)
-        if engine.key_pressed("w", "layer_0"):
-            world.move(y=-move_speed)
-        if engine.key_pressed("s", "layer_0"):
-            world.move(y=move_speed)
+        if engine.key_pressed_once("TAB", "layer_0"):
+            engine.ui.toggle_panel("panel1")
+
+        #if engine.key_pressed("a", "layer_0"):
+        #    world.move(x=-move_speed)
+        #if engine.key_pressed("d", "layer_0"):
+        #    world.move(x=move_speed)
+        #if engine.key_pressed("w", "layer_0"):
+        #    world.move(y=-move_speed)
+        #if engine.key_pressed("s", "layer_0"):
+        #    world.move(y=move_speed)
 
         if engine.key_pressed("ESCAPE", "layer_0"):
             engine.kill()
@@ -44,7 +51,7 @@ if __name__ == "__main__":
             engine.kill()
 
 
-        world.update()
+        #world.update()
         #engine.draw_poly()
         engine.update()
         display.swap_buffer()
