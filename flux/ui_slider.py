@@ -7,11 +7,12 @@ from fmath import convert_num_range
 
 class Slider:
 
-    def __init__(self, name, parent, world_position, sl_range, size=None, position=None, color=(128, 0, 128)):
+    def __init__(self, name, parent, world_position, sl_range, size=None, position=None, color=(128, 0, 128), round_int=False):
         self.name = name
         self.parent = parent
         self.size = size
         self.sl_range = sl_range
+        self.round_int = round_int
         self.world_position = world_position
         self.relative_position = position
         self.local_position = [a + self.relative_position[i] for i, a in enumerate(self.world_position)]
@@ -49,5 +50,8 @@ class Slider:
             if self.knob_x + 20 > self.local_position[0] + self.size[0]:
                 self.knob_x = self.local_position[0] + self.size[0] - 20
             self.knob = pygame.Rect((self.knob_x, self.local_position[1]), (20, self.size[1]))
-            print(convert_num_range((self.local_position[0], self.local_position[0] + self.size[0] - 20), self.sl_range, self.knob_x))
+            self.value = convert_num_range((self.local_position[0], self.local_position[0] + self.size[0] - 20), self.sl_range, self.knob_x)
+            if self.round_int:
+                self.value = round(self.value)
+            print(self.value)
 
