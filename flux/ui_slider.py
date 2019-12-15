@@ -7,13 +7,13 @@ from fmath import convert_num_range
 
 class Slider:
 
-    def __init__(self, name, parent, world_position, sl_range, size=None, position=None, color=(128, 0, 128), round_int=False, starting_value=0):
+    def __init__(self, name, panel, sl_range, size=None, position=None, color=(128, 0, 128), round_int=False, starting_value=0):
         self.name = name
-        self.parent = parent
+        self.parent = panel.name
         self.size = size
         self.sl_range = sl_range
         self.round_int = round_int
-        self.world_position = world_position
+        self.world_position = panel.position
         self.relative_position = position
         self.local_position = [a + self.relative_position[i] for i, a in enumerate(self.world_position)]
         self.color = color

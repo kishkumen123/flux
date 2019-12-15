@@ -5,7 +5,7 @@ from screen import Display
 
 class Panel:
 
-    def __init__(self, name, size=None, position=None, color=(128, 128, 128), debug=False, layer="layer_0", show=False):
+    def __init__(self, name, size=None, position=None, color=(128, 128, 128), debug=False, layer="layer_0", show=False, padding=(15, 15, 15, 15), spacing=15):
         self.name = name
         self.size = size
         self.position = position
@@ -15,6 +15,8 @@ class Panel:
         self.rect = pygame.Rect(position, size)
         self.color = color
         self.components = []
+        self.padding = padding
+        self.spacing = spacing
 
     def attach(self, component):
         self.components.append(component)
@@ -25,6 +27,7 @@ class Panel:
             component.draw()
 
     def update(self):
+        #if mouse down and contains mouse - move me
         for component in self.components:
             component.update()
 

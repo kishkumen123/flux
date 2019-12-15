@@ -23,7 +23,7 @@ class UI:
             kwargs["position"] = [0, 0]
 
         panel = self.panels[parent]
-        panel.attach(Button(name, parent, panel.position, **kwargs))
+        panel.attach(Button(name, panel, **kwargs))
 
     def create_slider(self, name, parent, sl_range, **kwargs):
         if kwargs.get("size") is None:
@@ -32,7 +32,7 @@ class UI:
             kwargs["position"] = [0, 0]
 
         panel = self.panels[parent]
-        panel.attach(Slider(name, parent, panel.position, sl_range, **kwargs))
+        panel.attach(Slider(name, panel, sl_range, **kwargs))
 
     def show_panel(self, name):
         self.panels[name].show = True
