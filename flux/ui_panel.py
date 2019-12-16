@@ -5,7 +5,7 @@ from screen import Display
 
 class Panel:
 
-    def __init__(self, name, size=None, position=None, color=(128, 128, 128), debug=False, layer="layer_0", show=False, padding=(15, 15, 15, 15), spacing=15):
+    def __init__(self, name, size=None, position=None, color=(128, 128, 128), debug=False, layer="layer_0", show=True, padding=(15, 15), spacing=15):
         self.name = name
         self.size = size
         self.position = position

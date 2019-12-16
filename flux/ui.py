@@ -19,8 +19,6 @@ class UI:
     def create_button(self, name, parent, **kwargs):
         if kwargs.get("size") is None:
             kwargs["size"] = [50, 100]
-        if kwargs.get("position") is None:
-            kwargs["position"] = [0, 0]
 
         panel = self.panels[parent]
         panel.attach(Button(name, panel, **kwargs))
@@ -28,8 +26,6 @@ class UI:
     def create_slider(self, name, parent, sl_range, **kwargs):
         if kwargs.get("size") is None:
             kwargs["size"] = [50, 100]
-        if kwargs.get("position") is None:
-            kwargs["position"] = [0, 0]
 
         panel = self.panels[parent]
         panel.attach(Slider(name, panel, sl_range, **kwargs))
