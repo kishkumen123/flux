@@ -2,7 +2,7 @@ import pygame
 import globals
 
 from screen import Display
-from layer import Layer
+from layer import layer
 from events import events
 from mouse import mouse
 from commands import init_commands, run_command, get_commands
@@ -167,22 +167,22 @@ class Console:
 
         if events.key_pressed_once("ESCAPE", "layer_999"):
             self.set_openess("CLOSED")
-            Layer.pop_layer()
+            layer.pop_layer()
         if events.key_pressed("BACKQUOTE", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MAX":
                 self.set_openess("CLOSED")
-                Layer.pop_layer()
+                layer.pop_layer()
             else:
                 self.set_openess("MAX")
-                Layer.set_layer("layer_999")
+                layer.set_layer("layer_999")
 
         if events.key_pressed_once("BACKQUOTE", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
             if self.open_amount == "MIN":
                 self.set_openess("CLOSED")
-                Layer.pop_layer()
+                layer.pop_layer()
             else:
                 self.set_openess("MIN")
-                Layer.set_layer("layer_999")
+                layer.set_layer("layer_999")
 
         self.animate_console(dt)
         if self.y > 0:

@@ -1,7 +1,7 @@
 import pygame
 import string
 
-from layer import Layer
+from layer import layer
 
 
 class Events:
@@ -67,15 +67,15 @@ class Events:
                 if type(constant) == int:
                     self.__dict__[name] = pygame.__dict__[name]
 
-    def handle_text_input_event(self, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def handle_text_input_event(self, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             for event in self.events_triggered:
                 if event.type == self.TEXT_INPUT_EVENT_DOWN:
                     return event.key
         return None
 
-    def handle_text_input_event_repeat(self, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def handle_text_input_event_repeat(self, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             for event in self.events_triggered:
                 if event.type == self.TEXT_INPUT_EVENT_DOWN:
                     last_key_pressed = event.key
@@ -108,21 +108,21 @@ class Events:
                 return None
 
     # capital letters are not working
-    def key_pressed(self, key, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def key_pressed(self, key, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             value = self.__dict__.get(key)
             return value in self.keys_pressed
 
-    def key_pressed_once(self, key, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def key_pressed_once(self, key, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             value = self.__dict__.get(key)
             if value in self.keys_pressed:
                 self.keys_pressed.remove(value)
                 return True
         return False
 
-    def key_pressed_repeat(self, key, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def key_pressed_repeat(self, key, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             value = self.__dict__.get(key)
             last_key_pressed = self.keys_pressed[-1] if len(self.keys_pressed) else None
             if value == last_key_pressed:
@@ -152,8 +152,8 @@ class Events:
                 self.last_key_pressed = None
                 return False
 
-    def button_pressed_once(self, button, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def button_pressed_once(self, button, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             value = self.__dict__.get(button)
             if value in self.mouse_pressed_once:
                 self.mouse_pressed_once.remove(value)
@@ -161,15 +161,15 @@ class Events:
 
         return False
 
-    def button_pressed(self, button, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def button_pressed(self, button, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             value = self.__dict__.get(button)
             return value in self.mouse_pressed
 
         return False
 
-    def button_released(self, button, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def button_released(self, button, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             value = self.__dict__.get(button)
             if value == self.mouse_released:
                 self.mouse_released = None
@@ -177,8 +177,8 @@ class Events:
 
         return False
 
-    def event_triggered(self, event_name, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def event_triggered(self, event_name, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             value = self.__dict__.get(event_name)
             for event in self.events_triggered:
                 if value == event.type:

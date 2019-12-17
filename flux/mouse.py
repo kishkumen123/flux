@@ -2,7 +2,7 @@ import globals
 import pygame
 
 from events import events
-from layer import Layer
+from layer import layer
 from screen import Display
 
 
@@ -23,8 +23,8 @@ class Mouse:
     def get_rect(self):
         return self.rect
 
-    def button_pressed(self, button, layer="layer_0"):
-        if layer == Layer.get_layer() or layer == "layer_all":
+    def button_pressed(self, button, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
             mappings = {"MONE": 0, "MMIDDLE": 1, "MTWO": 2, "WUP": 4, "WDOWN": 5}
             return self.__dict__["MOUSEBUTTON"][mappings[button]]
         return False

@@ -38,8 +38,8 @@ class UI:
         panel = self.panels[parent]
         panel.attach(Field(name, panel, **kwargs))
 
-    def get_value(self, panel_name, component_name):
-        return self.panels[panel_name].get_value(component_name)
+    def get_component_value(self, panel_name, component_name):
+        return self.panels[panel_name].get_component_value(component_name)
 
     def show_panel(self, name):
         self.panels[name].show = True

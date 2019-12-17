@@ -5,7 +5,7 @@ if __name__ == "__main__":
     engine = Flux()
     engine.init()
 
-    engine.ui.create_panel("panel1", size=[300, 500], position=[150, 150], debug=True, layer="layer_0", show=True)
+    engine.ui.create_panel("panel1", size=[300, 500], position=[150, 150], debug=True, layer="layer_1", show=True)
     engine.ui.create_button("button1", parent="panel1", size=[100, 50])
     engine.ui.create_button("button2", parent="panel1", size=[100, 50])
     engine.ui.create_button("button3", parent="panel1", size=[100, 50])
@@ -34,6 +34,10 @@ if __name__ == "__main__":
     move_speed = 0.7
 
     while engine.is_running():
+        #print(engine.ui.get_component_value("panel1", "slider1"))
+        if engine.ui.get_component_value("panel1", "button1"):
+            print(engine.ui.get_component_value("panel1", "button1"))
+
         if engine.key_pressed_once("TAB", "layer_0"):
             engine.ui.toggle_panel("panel1")
 

@@ -1,23 +1,46 @@
 
 
-class Layer:
-    layer = "layer_0"
-    layer_list = ["layer_0"]
+class UILayer:
 
-    @classmethod
-    def set_layer(cls, layer):
-        if layer in cls.layer_list:
+    def __init__(self):
+        self.layer = "layer_0"
+        self.layer_list = ["layer_0"]
+
+    def set_layer(self, layer):
+        if layer in self.layer_list:
             return "FUCK OFF IM ALREADY IN HERE"
 
-        cls.layer_list.append(layer)
-        cls.layer = layer
+        self.layer_list.append(layer)
+        self.layer = layer
 
-    @classmethod
-    def pop_layer(cls):
-        cls.layer_list.pop()
-        cls.layer = cls.layer_list[-1]
+    def pop_layer(self):
+        self.layer_list.pop()
+        self.layer = self.layer_list[-1]
 
-    @classmethod
-    def get_layer(cls):
-        return cls.layer
+    def get_layer(self):
+        return self.layer
 
+
+class RenderLayer:
+
+    def __init__(self):
+        self.layer = "layer_0"
+        self.layer_list = ["layer_0"]
+
+    def set_layer(self, layer):
+        if layer in self.layer_list:
+            return "FUCK OFF IM ALREADY IN HERE"
+
+        self.layer_list.append(layer)
+        self.layer = layer
+
+    def pop_layer(self):
+        self.layer_list.pop()
+        self.layer = self.layer_list[-1]
+
+    def get_layer(self):
+        return self.layer
+
+
+render_layer = RenderLayer()
+layer = UILayer()

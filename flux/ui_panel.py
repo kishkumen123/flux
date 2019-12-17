@@ -1,5 +1,7 @@
 import pygame
 
+from events import events
+from mouse import mouse
 from screen import Display
 from collections import OrderedDict
 
@@ -19,7 +21,11 @@ class Panel:
         self.padding = padding
         self.spacing = spacing
 
-    def get_value(self, component_name):
+        self.movable = False
+        self.calc_mouse_difference = False
+        self.mouse_difference = 0
+
+    def get_component_value(self, component_name):
         return self.components[component_name].get_value()
 
     def attach(self, component):
@@ -31,7 +37,20 @@ class Panel:
             component.draw()
 
     def update(self):
-        # TODO: if mouse down and contains mouse - move me
+        if events.button_pressed("MONE", "layer_0"):
+            if mouse.get_rect().colliderect(self.rect):
+                self.movable = True
+        else:
+            self.movable = False
+            self.calc_mouse_difference = False
+
+        if self.movable:
+            if not self.calc_mouse_difference:
+                self.mouse_difference = (self.position[0] - mouse.get_pos()[0], self.position[1] - mouse.get_pos()[1])
+                self.calc_mouse_difference = True
+            self.position = (mouse.get_pos()[0] + self.mouse_difference[0], mouse.get_pos()[1] + self.mouse_difference[1])
+            self.rect = pygame.Rect(self.position, self.size)
+
         for component in self.components.values():
-            component.update()
+            component.update(self.position)
 

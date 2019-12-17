@@ -11,14 +11,19 @@ class Button:
         self.name = name
         self.parent = panel.name
         self.size = size
-        if len(panel.components) == 0:
-            self.world_position = [panel.position[0] + panel.padding[0], panel.position[1] + panel.padding[1]]
+
+        self.panel_position = panel.position
+        self.panel_padding = panel.padding
+        self.panel_components = list(panel.components.items())
+        self.panel_spacing = panel.spacing
+
+        if len(self.panel_components) == 0:
+            self.world_position = [self.panel_position[0] + self.panel_padding[0], self.panel_position[1] + self.panel_padding[1]]
         else:
-            panel_components = list(panel.components.items())
-            self.world_position = [panel.position[0] + panel.padding[0], (panel.position[1] + panel.padding[1] + panel_components[-1][1].local_position[1] + panel_components[-1][1].size[1] + panel.spacing)]
-        self.local_position = (self.world_position[0] - panel.position[0], self.world_position[1] - panel.position[1])
+            self.world_position = [self.panel_position[0] + self.panel_padding[0], (self.panel_position[1] + self.panel_padding[1] + self.panel_components[-1][1].local_position[1] + self.panel_components[-1][1].size[1] + self.panel_spacing)]
+        self.local_position = (self.world_position[0] - self.panel_position[0], self.world_position[1] - self.panel_position[1])
         self.color = color
-        self.rect = pygame.Rect(self.world_position, size)
+        self.rect = pygame.Rect(self.world_position, self.size)
         self.font = pygame.font.SysFont('Consolas', 22)
         self.surface_name = self.font.render(self.name, True, (50, 50, 50))
         self.pressed = False
@@ -31,7 +36,20 @@ class Button:
         pygame.draw.rect(Display.fake_display, self.color, self.rect)
         Display.fake_display.blit(self.surface_name, ((self.world_position[0] + (self.size[0] - self.surface_name.get_width())/2), (self.world_position[1] + (self.size[1] - self.surface_name.get_height())/2)))
 
-    def update(self):
+    def update_ui_positions(self, panel_position):
+        self.panel_position = panel_position
+
+        if len(self.panel_components) == 0:
+            self.world_position = [self.panel_position[0] + self.panel_padding[0], self.panel_position[1] + self.panel_padding[1]]
+        else:
+            self.world_position = [self.panel_position[0] + self.panel_padding[0], (self.panel_position[1] + self.panel_padding[1] + self.panel_components[-1][1].local_position[1] + self.panel_components[-1][1].size[1] + self.panel_spacing)]
+        self.local_position = (self.world_position[0] - self.panel_position[0], self.world_position[1] - self.panel_position[1])
+
+        self.rect = pygame.Rect(self.world_position, self.size)
+
+    def update(self, panel_position):
+        self.update_ui_positions(panel_position)
+
         self.pressed = False
         if mouse.get_rect().colliderect(self.rect):
             if events.button_pressed_once("MONE", "layer_0"):

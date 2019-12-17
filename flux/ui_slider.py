@@ -21,22 +21,25 @@ class Slider:
         self.surface_value = self.font.render(str(self.value), True, (50, 50, 50))
         self.surface_name = self.font.render(self.name, True, (50, 50, 50))
 
+        self.panel_position = panel.position
+        self.panel_padding = panel.padding
+        self.panel_components = list(panel.components.items())
+        self.panel_spacing = panel.spacing
         self.spacing_x = 20
-        self.name_position_x = panel.position[0] + panel.padding[0]
+        self.name_position_x = self.panel_position[0] + self.panel_padding[0]
         self.slider_position_x = self.name_position_x + self.surface_name.get_width() + self.spacing_x
         self.value_position_x = self.slider_position_x + self.size[0] + self.spacing_x
 
-        if len(panel.components) == 0:
-            self.world_position = [self.name_position_x, panel.position[1] + panel.padding[1]]
+        if self.panel_components == 0:
+            self.world_position = [self.name_position_x, self.panel_position[1] + self.panel_padding[1]]
         else:
-            panel_components = list(panel.components.items())
-            self.world_position = [self.name_position_x, (panel.position[1] + panel.padding[1] + panel_components[-1][1].local_position[1] + panel_components[-1][1].size[1] + panel.spacing)]
-        self.local_position = (self.world_position[0] - panel.position[0], self.world_position[1] - panel.position[1])
-        self.left_bound = pygame.Rect((self.slider_position_x, self.world_position[1]), (2, size[1]))
-        self.right_bound = pygame.Rect((self.slider_position_x + size[0], self.world_position[1]), (2, size[1]))
-        self.bar = pygame.Rect((self.slider_position_x, self.world_position[1] + size[1]/2), (size[0], 2))
+            self.world_position = [self.name_position_x, (self.panel_position[1] + self.panel_padding[1] + self.panel_components[-1][1].local_position[1] + self.panel_components[-1][1].size[1] + self.panel_spacing)]
+        self.local_position = (self.world_position[0] - self.panel_position[0], self.world_position[1] - self.panel_position[1])
+        self.left_bound = pygame.Rect((self.slider_position_x, self.world_position[1]), (2, self.size[1]))
+        self.right_bound = pygame.Rect((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]))
+        self.bar = pygame.Rect((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2))
         self.knob_x = convert_num_range(self.sl_range, (self.slider_position_x, self.slider_position_x + self.size[0] - self.knob_width), starting_value)
-        self.knob = pygame.Rect((self.knob_x, self.world_position[1]), (self.knob_width, size[1]))
+        self.knob = pygame.Rect((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]))
         self.movable_knob = False
         self.calc_mouse_difference = False
         self.mouse_difference = 0
@@ -52,13 +55,34 @@ class Slider:
         pygame.draw.rect(Display.fake_display, self.color, self.knob)
         Display.fake_display.blit(self.surface_value, (self.value_position_x, self.world_position[1] - 5))
 
-    def update(self):
+    def update_ui_positions(self, panel_position):
+        self.panel_position = panel_position
+
+        self.name_position_x = self.panel_position[0] + self.panel_padding[0]
+        self.slider_position_x = self.name_position_x + self.surface_name.get_width() + self.spacing_x
+        self.value_position_x = self.slider_position_x + self.size[0] + self.spacing_x
+
+        if self.panel_components == 0:
+            self.world_position = [self.name_position_x, self.panel_position[1] + self.panel_padding[1]]
+        else:
+            self.world_position = [self.name_position_x, (self.panel_position[1] + self.panel_padding[1] + self.panel_components[-1][1].local_position[1] + self.panel_components[-1][1].size[1] + self.panel_spacing)]
+        self.local_position = (self.world_position[0] - self.panel_position[0], self.world_position[1] - self.panel_position[1])
+
+        self.left_bound = pygame.Rect((self.slider_position_x, self.world_position[1]), (2, self.size[1]))
+        self.right_bound = pygame.Rect((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]))
+        self.bar = pygame.Rect((self.slider_position_x, self.world_position[1] + self.size[1] / 2), (self.size[0], 2))
+        self.knob_x = convert_num_range(self.sl_range, (self.slider_position_x, self.slider_position_x + self.size[0] - self.knob_width), self.value)
+        self.knob = pygame.Rect((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]))
+
+    def update(self, panel_position):
+        self.update_ui_positions(panel_position)
+
         if events.button_pressed("MONE", "layer_0"):
             if mouse.get_rect().colliderect(self.knob):
                 self.movable_knob = True
         else:
             self.movable_knob = False
-            self.calc_diff = False
+            self.calc_mouse_difference = False
 
         if self.movable_knob:
             if not self.calc_mouse_difference:
