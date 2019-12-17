@@ -236,4 +236,5 @@ class Events:
             self.register_keys_pressed(event)
             self.register_text_input_event(event)
 
+
 events = Events()

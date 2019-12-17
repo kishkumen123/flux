@@ -1,6 +1,7 @@
 from ui_panel import Panel
 from ui_button import Button
 from ui_slider import Slider
+from ui_field import Field
 
 
 class UI:
@@ -29,6 +30,16 @@ class UI:
 
         panel = self.panels[parent]
         panel.attach(Slider(name, panel, sl_range, **kwargs))
+
+    def create_field(self, name, parent, **kwargs):
+        if kwargs.get("size") is None:
+            kwargs["size"] = [50, 100]
+
+        panel = self.panels[parent]
+        panel.attach(Field(name, panel, **kwargs))
+
+    def get_value(self, panel_name, component_name):
+        return self.panels[panel_name].get_value(component_name)
 
     def show_panel(self, name):
         self.panels[name].show = True
