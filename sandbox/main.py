@@ -34,11 +34,6 @@ if __name__ == "__main__":
     move_speed = 0.7
 
     while engine.is_running():
-        display.clear_screen()
-        #print(engine.ui.get_value("panel1", "slider1"))
-        if engine.ui.get_value("panel1", "button1"):
-            print(engine.ui.get_value("panel1", "button1"))
-
         if engine.key_pressed_once("TAB", "layer_0"):
             engine.ui.toggle_panel("panel1")
 
@@ -59,7 +54,9 @@ if __name__ == "__main__":
 
         #world.update()
         #engine.draw_poly()
-        engine.update()
+        engine.flush()
         display.swap_buffer()
+        display.clear_screen()
+        engine.update()
 
     engine.quit()

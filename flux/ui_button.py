@@ -22,6 +22,7 @@ class Button:
         self.font = pygame.font.SysFont('Consolas', 22)
         self.surface_name = self.font.render(self.name, True, (50, 50, 50))
         self.pressed = False
+        self.held = False
 
     def get_value(self):
         return self.pressed
@@ -33,9 +34,12 @@ class Button:
     def update(self):
         self.pressed = False
         if mouse.get_rect().colliderect(self.rect):
-            if events.button_pressed("MONE", "layer_0"):
-                pass
-            if events.button_released("MONE", "layer_0"):
+            if events.button_pressed_once("MONE", "layer_0"):
+                self.held = True
+            if events.button_released("MONE", "layer_0") and self.held:
                 self.pressed = True
+                self.held = False
+        else:
+            self.held = False
 
 

@@ -224,6 +224,9 @@ class Events:
                 text_input_event = pygame.event.Event(self.TEXT_INPUT_EVENT_UP, {"type": "text_input_up", "key": key})
                 pygame.event.post(text_input_event)
 
+    def flush(self):
+        self.mouse_released = None
+
     def update(self):
         self.events_triggered = pygame.event.get()
 

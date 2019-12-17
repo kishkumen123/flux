@@ -25,6 +25,8 @@ class Flux:
         self.display = None
         self._elapsed_time = 0
         self.ui = None
+        self.frame_index = 1
+        self.events = events
 
     def init(self):
         pygame.init()
@@ -102,11 +104,15 @@ class Flux:
 
     def update(self):
         self.update_delta_time()
-        self.ui.update()
-        console.update(self.delta_time)
-
-        mouse.update()
         events.update()
+        self.ui.update()
+        mouse.update()
+
+        console.update(self.delta_time)
+        self.frame_index += 1
+
+    def flush(self):
+        events.flush()
 
     def kill(self):
         globals.running = False
