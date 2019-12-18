@@ -1,9 +1,9 @@
-import noise
 import random
 import numpy as np
 import pyfastnoisesimd as fns
+import noise
 
-from fmath import color_lerp, convert_rgb_to_int
+from flux.fmath import color_lerp, convert_rgb_to_int
 
 
 class NoiseGenerator:

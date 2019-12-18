@@ -1,7 +1,7 @@
-import globals
 import pygame
 
-from screen import Display
+from flux import _globals
+from flux.screen import Display
 
 
 class Poly:
@@ -50,7 +50,7 @@ class Poly:
         self.width = 0
 
     def update(self):
-        if globals.editor:
+        if _globals.editor:
             pass
         else:
             pass

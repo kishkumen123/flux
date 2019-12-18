@@ -1,11 +1,11 @@
 import pygame
-import globals
+from flux import _globals
 
-from screen import Display
-from layer import layer
-from events import events
-from mouse import mouse
-from commands import init_commands, run_command, get_commands
+from flux.screen import Display
+from flux.layer import UILayer
+from flux.events import events
+from flux.mouse import mouse
+from flux.commands import init_commands, run_command, get_commands
 
 
 class Console:
@@ -23,7 +23,7 @@ class Console:
         self.cursor_color = (200, 200, 200)
         self.current_opennes = 0
         self.open_dict = {"CLOSED": 0, "MIN": 0.3, "MAX": 0.8}
-        self.history_length = len(globals.history_input)
+        self.history_length = len(_globals.history_input)
         self.history_index = None
         self.stored_text = self.text
         self.scrollable = False
@@ -64,13 +64,13 @@ class Console:
         self.cursor_length = len(self.text)
         sub_amount = self.cursor_length if self.cursor_length == self.cursor_index or self.cursor_index is None else self.cursor_index
         cursor_position_offset = self.cursor_position_x + txt_surface.get_width() - (10 * (self.cursor_length - sub_amount))
-        if globals.cursor_underscored:
+        if _globals.cursor_underscored:
             self.cursor = pygame.draw.rect(Display.fake_display, self.cursor_color, (cursor_position_offset, self.y - 0, 8, 0))
         else:
             self.cursor = pygame.draw.rect(Display.fake_display, self.cursor_color, (cursor_position_offset, self.y - 20, 10, 18))
 
     def draw_history(self, font):
-        for i, value in enumerate(reversed(globals.history_output)):
+        for i, value in enumerate(reversed(_globals.history_output)):
             text = font.render(value, True, (255, 175, 0))
 
             text_rect = text.get_rect()
@@ -109,7 +109,7 @@ class Console:
 
     def set_search_history(self):
         commands_found = []
-        for command in globals.history_input:
+        for command in _globals.history_input:
             found = False
             for index, letter in enumerate(self.text):
                 if index < len(command):
@@ -162,7 +162,7 @@ class Console:
 
     def update(self, dt):
         font = pygame.font.SysFont('Consolas', 18)
-        self.history_length = len(globals.history_input)
+        self.history_length = len(_globals.history_input)
         self.cursor_length = len(self.text)
 
         if events.key_pressed_once("ESCAPE", "layer_999"):
@@ -218,8 +218,8 @@ class Console:
                     self.stored_text = self.text
                 if self.history_index > 0:
                     self.history_index -= 1
-                if len(globals.history_input):
-                    self.text = globals.history_input[self.history_index]
+                if len(_globals.history_input):
+                    self.text = _globals.history_input[self.history_index]
                     self.cursor_length = len(self.text)
                     self.cursor_index = self.cursor_length
             if events.key_pressed_once("DOWN", "layer_999"):
@@ -230,7 +230,7 @@ class Console:
                         self.text = self.stored_text
                         self.stored_text = ""
                     else:
-                        self.text = globals.history_input[self.history_index]
+                        self.text = _globals.history_input[self.history_index]
                     self.cursor_length = len(self.text)
                     self.cursor_index = self.cursor_length
 

@@ -1,8 +1,8 @@
 import pygame
 
-from screen import Display
-from mouse import mouse
-from events import events
+from flux.screen import Display
+from flux.mouse import mouse
+from flux.events import events
 
 
 class Button:

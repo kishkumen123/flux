@@ -1,9 +1,9 @@
-import globals
 import pygame
 
-from events import events
-from layer import layer
-from screen import Display
+from flux import _globals
+from flux.events import events
+from flux.layer import UILayer
+from flux.screen import Display
 
 
 class Mouse:
@@ -70,28 +70,17 @@ class Mouse:
             obj.move_offset = [(obj.points[i][0] - mouse.get_pos()[0], obj.points[i][1] - mouse.get_pos()[1]) for i, _ in enumerate(obj.points)]
 
     def update(self):
-        if globals.editor:
+        if _globals.editor:
             self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
 
-            if globals.selection_list:
-                for obj in globals.selection_list:
+            if _globals.selection_list:
+                for obj in _globals.selection_list:
                     color = self.eval_highlight_color(obj.color)
                     pygame.draw.polygon(Display.fake_display, color, tuple(obj.points), 3)
 
             if events.button_pressed_once("MONE"):
                 found_obj = None
                 #this needs to traverse the list from top to bottom layer later
-                for obj in globals.poly_dict:
-                    if obj.rect.collidepoint(self.get_pos()):
-                        found_obj = obj
-
-                if found_obj:
-                    if found_obj not in globals.selection_list:
-                        if not events.key_pressed("LSHIFT"):
-                            globals.selection_list = []
-                        globals.selection_list.append(found_obj)
-                else:
-                    globals.selection_list = []
 
             if events.button_pressed_once("MTWO"):
                 self.point_at_click = pygame.mouse.get_pos()
@@ -101,17 +90,17 @@ class Mouse:
 
             if events.button_released("MTWO"):
                 self.point_at_click = None
-                globals.selection_list = []
-                for obj in globals.poly_dict:
+                _globals.selection_list = []
+                for obj in _globals.poly_dict:
                     if self.selection_box.colliderect(obj.rect):
-                        globals.selection_list.append(obj)
+                        _globals.selection_list.append(obj)
 
-                if globals.selection_list:
-                    globals.selection = None
+                if _globals.selection_list:
+                    _globals.selection = None
 
             if events.button_pressed("MONE") and events.key_pressed("LSHIFT"):
                 if self.focus is None:
-                    for obj in globals.poly_dict:
+                    for obj in _globals.poly_dict:
                         self.move_point(obj)
                 else:
                     self.focus.points[self.focus_index] = self.get_pos()
@@ -120,7 +109,7 @@ class Mouse:
                 self.focus_index = None
 
             # this for loop should be in the if statement, this is super inefficient
-            for obj in globals.selection_list:
+            for obj in _globals.selection_list:
                 if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
                     self.move_rect(obj)
                 else:
