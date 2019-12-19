@@ -1,7 +1,6 @@
 import pygame
 import string
 
-from flux.layer import UILayer
 from flux.layer import layer
 
 
