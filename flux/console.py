@@ -2,7 +2,7 @@ import pygame
 from flux import _globals
 
 from flux.screen import Display
-from flux.layer import UILayer
+from flux.layer import layer
 from flux.events import events
 from flux.mouse import mouse
 from flux.commands import init_commands, run_command, get_commands
