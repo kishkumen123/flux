@@ -38,7 +38,7 @@ if __name__ == "__main__":
         if engine.ui.get_component_value("panel1", "button1"):
             print(engine.ui.get_component_value("panel1", "button1"))
 
-        if engine.key_pressed_once("TAB", "layer_0"):
+        if engine.key_pressed_once("TAB", "layer_all"):
             engine.ui.toggle_panel("panel1")
 
         #if engine.key_pressed("a", "layer_0"):
@@ -50,9 +50,9 @@ if __name__ == "__main__":
         #if engine.key_pressed("s", "layer_0"):
         #    world.move(y=move_speed)
 
-        if engine.key_pressed("ESCAPE", "layer_0"):
+        if engine.key_pressed("ESCAPE", "layer_all"):
             engine.kill()
-        if engine.event_triggered("QUIT"):
+        if engine.event_triggered("QUIT", "layer_all"):
             engine.kill()
 
 

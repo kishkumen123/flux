@@ -109,6 +109,8 @@ class Flux:
         mouse.update()
 
         console.update(self.delta_time)
+
+        globals.draw()
         self.frame_index += 1
 
     def flush(self):

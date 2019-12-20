@@ -37,7 +37,7 @@ class Panel:
             component.draw()
 
     def update(self):
-        if events.button_pressed("MONE", "layer_0"):
+        if events.button_pressed("MONE", "layer_3"):
             if mouse.get_rect().colliderect(self.rect):
                 self.movable = True
         else:

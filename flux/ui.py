@@ -1,3 +1,4 @@
+from layer import layer
 from ui_panel import Panel
 from ui_button import Button
 from ui_slider import Slider
@@ -45,6 +46,11 @@ class UI:
         self.panels[name].show = True
 
     def toggle_panel(self, name):
+        layer.set_layer("layer_3")
+        if self.panels[name].show is False:
+            layer.set_layer("layer_3")
+        else:
+            layer.pop_layer()
         self.panels[name].show = not self.panels[name].show
 
     def update(self):
