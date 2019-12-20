@@ -1,10 +1,10 @@
 import pygame
-
-from screen import Display
 from multiprocessing import Process, Manager
-from terrain import Terrain
-from perlin_noise import NoiseGenerator
-from fmath import v2distance
+
+from flux.screen import Display
+from flux.terrain import Terrain
+from flux.perlin_noise import NoiseGenerator
+from flux.fmath import v2distance
 
 
 class GridGenerator:

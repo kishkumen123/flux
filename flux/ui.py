@@ -1,7 +1,7 @@
-from ui_panel import Panel
-from ui_button import Button
-from ui_slider import Slider
-from ui_field import Field
+from flux.ui_panel import Panel
+from flux.ui_button import Button
+from flux.ui_slider import Slider
+from flux.ui_field import Field
 
 
 class UI:

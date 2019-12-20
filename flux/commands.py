@@ -1,8 +1,8 @@
-import globals
 import json
 import os
 
-from poly import Poly
+from flux import _globals
+from flux.poly import Poly
 
 commands = {}
 
@@ -70,11 +70,11 @@ def add_command(name, proc, arg_count_min=0, arg_count_max=0, tooltip=""):
 
 
 def command_output(command):
-    globals.history_output.append(str(command))
+    _globals.history_output.append(str(command))
 
 
 def command_input(command):
-    globals.history_input.append(command)
+    _globals.history_input.append(command)
 
 
 def command_ls(arguments):
@@ -83,39 +83,39 @@ def command_ls(arguments):
 
 
 def command_clear(arguments):
-    globals.history_output = []
+    _globals.history_output = []
     command_output("history cleared!")
 
 
 def command_quit(arguments):
     command_output("We called quit. existing flux!")
-    globals.running = False
+    _globals.running = False
 
 
 def command_editor(arguments):
     if len(arguments) == 0:
-        command_output("\"editor\" = \"%s\"" % globals.editor)
+        command_output("\"editor\" = \"%s\"" % _globals.editor)
     elif arguments[0] == "0" or arguments[0] == "1":
-        globals.editor = int(arguments[0])
-        command_output("\"editor\" = \"%s\"" % globals.editor)
+        _globals.editor = int(arguments[0])
+        command_output("\"editor\" = \"%s\"" % _globals.editor)
     else:
         command_output("invalid arguments. 0 or 1")
 
 
 def command_cursor_underscored(arguments):
     if len(arguments) == 0:
-        command_output("\"cursor_underscored\" = \"%s\"" % globals.cursor_underscored)
+        command_output("\"cursor_underscored\" = \"%s\"" % _globals.cursor_underscored)
     elif arguments[0] == "0" or arguments[0] == "1":
-        globals.cursor_underscored = int(arguments[0])
-        command_output("\"cursor_underscored\" = \"%s\"" % globals.cursor_underscored)
+        _globals.cursor_underscored = int(arguments[0])
+        command_output("\"cursor_underscored\" = \"%s\"" % _globals.cursor_underscored)
     else:
         command_output("invalid arguments. 0 or 1")
 
 
 def command_selection_data(arguments):
     if len(arguments) == 0:
-        if globals.get_selection() is not None:
-            command_output("\"selection_data\" = \"%s\"" % globals.get_selection().points)
+        if _globals.get_selection() is not None:
+            command_output("\"selection_data\" = \"%s\"" % _globals.get_selection().points)
         else:
             command_output("No selection found")
     else:
@@ -128,7 +128,7 @@ def command_save_level(arguments):
 
         data = {"poly": []}
         with open(path, "w") as f:
-            for poly in globals.poly_dict:
+            for poly in _globals.poly_dict:
                 poly_data = {"name": poly.name, "layer": poly.layer, "color": poly.color, "points": poly.points, "width": poly.width}
                 data["poly"].append(poly_data)
             #figure out how to indent but not indent lists
@@ -142,13 +142,13 @@ def command_level(arguments):
         path = os.path.join(os.getcwd(), "levels", str(arguments[0]))
 
         if os.path.exists(path):
-            globals.poly_dict = []
-            globals.selection = None
+            _globals.poly_dict = []
+            _globals.selection = None
             with open(path, "r") as f:
                 data = json.load(f)
                 for obj in data["poly"]:
                     poly = Poly(obj["name"], obj["layer"], obj["color"], obj["points"], None, obj["width"])
-                    globals.poly_dict.append(poly)
+                    _globals.poly_dict.append(poly)
         else:
             command_output("filename %s does not exist" % str(arguments[0]))
     else:
@@ -157,9 +157,9 @@ def command_level(arguments):
 
 def command_new_level(arguments):
     if len(arguments) == 0:
-        globals.poly_dict = []
-        globals.selection = None
-        globals.selection_list = []
+        _globals.poly_dict = []
+        _globals.selection = None
+        _globals.selection_list = []
     else:
         command_output("command takes 0 argument of filename")
 

@@ -1,7 +1,7 @@
 import pygame
 import string
 
-from layer import layer
+from flux.layer import layer
 
 
 class Events:
