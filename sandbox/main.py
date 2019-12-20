@@ -1,6 +1,6 @@
 
 if __name__ == "__main__":
-    from flux import Flux
+    from flux.main import Flux
 
     engine = Flux()
     engine.init()

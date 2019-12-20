@@ -1,5 +1,5 @@
 import pygame
-from screen import Display
+from flux.screen import Display
 
 
 class Field:

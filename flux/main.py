@@ -2,16 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import pygame
-import globals
 
-from events import events
-from mouse import mouse
-from screen import Display
-from poly import Poly
-from console import console
-from commands import run_command
-from grid_generator import GridGenerator
-from ui import ui
+from flux import _globals
+from flux.events import events
+from flux.mouse import mouse
+from flux.screen import Display
+from flux.poly import Poly
+from flux.console import console
+from flux.commands import run_command
+from flux.grid_generator import GridGenerator
+from flux.ui import ui
 
 
 class Flux:
@@ -58,10 +58,10 @@ class Flux:
         return self._elapsed_time
 
     def get_poly_dict(self):
-        return globals.poly_dict
+        return _globals.poly_dict
 
     def draw_poly(self):
-        for poly in globals.poly_dict:
+        for poly in _globals.poly_dict:
             poly.draw()
 
     def create_poly(self, name, layer, color, points, surface=None, width=0):
@@ -69,7 +69,7 @@ class Flux:
             surface = self.display.fake_display
 
         poly = Poly(name, layer, color, points, surface, width)
-        globals.poly_dict.append(poly)
+        _globals.poly_dict.append(poly)
 
         return poly
 
@@ -88,7 +88,7 @@ class Flux:
         pygame.quit()
 
     def is_running(self):
-        return globals.running
+        return _globals.running
 
     def key_pressed(self, key, layer="layer_0"):
         return events.key_pressed(key, layer)
@@ -110,11 +110,11 @@ class Flux:
 
         console.update(self.delta_time)
 
-        globals.draw()
+        _globals.draw()
         self.frame_index += 1
 
     def flush(self):
         events.flush()
 
     def kill(self):
-        globals.running = False
+        _globals.running = False

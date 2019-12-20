@@ -1,9 +1,9 @@
 import pygame
-
-from events import events
-from mouse import mouse
-from screen import Display
 from collections import OrderedDict
+
+from flux.events import events
+from flux.mouse import mouse
+from flux.screen import Display
 
 
 class Panel:
