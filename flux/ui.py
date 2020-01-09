@@ -1,4 +1,3 @@
-from flux.layer import layer
 from flux.ui_panel import Panel
 from flux.ui_button import Button
 from flux.ui_slider import Slider
@@ -46,18 +45,12 @@ class UI:
         self.panels[name].show = True
 
     def toggle_panel(self, name):
-        layer.set_layer("layer_3")
-        if self.panels[name].show is False:
-            layer.set_layer("layer_3")
-        else:
-            layer.pop_layer()
-        self.panels[name].show = not self.panels[name].show
+        self.panels[name].toggle()
 
     def update(self):
         for panel in self.panels.values():
-            if panel.show:
-                panel.draw()
-                panel.update()
+            panel.draw()
+            panel.update()
 
 
 ui = UI()

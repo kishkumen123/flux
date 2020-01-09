@@ -3,6 +3,7 @@ import pygame
 from flux import _globals
 from flux.events import events
 from flux.layer import UILayer
+from flux.layer import layer
 from flux.screen import Display
 
 
