@@ -1,10 +1,9 @@
-import pygame
 from flux import _globals
-
 from flux.screen import Display
 from flux.layer import layer
 from flux.events import events
 from flux.mouse import mouse
+from flux.renderer import renderer
 from flux.commands import init_commands, run_command, get_commands
 
 
@@ -13,12 +12,9 @@ class Console:
 
     def __init__(self):
         self.text = ""
-        self.console_background = pygame.draw.rect(Display.fake_display, (49, 103, 250), (0, 0, 100, 0))
-        self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, 0, 100, 0))
-        self.cursor = pygame.draw.rect(Display.fake_display, (200, 200, 200), (0, 2, 15, 0))
         self.cursor_position_y = 15
         self.cursor_position_x = 5
-        self.cursor_length = len(self.text)
+        self.cursor_max = len(self.text)
         self.cursor_index = 0
         self.cursor_color = (200, 200, 200)
         self.current_opennes = 0
@@ -36,7 +32,8 @@ class Console:
         self.layer = "layer_999"
         self.pause = False
         self.mouse_wheel_offset = 0
-        self.auto_complete_command = ""
+        self.autocomplete_text = ""
+        self.letter_rect = renderer.text_rect("A", (0, 0, 0))
 
     def set_openess(self, amount):
         self.open_amount = amount
@@ -55,45 +52,48 @@ class Console:
                 self.y = self.target_openess
 
     def draw_background(self):
-        self.console_background = pygame.draw.rect(Display.fake_display, (39, 40, 34), (0, 0, Display.x, self.y))
+        renderer.draw_quad((0, 0), (Display.x, self.y), (39, 40, 34))
 
     def draw_textfield(self):
-        self.console_textfield = pygame.draw.rect(Display.fake_display, (60, 61, 56), (0, self.y - 22, Display.x, 22))
+        renderer.draw_quad((0, self.y - 22), (Display.x, 22), (60, 61, 56))
 
-    def draw_cursor(self, txt_surface):
-        self.cursor_length = len(self.text)
-        sub_amount = self.cursor_length if self.cursor_length == self.cursor_index or self.cursor_index is None else self.cursor_index
-        cursor_position_offset = self.cursor_position_x + txt_surface.get_width() - (10 * (self.cursor_length - sub_amount))
+    def draw_text(self):
+        renderer.draw_text(self.text, (5, self.y - 20), (255, 175, 0))
+
+    def draw_autocomplete_suggestion(self):
+        autocomplete_difference = self.autocomplete_text[len(self.text):]
+        renderer.draw_text(autocomplete_difference, (5 + self.cursor_max * self.letter_rect.width, self.y - 20), (120, 80, 0))
+
+    def draw_cursor(self):
+        cursor_position = 5 + self.cursor_index * self.letter_rect.width
         if _globals.cursor_underscored:
-            self.cursor = pygame.draw.rect(Display.fake_display, self.cursor_color, (cursor_position_offset, self.y - 0, 8, 0))
+            renderer.draw_quad((cursor_position, self.y), (8, 0), self.cursor_color)
         else:
-            self.cursor = pygame.draw.rect(Display.fake_display, self.cursor_color, (cursor_position_offset, self.y - 20, 10, 18))
+            renderer.draw_quad((cursor_position, self.y - 20), (10, 18), self.cursor_color)
 
-    def draw_history(self, font):
-        for i, value in enumerate(reversed(_globals.history_output)):
-            text = font.render(value, True, (255, 175, 0))
-
-            text_rect = text.get_rect()
+    def draw_history(self):
+        for i, text in enumerate(reversed(_globals.history_output)):
+            text_rect = renderer.text_rect(text, (255, 175, 0))
             text_rect.x = 5
-            text_rect.y = self.y - 40 - (20 * i) + self.mouse_wheel_offset
+            text_rect.y = self.y - 45 - (20 * i) + self.mouse_wheel_offset
             if text_rect.y < 0:
                 self.scrollable = True
             else:
                 self.scrollable = False
             if text_rect.y < self.y - 20:
-                Display.blit_text(text, text_rect)
+                renderer.draw_text(text, text_rect, (255, 175, 0))
 
     def add_text_at_cursor(self, key):
         left = self.text[:self.cursor_index]
         right = self.text[self.cursor_index:]
         self.text = left + key + right
-        if self.cursor_index is not None and self.cursor_index >= 0:
+        if self.cursor_index >= 0:
             self.cursor_index += 1
         else:
             self.cursor_index = 1
 
     def remove_text_at_cursor(self):
-        if self.cursor_index is not None and self.cursor_index > 0:
+        if self.cursor_index > 0:
             left = self.text[:self.cursor_index-1]
             right = self.text[self.cursor_index:]
             self.text = left + right
@@ -107,7 +107,8 @@ class Console:
         self.history_index = None
         self.cursor_index = 0
 
-    def set_search_history(self):
+    def autocomplete_input_history(self):
+        self.cursor_color = (200, 50, 50)
         commands_found = []
         for command in _globals.history_input:
             found = False
@@ -130,11 +131,12 @@ class Console:
 
         if len(self.text) > 0 and len(commands_found) > 0:
             commands_found.sort()
-            self.auto_complete_command = commands_found[0]
+            self.autocomplete_text = commands_found[0]
         else:
-            self.auto_complete_command = ""
+            self.autocomplete_text = ""
 
-    def set_auto_complete_command(self):
+    def autcomplete_known_commands(self):
+        self.cursor_color = (200, 200, 200)
         commands_found = []
         for command in get_commands():
             found = False
@@ -153,17 +155,12 @@ class Console:
 
         if len(self.text) > 0 and len(commands_found) > 0:
             commands_found.sort()
-            self.auto_complete_command = commands_found[0]
+            self.autocomplete_text = commands_found[0]
         else:
-            self.auto_complete_command = ""
-
-    def adjust_cursor_position(self):
-        self.cursor_index = len(self.text)
+            self.autocomplete_text = ""
 
     def update(self, dt):
-        font = pygame.font.SysFont('Consolas', 18)
         self.history_length = len(_globals.history_input)
-        self.cursor_length = len(self.text)
 
         if events.key_pressed_once("ESCAPE", "layer_999"):
             self.set_openess("CLOSED")
@@ -201,15 +198,17 @@ class Console:
             if events.key_pressed_repeat("BACKSPACE", "layer_999"):
                 self.remove_text_at_cursor()
             if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
-                self.cursor_color = (200, 200, 200)
-                self.run_command(self.text)
                 self.search_history = False
+                run_command(self.text)
+                self.text = ""
+                self.history_index = None
+                self.cursor_index = 0
 
             if events.key_pressed_repeat("LEFT", "layer_999"):
                 if self.cursor_index > 0:
                     self.cursor_index -= 1
             if events.key_pressed_repeat("RIGHT", "layer_999"):
-                if self.cursor_index < self.cursor_length:
+                if self.cursor_index < self.cursor_max:
                     self.cursor_index += 1
 
             if events.key_pressed_once("UP", "layer_999"):
@@ -220,8 +219,8 @@ class Console:
                     self.history_index -= 1
                 if len(_globals.history_input):
                     self.text = _globals.history_input[self.history_index]
-                    self.cursor_length = len(self.text)
-                    self.cursor_index = self.cursor_length
+                    self.cursor_max = len(self.text)
+                    self.cursor_index = self.cursor_max
             if events.key_pressed_once("DOWN", "layer_999"):
                 if self.history_index is not None:
                     self.history_index += 1
@@ -231,36 +230,32 @@ class Console:
                         self.stored_text = ""
                     else:
                         self.text = _globals.history_input[self.history_index]
-                    self.cursor_length = len(self.text)
-                    self.cursor_index = self.cursor_length
+                    self.cursor_max = len(self.text)
+                    self.cursor_index = self.cursor_max
 
             if events.key_pressed_once("HOME", "layer_999"):
                 self.cursor_index = 0
             if events.key_pressed_once("END", "layer_999"):
-                self.cursor_index = self.cursor_length
+                self.cursor_index = self.cursor_max
             if events.key_pressed_once("TAB", "layer_999"):
-                self.text = self.auto_complete_command
-                self.adjust_cursor_position()
+                self.text = self.autocomplete_text
+                self.cursor_index = len(self.text)
             if events.key_pressed("LCTRL", "layer_all") and events.key_pressed_once("r", "layer_all"):
                 self.search_history = True
 
             if self.search_history:
-                self.cursor_color = (200, 20, 20)
-                self.set_search_history()
+                self.autocomplete_input_history()
             else:
-                self.set_auto_complete_command()
+                self.autcomplete_known_commands()
 
-            txt_surface = font.render(self.text, True, (255, 175, 0))
-            text_difference = self.auto_complete_command[len(self.text):]
-            txt_surface_autocomplete = font.render(text_difference, True, (120, 80, 0))
+            self.cursor_max = len(self.text)
 
             self.draw_background()
             self.draw_textfield()
-            self.draw_cursor(txt_surface)
-            self.draw_history(font)
-
-            Display.fake_display.blit(txt_surface, (self.console_textfield.x + 5, self.console_textfield.y + 2))
-            Display.fake_display.blit(txt_surface_autocomplete, (self.console_textfield.x + 5 + txt_surface.get_width(), self.console_textfield.y + 2))
+            self.draw_history()
+            self.draw_text()
+            self.draw_autocomplete_suggestion()
+            self.draw_cursor()
 
 
 console = Console()

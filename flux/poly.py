@@ -1,7 +1,8 @@
 import pygame
 
-from flux import _globals
+from flux._globals import editor
 from flux.screen import Display
+from flux.renderer import renderer
 
 
 class Poly:
@@ -29,7 +30,7 @@ class Poly:
         if self.surface is None:
             self.surface = Display.fake_display
 
-        self.rect = pygame.draw.polygon(self.surface, self.color, self.points, self.width)
+        self.rect = renderer.draw_poly(self.points, self.color, self.width)
         self.update()
 
     def intersects_point(self, rect):
@@ -50,7 +51,7 @@ class Poly:
         self.width = 0
 
     def update(self):
-        if _globals.editor:
+        if editor:
             pass
         else:
             pass

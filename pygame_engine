@@ -69,6 +69,7 @@ sprite layers:
     need to have layers for sprite to determine draw order and have it easily modifiable
 
 bugs:
+    - text still repeats with special characters. still have to look into it AGAIN
     also looks like there is a text_input and repeat functionality built in... pygame.key.___
     special symbols on key up arnt registering cause they are mod=1
     if ` or ~ it auto registers are text input, so need to accept on next key down

@@ -2,15 +2,15 @@ import pygame
 
 from flux import _globals
 from flux.events import events
-from flux.layer import UILayer
 from flux.layer import layer
 from flux.screen import Display
+from flux.renderer import renderer
 
 
 class Mouse:
 
     def __init__(self):
-        self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
+        self.rect = renderer.circle_rect(pygame.mouse.get_pos(), 5, (250, 0, 0, 0))
         self.highlight_rect = None
         self.calced = False
         self.point_at_click = None
@@ -72,22 +72,34 @@ class Mouse:
 
     def update(self):
         if _globals.editor:
-            self.rect = pygame.draw.circle(Display.fake_display, (250, 0, 0, 0), pygame.mouse.get_pos(), 5, 0)
+            self.rect = renderer.draw_circle(pygame.mouse.get_pos(), 5, (250, 0, 0, 0))
 
             if _globals.selection_list:
                 for obj in _globals.selection_list:
                     color = self.eval_highlight_color(obj.color)
-                    pygame.draw.polygon(Display.fake_display, color, tuple(obj.points), 3)
+                    renderer.draw_poly(tuple(obj.points), color, 3)
 
             if events.button_pressed_once("MONE"):
                 found_obj = None
                 #this needs to traverse the list from top to bottom layer later
+                for obj in _globals.poly_dict:
+                    if obj.contains(self.rect):
+                        found_obj = obj
+
+                _globals.set_selection(found_obj)
+                if found_obj:
+                    if found_obj not in _globals.selection_list:
+                        if not events.key_pressed("LSHIFT"):
+                            _globals.selection_list = []
+                        _globals.selection_list.append(found_obj)
+                else:
+                    _globals.selection_list = []
 
             if events.button_pressed_once("MTWO"):
                 self.point_at_click = pygame.mouse.get_pos()
 
             if events.button_pressed("MTWO"):
-                self.selection_box = pygame.draw.rect(Display.fake_display, [100, 100, 100], (self.point_at_click[0], self.point_at_click[1], pygame.mouse.get_pos()[0] - self.point_at_click[0], pygame.mouse.get_pos()[1] - self.point_at_click[1]), 3)
+                self.selection_box = renderer.draw_quad((self.point_at_click[0], self.point_at_click[1]), (pygame.mouse.get_pos()[0] - self.point_at_click[0], pygame.mouse.get_pos()[1] - self.point_at_click[1]), (100, 100, 100), 3)
 
             if events.button_released("MTWO"):
                 self.point_at_click = None

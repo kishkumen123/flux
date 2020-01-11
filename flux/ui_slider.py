@@ -3,6 +3,7 @@ from flux.screen import Display
 from flux.mouse import mouse
 from flux.events import events
 from flux.fmath import convert_num_range
+from flux.renderer import renderer
 
 
 class Slider:
@@ -35,11 +36,13 @@ class Slider:
         else:
             self.world_position = [self.name_position_x, (self.panel_position[1] + self.panel_padding[1] + self.panel_components[-1][1].local_position[1] + self.panel_components[-1][1].size[1] + self.panel_spacing)]
         self.local_position = (self.world_position[0] - self.panel_position[0], self.world_position[1] - self.panel_position[1])
+
         self.left_bound = pygame.Rect((self.slider_position_x, self.world_position[1]), (2, self.size[1]))
         self.right_bound = pygame.Rect((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]))
         self.bar = pygame.Rect((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2))
         self.knob_x = convert_num_range(self.sl_range, (self.slider_position_x, self.slider_position_x + self.size[0] - self.knob_width), starting_value)
         self.knob = pygame.Rect((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]))
+
         self.movable_knob = False
         self.calc_mouse_difference = False
         self.mouse_difference = 0
@@ -48,12 +51,12 @@ class Slider:
         return self.value
 
     def draw(self):
-        Display.fake_display.blit(self.surface_name, (self.name_position_x, self.world_position[1]))
-        pygame.draw.rect(Display.fake_display, self.color, self.left_bound)
-        pygame.draw.rect(Display.fake_display, self.color, self.right_bound)
-        pygame.draw.rect(Display.fake_display, self.color, self.bar)
-        pygame.draw.rect(Display.fake_display, self.color, self.knob)
-        Display.fake_display.blit(self.surface_value, (self.value_position_x, self.world_position[1] - 5))
+        name = renderer.draw_text(self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50))
+        left_bound = renderer.draw_quad((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.color)
+        right_bound = renderer.draw_quad((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.color)
+        bar = renderer.draw_quad((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.color)
+        knob = renderer.draw_quad((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.color)
+        value = renderer.draw_text(str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50))
 
     def update_ui_positions(self, panel_position):
         self.panel_position = panel_position
@@ -77,7 +80,7 @@ class Slider:
     def update(self, panel_position):
         self.update_ui_positions(panel_position)
 
-        if events.button_pressed("MONE", "layer_0"):
+        if events.button_pressed("MONE", "layer_3"):
             if mouse.get_rect().colliderect(self.knob):
                 self.movable_knob = True
         else:

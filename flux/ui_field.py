@@ -28,6 +28,7 @@ class Field:
         self.rect = pygame.Rect(self.world_position, size)
 
     def draw(self):
+        # use renderer when ever you make this work
         Display.fake_display.blit(self.surface_name, ((self.world_position[0] + (self.size[0] - self.surface_name.get_width())/2), (self.world_position[1] + (self.size[1] - self.surface_name.get_height())/2)))
 
     def update(self):

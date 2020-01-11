@@ -30,11 +30,9 @@ if __name__ == "__main__":
     #world = engine.generate_world(scale=40, color_height_map=height_map)
     #world = engine.generate_world()
     move_speed = 0.7
+    engine.load_level("one")
 
     while engine.is_running():
-        #print(engine.ui.get_component_value("panel1", "slider1"))
-        if engine.ui.get_component_value("panel1", "button1"):
-            print(engine.ui.get_component_value("panel1", "button1"))
 
         if engine.key_pressed_once("TAB", "layer_all"):
             engine.ui.toggle_panel("panel1")

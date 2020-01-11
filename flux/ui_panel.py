@@ -4,16 +4,13 @@ from collections import OrderedDict
 from flux.layer import layer
 from flux.events import events
 from flux.mouse import mouse
-from flux.screen import Display
 from flux.renderer import renderer
 
 
 class Panel:
 
-    def __init__(self, name, size=None, position=None, color=(128, 128, 128), debug=False, layer="layer_0", show=False, padding=(15, 15), spacing=15):
+    def __init__(self, name, size=None, position=None, color=(128, 128, 128), debug=False, layer="layer_0", show=False, padding=(15, 30), spacing=15):
         self.name = name
-        self.font = pygame.font.SysFont('Consolas', 22)
-        self.surface_name = self.font.render(self.name, True, (50, 50, 50))
 
         self.size = size
         self.position = position
@@ -23,7 +20,7 @@ class Panel:
         self.rect = pygame.Rect(position, size)
         self.color = color
         self.components = OrderedDict()
-        self.padding = (padding[0], padding[1] + self.surface_name.get_height())
+        self.padding = (padding[0], padding[1])
         self.spacing = spacing
 
         self.movable = False
@@ -46,16 +43,16 @@ class Panel:
 
     def draw(self):
         if self.show:
-            renderer.draw_quad(self.position, self.size, self.color)
-            #pygame.draw.rect(Display.fake_display, self.color, self.rect)
-            Display.fake_display.blit(self.surface_name, (self.position[0] + self.size[0]/2 - self.surface_name.get_width()/2, self.position[1] + 2))
+            rect = renderer.draw_quad(self.position, self.size, self.color)
+            renderer.draw_text(self.name, color=(50, 50, 50), rect=rect, clamp="midtop")
             for component in self.components.values():
                 component.draw()
 
     def update(self):
         if events.button_pressed("MONE", "layer_3"):
             if mouse.get_rect().colliderect(self.rect):
-                self.movable = True
+                pass
+                #self.movable = True
         else:
             self.movable = False
             self.calc_mouse_difference = False

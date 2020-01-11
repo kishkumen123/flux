@@ -30,7 +30,6 @@ class Flux:
 
     def init(self):
         pygame.init()
-        run_command("level one")
         self.ui = ui
 
     def init_display(self, resolution):
@@ -48,6 +47,9 @@ class Flux:
     def update_delta_time(self):
         self._delta_time = self.clock.tick(self.fps) / 1000
         self._elapsed_time += self._delta_time / 1000.0
+
+    def load_level(self, level):
+        run_command("level " + str(level))
 
     @property
     def delta_time(self):
@@ -104,13 +106,14 @@ class Flux:
 
     def update(self):
         self.update_delta_time()
+        self.draw_poly()
         events.update()
         self.ui.update()
         mouse.update()
 
         console.update(self.delta_time)
 
-        _globals.draw()
+        #_globals.draw()
         self.frame_index += 1
 
     def flush(self):

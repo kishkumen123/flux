@@ -1,7 +1,3 @@
-import pygame
-
-from screen import Display
-
 running = True
 history_output = []
 history_input = []
@@ -22,15 +18,6 @@ def add_rect(_rect, _color, _layer):
     sorted(rects, key=lambda rect: rect.layer)
 
 
-def draw(item=None):
-    if item is None:
-        global rects
-        for rect in rects:
-            pygame.draw.rect(Display.fake_display, rect.color, rect.rect)
-    else:
-        pass
-
-
 def set_selection(value):
     global selection
     selection = value
@@ -42,7 +29,6 @@ def get_selection():
 
 
 class Rect:
-
     def __init__(self, rect, color, layer):
         self.rect = rect
         self.color = color
