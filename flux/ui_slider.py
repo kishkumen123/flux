@@ -4,7 +4,7 @@ from flux._globals import render_layer
 from flux.mouse import mouse
 from flux.events import events
 from flux.fmath import convert_num_range
-from flux.renderer import renderer, RenderGroup
+from flux.renderer import RenderGroup
 
 
 class Slider:

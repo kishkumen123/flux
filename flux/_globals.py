@@ -14,6 +14,7 @@ rects = []
 
 render_layer = RenderLayer()
 render_layer.create_layer()
+render_layer.create_layer()
 
 
 def draw_everything():
