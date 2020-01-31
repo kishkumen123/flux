@@ -62,8 +62,9 @@ IMPROVEMENTS:
 
 ---TODO---
 
-universal draw:
-    please do this asap omfg
+turn slider in to DOD
+
+
 
 sprite layers:
     need to have layers for sprite to determine draw order and have it easily modifiable
@@ -100,3 +101,5 @@ done:
 	process input as commands, maybe dont add to history anymore and instead output recognized command success "success command - %s" and unrecognized command fail "unrecognized command - %s"
     saving/loading maps
 
+    universal draw:
+        please do this asap omfg

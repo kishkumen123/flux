@@ -1,9 +1,10 @@
 import pygame
-from flux.screen import Display
+
+from flux._globals import render_layer
 from flux.mouse import mouse
 from flux.events import events
 from flux.fmath import convert_num_range
-from flux.renderer import renderer
+from flux.renderer import renderer, RenderGroup
 
 
 class Slider:
@@ -47,16 +48,41 @@ class Slider:
         self.calc_mouse_difference = False
         self.mouse_difference = 0
 
+        self.red = (255, 0, 0)
+        self.green = (0, 255, 0)
+        self.blue = (0, 0, 255)
+        self.render_group = RenderGroup()
+        self.create_render_group()
+
     def get_value(self):
         return self.value
 
     def draw(self):
-        name = renderer.draw_text(self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50))
-        left_bound = renderer.draw_quad((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.color)
-        right_bound = renderer.draw_quad((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.color)
-        bar = renderer.draw_quad((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.color)
-        knob = renderer.draw_quad((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.color)
-        value = renderer.draw_text(str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50))
+        pass
+        #keys = self.render_group.get_keys()
+        #for key in keys:
+        #    item = self.render_group.get(key)
+        #    renderer.draw(item["type"], item["data"])
+
+    def create_render_group(self):
+        #name = renderer.draw_text(self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50))
+        self.render_group.add("name", "text", (self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50)))
+
+        #left_bound = renderer.draw_quad((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.color)
+        self.render_group.add("left_bound", "quad", ((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.green))
+
+        #right_bound = renderer.draw_quad((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.color)
+        self.render_group.add("right_bound", "quad", ((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.green))
+
+        #bar = renderer.draw_quad((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.color)
+        self.render_group.add("bar", "quad", ((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.blue))
+
+        #knob = renderer.draw_quad((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.color)
+        self.render_group.add("knob", "quad", ((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.red))
+
+        #value = renderer.draw_text(str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50))
+        self.render_group.add("value", "text", (str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50)))
+        render_layer.add_group("layer_0", self.name, self.render_group)
 
     def update_ui_positions(self, panel_position):
         self.panel_position = panel_position
@@ -77,8 +103,23 @@ class Slider:
         self.knob_x = convert_num_range(self.sl_range, (self.slider_position_x, self.slider_position_x + self.size[0] - self.knob_width), self.value)
         self.knob = pygame.Rect((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]))
 
+    def update_render_group(self):
+        render_layer.update("layer_0", self.name, "name", (self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50)))
+        #self.render_group.update("name", (self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50)))
+        render_layer.update("layer_0", self.name, "left_bound", ((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.green))
+        #self.render_group.update("left_bound", ((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.green))
+        render_layer.update("layer_0", self.name, "right_bound", ((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.green))
+        #self.render_group.update("right_bound", ((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.green))
+        render_layer.update("layer_0", self.name, "bar", ((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.blue))
+        #self.render_group.update("bar", ((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.blue))
+        render_layer.update("layer_0", self.name, "knob", ((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.red))
+        #self.render_group.update("knob", ((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.red))
+        render_layer.update("layer_0", self.name, "value", (str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50)))
+        #self.render_group.update("value", (str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50)))
+
     def update(self, panel_position):
         self.update_ui_positions(panel_position)
+        self.update_render_group()
 
         if events.button_pressed("MONE", "layer_3"):
             if mouse.get_rect().colliderect(self.knob):

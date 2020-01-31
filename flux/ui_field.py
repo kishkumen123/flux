@@ -1,4 +1,5 @@
 import pygame
+
 from flux.screen import Display
 
 

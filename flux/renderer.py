@@ -1,19 +1,11 @@
 import pygame
 
+from collections import OrderedDict
 from flux.screen import Display
 from flux.fonts import fonts
 
 
 class Renderer:
-
-    def __init__(self):
-        self.clamps = {
-            "center": (.5, .5),
-            "left": (0, .5),
-            "right": (1, .5),
-            "top": (.5, 0),
-            "bottom": (.5, 1),
-        }
 
     def draw_circle(self, position, radius, color, width=0):
         return pygame.draw.circle(Display.fake_display, color, position, radius, width)
@@ -67,6 +59,76 @@ class Renderer:
     def circle_rect(self, position, radius, color, width=0):
         return pygame.draw.circle(Display.fake_display, color, position, radius, width)
 
+    def draw(self, _type, data):
+        if _type is "text":
+            self.draw_text(*data)
+        if _type is "quad":
+            self.draw_quad(*data)
+        if _type is "circle":
+            self.draw_circle(*data)
+
+
+class RenderGroup:
+    def __init__(self):
+        self.group = OrderedDict()
+        self.size = len(self.group)
+
+    def add(self, name, _type, data):
+        self.group[name] = {"type": _type, "data": data}
+        self.size = len(self.group)
+
+    def update(self, name, data):
+        self.group[name]["data"] = data
+
+    def get_group(self):
+        return self.group
+
+    def get_keys(self):
+        return self.group.keys()
+
+    def get(self, key):
+        return self.group[key]
+
+    def values(self):
+        return self.group.values()
+
+
+class RenderLayer:
+    def __init__(self):
+        self.layer = OrderedDict()
+        self.length = len(self.layer)
+
+    def create_layer(self):
+        layer_name = "layer_" + str(self.length)
+        self.layer[layer_name] = OrderedDict()
+        self.length = len(self.layer)
+
+    def add_group(self, _layer, _group_name, _group):
+        #exists = self.layer.get(_layer)
+        #if not exists:
+            #while not exists:
+                #layer_name = "layer_" + str(self.length)
+                #self.layer[layer_name] = OrderedDict()
+                #self.length = len(self.layer)
+                #exists = self.layer.get(_layer)
+
+        self.layer[_layer][_group_name] = _group
+
+    def items(self):
+        return self.layer.items()
+
+    def keys(self):
+        return self.layer.keys()
+
+    def values(self):
+        return self.layer.values()
+
+    def update(self, _layer, _group_name, group_element, _data):
+        self.layer[_layer][_group_name].update(group_element, _data)
+
+
+#group = RenderGroup()
+#group.add(name, type, data)
 
 #class Renderer:
 #    def __init__(self):
@@ -76,26 +138,17 @@ class Renderer:
 #        self.render_list.append(layer)
 
 
-class RenderLayer:
-    def __init__(self, name, z):
-        self.name = name
-        self.z = z
-        self.groups = []
 
-    def add_group(self, group):
-        self.groups.append(group)
-
-
-class Group:
-    def __init__(self, z, *items):
-        self.z = z
-        if items:
-            self.items = items
-        else:
-            self.items = []
-
-    def add_item(self, item):
-        self.items.append(item)
+#class Group:
+#    def __init__(self, z, *items):
+#        self.z = z
+#        if items:
+#            self.items = items
+#        else:
+#            self.items = []
+#
+#    def add_item(self, item):
+#        self.items.append(item)
 
 
 renderer = Renderer()

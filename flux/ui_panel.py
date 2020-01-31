@@ -9,13 +9,13 @@ from flux.renderer import renderer
 
 class Panel:
 
-    def __init__(self, name, size=None, position=None, color=(128, 128, 128), debug=False, layer="layer_0", show=False, padding=(15, 30), spacing=15):
+    def __init__(self, name, size=None, position=None, color=(128, 128, 128), debug=False, _layer="layer_0", show=False, padding=(15, 30), spacing=15):
         self.name = name
 
         self.size = size
         self.position = position
         self.debug = debug
-        self.layer = layer
+        self.layer = _layer
         self.show = show
         self.rect = pygame.Rect(position, size)
         self.color = color
@@ -26,14 +26,16 @@ class Panel:
         self.movable = False
         self.calc_mouse_difference = False
         self.mouse_difference = 0
-
-    def toggle(self):
-        self.show = not self.show
-        layer.set_layer("layer_3")
         if self.show:
             layer.set_layer("layer_3")
-        else:
+
+    def toggle(self):
+        if self.show:
+            self.show = False
             layer.pop_layer()
+        else:
+            self.show = True
+            layer.set_layer("layer_3")
 
     def get_component_value(self, component_name):
         return self.components[component_name].get_value()

@@ -113,7 +113,7 @@ class Flux:
 
         console.update(self.delta_time)
 
-        #_globals.draw()
+        _globals.draw_everything()
         self.frame_index += 1
 
     def flush(self):
