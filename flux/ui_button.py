@@ -1,10 +1,9 @@
 import pygame
 
-from flux._globals import render_layer
 from flux._globals import add_rect
 from flux.mouse import mouse
 from flux.events import events
-from flux.renderer import RenderGroup
+from flux.renderer import RenderGroup, render_layer
 
 
 class Button:
@@ -41,12 +40,7 @@ class Button:
     def create_render_group(self):
         self.render_group.add("button", "quad", (self.world_position, self.size, self.color))
         self.render_group.add("name", "text", (self.name, None, (50, 50, 50), self.rect, "center"))
-        render_layer.add_group("layer_0", self.name, self.render_group)
-
-    def draw(self):
-        pass
-        #self.rect = renderer.draw_quad(self.world_position, self.size, self.color)
-        #renderer.draw_text(self.name, color=(50, 50, 50), rect=self.rect, clamp="center")
+        render_layer.add_group("layer_10", self.name, self.render_group)
 
     def update_ui_positions(self, panel_position):
         self.panel_position = panel_position
@@ -60,8 +54,8 @@ class Button:
         self.rect = pygame.Rect(self.world_position, self.size)
 
     def update_render_group(self):
-        render_layer.update("layer_0", self.name, "button", (self.world_position, self.size, self.color))
-        render_layer.update("layer_0", self.name, "name", (self.name, None, (50, 50, 50), self.rect, "center"))
+        render_layer.update("layer_10", self.name, "button", (self.world_position, self.size, self.color))
+        render_layer.update("layer_10", self.name, "name", (self.name, None, (50, 50, 50), self.rect, "center"))
 
     def update(self, panel_position):
         self.update_ui_positions(panel_position)

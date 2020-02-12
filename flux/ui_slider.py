@@ -1,10 +1,9 @@
 import pygame
 
-from flux._globals import render_layer
 from flux.mouse import mouse
 from flux.events import events
 from flux.fmath import convert_num_range
-from flux.renderer import RenderGroup
+from flux.renderer import RenderGroup, render_layer
 
 
 class Slider:
@@ -57,30 +56,12 @@ class Slider:
     def get_value(self):
         return self.value
 
-    def draw(self):
-        pass
-        #keys = self.render_group.get_keys()
-        #for key in keys:
-        #    item = self.render_group.get(key)
-        #    renderer.draw(item["type"], item["data"])
-
     def create_render_group(self):
-        #name = renderer.draw_text(self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50))
         self.render_group.add("name", "text", (self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50)))
-
-        #left_bound = renderer.draw_quad((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.color)
         self.render_group.add("left_bound", "quad", ((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.green))
-
-        #right_bound = renderer.draw_quad((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.color)
         self.render_group.add("right_bound", "quad", ((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.green))
-
-        #bar = renderer.draw_quad((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.color)
         self.render_group.add("bar", "quad", ((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.blue))
-
-        #knob = renderer.draw_quad((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.color)
         self.render_group.add("knob", "quad", ((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.red))
-
-        #value = renderer.draw_text(str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50))
         self.render_group.add("value", "text", (str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50)))
         render_layer.add_group("layer_0", self.name, self.render_group)
 
@@ -105,17 +86,11 @@ class Slider:
 
     def update_render_group(self):
         render_layer.update("layer_0", self.name, "name", (self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50)))
-        #self.render_group.update("name", (self.name, (self.name_position_x, self.world_position[1]), (50, 50, 50)))
         render_layer.update("layer_0", self.name, "left_bound", ((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.green))
-        #self.render_group.update("left_bound", ((self.slider_position_x, self.world_position[1]), (2, self.size[1]), self.green))
         render_layer.update("layer_0", self.name, "right_bound", ((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.green))
-        #self.render_group.update("right_bound", ((self.slider_position_x + self.size[0], self.world_position[1]), (2, self.size[1]), self.green))
         render_layer.update("layer_0", self.name, "bar", ((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.blue))
-        #self.render_group.update("bar", ((self.slider_position_x, self.world_position[1] + self.size[1]/2), (self.size[0], 2), self.blue))
         render_layer.update("layer_0", self.name, "knob", ((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.red))
-        #self.render_group.update("knob", ((self.knob_x, self.world_position[1]), (self.knob_width, self.size[1]), self.red))
         render_layer.update("layer_0", self.name, "value", (str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50)))
-        #self.render_group.update("value", (str(self.value), (self.value_position_x, self.world_position[1] - 5), (50, 50, 50)))
 
     def update(self, panel_position):
         self.update_ui_positions(panel_position)
@@ -144,4 +119,3 @@ class Slider:
                 self.surface_value = self.font.render(str(self.value), True, (50, 50, 50))
             else:
                 self.surface_value = self.font.render(str(round(self.value, 2)), True, (50, 50, 50))
-

@@ -109,11 +109,11 @@ class Flux:
         self.draw_poly()
         events.update()
         self.ui.update()
-        mouse.update()
 
         console.update(self.delta_time)
 
         _globals.draw_everything()
+        mouse.update()
         self.frame_index += 1
 
     def flush(self):

@@ -49,7 +49,6 @@ class UI:
 
     def update(self):
         for panel in self.panels.values():
-            panel.draw()
             panel.update()
 
 

@@ -3,7 +3,7 @@ import pygame
 from flux import _globals
 from flux.events import events
 from flux.layer import layer
-from flux.renderer import renderer
+from flux.renderer import renderer, RenderGroup, render_layer
 
 
 class Mouse:
@@ -16,6 +16,17 @@ class Mouse:
         self.move_offset = None
         self.focus = None
         self.focus_index = None
+        self.radius = 5
+        self.color = (250, 0, 0, 0)
+        self.render_group = RenderGroup()
+        #self.create_render_group()
+
+    def create_render_group(self):
+        self.render_group.add("mouse", "circle", (pygame.mouse.get_pos(), self.radius, self.color))
+        render_layer.add_group("layer_100", "mouse", self.render_group)
+
+    def update_render_group(self):
+        render_layer.update("layer_100", "mouse", "mouse", (pygame.mouse.get_pos(), self.radius, self.color))
 
     def get_pos(self):
         return pygame.mouse.get_pos()
@@ -71,6 +82,7 @@ class Mouse:
 
     def update(self):
         if _globals.editor:
+            #self.update_render_group()
             self.rect = renderer.draw_circle(pygame.mouse.get_pos(), 5, (250, 0, 0, 0))
 
             if _globals.selection_list:

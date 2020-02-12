@@ -1,4 +1,4 @@
-from flux.renderer import RenderLayer, renderer
+from flux.renderer import render_layer, renderer
 
 running = True
 history_output = []
@@ -12,16 +12,12 @@ player = None
 
 rects = []
 
-render_layer = RenderLayer()
-render_layer.create_layer()
-render_layer.create_layer()
-
 
 def draw_everything():
     for groups in render_layer.values():
         for group in groups.values():
-            for item in group.values():
-                renderer.draw(item["type"], item["data"])
+            for renderable in group.values():
+                renderer.draw(renderable.type, renderable.data)
 
 
 def add_rect(_rect, _color, _layer):

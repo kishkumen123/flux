@@ -68,17 +68,38 @@ class Renderer:
             self.draw_circle(*data)
 
 
+class Renderable:
+
+    def __init__(self, _name, _type, _data):
+        self._type = _type
+        self._data = _data
+        self._name = _name
+
+    @property
+    def type(self):
+        return self._type
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def name(self):
+        return self._name
+
+    def update(self, _data):
+        self._data = _data
+
+
 class RenderGroup:
     def __init__(self):
         self.group = OrderedDict()
         self.size = len(self.group)
 
     def add(self, name, _type, data):
-        self.group[name] = {"type": _type, "data": data}
+        renderable = Renderable(name, _type, data)
+        self.group[name] = renderable
         self.size = len(self.group)
-
-    def update(self, name, data):
-        self.group[name]["data"] = data
 
     def get_group(self):
         return self.group
@@ -92,25 +113,22 @@ class RenderGroup:
     def values(self):
         return self.group.values()
 
+    def update(self, name, data):
+        self.group[name].update(data)
+
 
 class RenderLayer:
     def __init__(self):
         self.layer = OrderedDict()
         self.length = len(self.layer)
 
-    def create_layer(self):
-        layer_name = "layer_" + str(self.length)
-        self.layer[layer_name] = OrderedDict()
-        self.length = len(self.layer)
-
     def add_group(self, _layer, _group_name, _group):
-        #exists = self.layer.get(_layer)
-        #if not exists:
-            #while not exists:
-                #layer_name = "layer_" + str(self.length)
-                #self.layer[layer_name] = OrderedDict()
-                #self.length = len(self.layer)
-                #exists = self.layer.get(_layer)
+        exists = self.layer.get(_layer)
+        if exists is None:
+            while exists is None:
+                self.layer["layer_" + str(self.length)] = OrderedDict()
+                self.length += 1
+                exists = self.layer.get(_layer)
 
         self.layer[_layer][_group_name] = _group
 
@@ -127,28 +145,5 @@ class RenderLayer:
         self.layer[_layer][_group_name].update(group_element, _data)
 
 
-#group = RenderGroup()
-#group.add(name, type, data)
-
-#class Renderer:
-#    def __init__(self):
-#        self.render_list = []
-#
-#    def add_layer(self, layer):
-#        self.render_list.append(layer)
-
-
-
-#class Group:
-#    def __init__(self, z, *items):
-#        self.z = z
-#        if items:
-#            self.items = items
-#        else:
-#            self.items = []
-#
-#    def add_item(self, item):
-#        self.items.append(item)
-
-
 renderer = Renderer()
+render_layer = RenderLayer()
