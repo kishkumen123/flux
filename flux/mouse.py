@@ -19,11 +19,8 @@ class Mouse:
         self.radius = 5
         self.color = (250, 0, 0, 0)
         self.render_group = RenderGroup()
-        #self.create_render_group()
-
-    def create_render_group(self):
-        self.render_group.add("mouse", "circle", (pygame.mouse.get_pos(), self.radius, self.color))
-        render_layer.add_group("layer_100", "mouse", self.render_group)
+        #self.render_group.add("mouse", "circle", (pygame.mouse.get_pos(), self.radius, self.color))
+        #render_layer.add_group("layer_100", "mouse", self.render_group)
 
     def update_render_group(self):
         render_layer.update("layer_100", "mouse", "mouse", (pygame.mouse.get_pos(), self.radius, self.color))

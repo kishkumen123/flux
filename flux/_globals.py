@@ -38,6 +38,7 @@ def get_selection():
 
 
 class Rect:
+
     def __init__(self, rect, color, layer):
         self.rect = rect
         self.color = color

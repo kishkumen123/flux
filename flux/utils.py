@@ -1,3 +1,4 @@
+import pygame
 
 def hex_to_rgb(hex):
   return [int(hex[i:i+2], 16) for i in range(1,6,2)]
@@ -29,3 +30,13 @@ def get_color_gradient(gradient):
         "r":[rgb[0] for rgb in gradient],
         "g":[rgb[1] for rgb in gradient],
         "b":[rgb[2] for rgb in gradient]}
+
+
+def load_image(name, colorkey=None):
+    try:
+        image = pygame.image.load(name)
+    except Exception as e:
+        raise e
+
+    image = image.convert()
+    return image, image.get_rect()

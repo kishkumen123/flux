@@ -16,6 +16,7 @@ class UI:
             kwargs["position"] = [0, 0]
 
         self.panels[name] = Panel(name, **kwargs)
+        return self.panels[name]
 
     def create_button(self, name, parent, **kwargs):
         if kwargs.get("size") is None:

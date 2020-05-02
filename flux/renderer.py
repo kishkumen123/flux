@@ -3,9 +3,90 @@ import pygame
 from collections import OrderedDict
 from flux.screen import Display
 from flux.fonts import fonts
+from flux.utils import load_image
+from flux.events import events
+
+#class RenderGroups():
+#
+#    def __init__(self):
+#        self.group_dict= {}
+#
+#    def __getitem__(self, name):
+#        return self.group_dict[name]
+#    
+#    def create(self, name):
+#        self.group_dict[name] = pygame.sprite.LayeredUpdates()
+#        return self.group_dict[name]
+#
+#    def update(self, exclude=None):
+#        for group in self.group_dict.values():
+#            group.update()
+#
+#    def draw(self, screen, exclude=None):
+#        for group in self.group_dict.values():
+#            group.draw(screen)
+
+
+
+
+class Sprite(pygame.sprite.Sprite):
+
+    def __init__(self, group, layer, image, x, y, name=None):
+        if name:
+            self.name = name
+        else:
+            self.name = image.split(".")[0]
+        self.image, self.rect = load_image(image)
+        self.rect.x = x
+        self.rect.y = y
+        self._layer = layer
+        pygame.sprite.Sprite.__init__(self, group)
+        self.offset_calced = False
+        self.offset = (0, 0)
+
+    def update(self, mouse):
+        if events.button_pressed("MONE", "layer_all"):
+            if mouse.get_rect().colliderect(self.rect):
+                if not self.offset_calced:
+                    self.offset = (mouse.get_pos()[0] - self.rect.x, mouse.get_pos()[1] - self.rect.y)
+                    self.offset_calced = True
+                if self.offset_calced:
+                    if self._layer == 0:
+                        self.rect.x = mouse.get_pos()[0] - self.offset[0]
+                        self.rect.y = mouse.get_pos()[1] - self.offset[1]
+        else:
+            self.offset_calced = False
 
 
 class Renderer:
+    
+    def __init__(self):
+        self.sprite_group_dict = {}
+
+    def create_sprite_group(self, name):
+        self.sprite_group_dict[name] = pygame.sprite.LayeredUpdates()
+        return self.sprite_group_dict[name]
+    
+    def update_sprite_groups(self, mouse, exclude=None):
+        for group in self.sprite_group_dict.values():
+            if exclude is not None:
+                if key not in exclude:
+                    group.update(mouse)
+            else:
+                group.update(mouse)
+
+    def draw_sprite_groups(self, screen, exclude=None):
+        for key, group in self.sprite_group_dict.items():
+            if exclude is not None:
+                if key not in exclude:
+                    group.draw(screen)
+            else:
+                group.draw(screen)
+
+    def create_sprite(self, group, layer, image, x, y):
+        return Sprite(self.sprite_group_dict[group], layer, image, x, y)
+
+
 
     def draw_circle(self, position, radius, color, width=0):
         return pygame.draw.circle(Display.fake_display, color, position, radius, width)

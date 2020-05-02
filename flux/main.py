@@ -12,6 +12,7 @@ from flux.console import console
 from flux.commands import run_command
 from flux.grid_generator import GridGenerator
 from flux.ui import ui
+from flux.renderer import renderer
 
 
 class Flux:
@@ -27,10 +28,12 @@ class Flux:
         self.ui = None
         self.frame_index = 1
         self.events = events
+        self.renderer = None
 
     def init(self):
         pygame.init()
         self.ui = ui
+        self.renderer = renderer
 
     def init_display(self, resolution):
         self.display = Display
@@ -106,9 +109,11 @@ class Flux:
 
     def update(self):
         self.update_delta_time()
-        self.draw_poly()
+        #self.draw_poly()
         events.update()
         self.ui.update()
+        self.renderer.update_sprite_groups(mouse)
+        self.renderer.draw_sprite_groups(self.display.fake_display)
 
         console.update(self.delta_time)
 

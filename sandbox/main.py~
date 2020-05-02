@@ -5,27 +5,12 @@ if __name__ == "__main__":
     engine = Flux()
     engine.init()
 
-    engine.renderer.create_sprite_group("group1")
-    engine.renderer.create_sprite_group("group2")
-
-    engine.renderer.create_sprite("group1", 0, "1.jpg", 100, 100)
-    engine.renderer.create_sprite("group1", 1, "2.jpg", 110, 110)
-    engine.renderer.create_sprite("group1", 0, "3.jpg", 120, 120)
-    engine.renderer.create_sprite("group1", 3, "4.jpg", 130, 130)
-    engine.renderer.create_sprite("group1", 2, "5.jpg", 140, 140)
-
-    engine.renderer.create_sprite("group2", 0, "1.jpg", 200, 200)
-    engine.renderer.create_sprite("group2", 1, "2.jpg", 210, 210)
-    engine.renderer.create_sprite("group2", 3, "3.jpg", 220, 220)
-    engine.renderer.create_sprite("group2", 4, "4.jpg", 230, 230)
-    engine.renderer.create_sprite("group2", 5, "5.jpg", 240, 240)
-
-    #engine.ui.create_panel("panel1", size=[300, 500], position=[150, 150], debug=True, _layer="layer_1", show=True)
-    #engine.ui.create_button("button1", parent="panel1", size=[100, 50])
-    #engine.ui.create_slider("slider1", parent="panel1", size=[100, 15], sl_range=[0, 5], starting_value=5, _round=True)
-    #engine.ui.create_button("button2", parent="panel1", size=[100, 50])
-    #engine.ui.create_slider("slider2", parent="panel1", size=[100, 15], sl_range=[0, 5], starting_value=2)
-    #engine.ui.create_slider("slider3", parent="panel1", size=[100, 15], sl_range=[0, 5], starting_value=4)
+    engine.ui.create_panel("panel1", size=[300, 500], position=[150, 150], debug=True, _layer="layer_1", show=True)
+    engine.ui.create_button("button1", parent="panel1", size=[100, 50])
+    engine.ui.create_slider("slider1", parent="panel1", size=[100, 15], sl_range=[0, 5], starting_value=5, _round=True)
+    engine.ui.create_button("button2", parent="panel1", size=[100, 50])
+    engine.ui.create_slider("slider2", parent="panel1", size=[100, 15], sl_range=[0, 5], starting_value=2)
+    engine.ui.create_slider("slider3", parent="panel1", size=[100, 15], sl_range=[0, 5], starting_value=4)
 
     display = engine.init_display((1280, 720))
     background = engine.create_surface((100, 100), (200, 255, 255))
