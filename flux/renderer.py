@@ -23,20 +23,32 @@ class Sprite(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, group)
         self.offset_calced = False
         self.offset = (0, 0)
+        self.render = False
 
     def __repr__(self):
         return "<Sprite %s>" % self.name
 
     def update(self, mouse):
         if events.button_pressed("MONE", "layer_all"):
-            if _globals.sprite_selection == self:
-                if mouse.get_rect().colliderect(self.rect):
-                    if not self.offset_calced:
-                        self.offset = (mouse.get_pos()[0] - self.rect.x, mouse.get_pos()[1] - self.rect.y)
-                        self.offset_calced = True
-                    if self.offset_calced:
-                        self.rect.x = mouse.get_pos()[0] - self.offset[0]
-                        self.rect.y = mouse.get_pos()[1] - self.offset[1]
+            if _globals.sprite_selection is not None:
+                if _globals.sprite_selection == self:
+                    if mouse.get_rect().colliderect(self.rect):
+                        if not self.offset_calced:
+                            self.offset = (mouse.get_pos()[0] - self.rect.x, mouse.get_pos()[1] - self.rect.y)
+                            self.offset_calced = True
+                        if self.offset_calced:
+                            self.rect.x = mouse.get_pos()[0] - self.offset[0]
+                            self.rect.y = mouse.get_pos()[1] - self.offset[1]
+            else:
+                for sprite in _globals.sprite_selection_list:
+                    if sprite == self:
+                        if not self.offset_calced:
+                            self.offset = (mouse.get_pos()[0] - self.rect.x, mouse.get_pos()[1] - self.rect.y)
+                            self.offset_calced = True
+                        if self.offset_calced:
+                            self.rect.x = mouse.get_pos()[0] - self.offset[0]
+                            self.rect.y = mouse.get_pos()[1] - self.offset[1]
+
         else:
             self.offset_calced = False
 
@@ -48,6 +60,8 @@ class Sprite(pygame.sprite.Sprite):
             self.rect.y -= 1
         if events.key_pressed("s", "layer_all"):
             self.rect.y += 1
+
+
 
 
 class Renderer:
@@ -77,8 +91,6 @@ class Renderer:
                     group.draw(screen)
             else:
                 group.draw(screen)
-
-
 
 
 

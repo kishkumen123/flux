@@ -20,11 +20,6 @@ class Mouse:
         self.radius = 5
         self.color = (250, 0, 0, 0)
         self.render_group = RenderGroup()
-        #self.render_group.add("mouse", "circle", (pygame.mouse.get_pos(), self.radius, self.color))
-        #render_layer.add_group("layer_100", "mouse", self.render_group)
-
-    def update_render_group(self):
-        render_layer.update("layer_100", "mouse", "mouse", (pygame.mouse.get_pos(), self.radius, self.color))
 
     def get_pos(self):
         return pygame.mouse.get_pos()
@@ -79,7 +74,9 @@ class Mouse:
             obj.move_offset = [(obj.points[i][0] - mouse.get_pos()[0], obj.points[i][1] - mouse.get_pos()[1]) for i, _ in enumerate(obj.points)]
 
     def update_selection_list(self):
-        if _globals.clicked_on_sprites:
+        if _globals.sprite_selection_list:
+            _globals.sprite_selection = None
+        if _globals.clicked_on_sprites and not _globals.sprite_selection_list:
             clicked_on_list = list(_globals.clicked_on_sprites.items())
             highest_sprite = clicked_on_list[-1][-1][-1] 
             _globals.sprite_selection = highest_sprite
@@ -87,24 +84,26 @@ class Mouse:
     def update(self):
         global clicked_on_sprites
         if _globals.editor:
-            #self.update_render_group()
 
             self.rect = renderer.draw_circle(pygame.mouse.get_pos(), 5, (250, 0, 0, 0))
 
+            # select sprite
             if events.button_pressed_once("MONE"):
+                _globals.sprite_selection = None
                 for group_name, group in renderer.sprite_group_dict.items():
                     for sprite in group.sprites():
                         if sprite.rect.collidepoint(mouse.get_pos()):
                             if group_name not in _globals.clicked_on_sprites:
                                 _globals.clicked_on_sprites[group_name] = []
                             _globals.clicked_on_sprites[group_name].append(sprite)
+                if not len(_globals.clicked_on_sprites):
+                    _globals.sprite_selection_list = []
 
                 _globals.clicked_on_sprites = OrderedDict(sorted(_globals.clicked_on_sprites.items()))
             if events.button_released("MONE"):
                 _globals.clicked_on_sprites = {}
 
-
-            #TODO: this shit is garbage, plz reimplement later(soon)
+            # group select sprites
             if events.button_pressed_once("MTWO"):
                 self.point_at_click = pygame.mouse.get_pos()
 
@@ -114,62 +113,58 @@ class Mouse:
             if events.button_released("MTWO"):
                 self.point_at_click = None
                 _globals.sprite_selection_list = []
+                _globals.sprite_selection = None
                 for group_name, group in renderer.sprite_group_dict.items():
                     for sprite in group.sprites():
-                        if sprite.rect.collidepoint(mouse.get_pos()):
+                        if self.selection_box.colliderect(sprite.rect):
                             _globals.sprite_selection_list.append(sprite)
-                #for obj in _globals.poly_dict:
-                    #if self.selection_box.colliderect(obj.rect):
-                        #_globals.selection_list.append(obj)
 
-                if _globals.sprite_selection_list:
-                    _globals.sprite_selection = None
 
             self.update_selection_list()
                 
 
-            if _globals.selection_list:
-                for obj in _globals.selection_list:
-                    color = self.eval_highlight_color(obj.color)
-                    renderer.draw_poly(tuple(obj.points), color, 3)
 
 
 
 
+            #if _globals.selection_list:
+            #    for obj in _globals.selection_list:
+            #        color = self.eval_highlight_color(obj.color)
+            #        renderer.draw_poly(tuple(obj.points), color, 3)
 
-            if events.button_pressed_once("MONE"):
-                found_obj = None
-                #this needs to traverse the list from top to bottom layer later
-                for obj in _globals.poly_dict:
-                    if obj.contains(self.rect):
-                        found_obj = obj
+            #if events.button_pressed_once("MONE"):
+            #    found_obj = None
+            #    #this needs to traverse the list from top to bottom layer later
+            #    for obj in _globals.poly_dict:
+            #        if obj.contains(self.rect):
+            #            found_obj = obj
 
-                _globals.set_selection(found_obj)
-                if found_obj:
-                    if found_obj not in _globals.selection_list:
-                        if not events.key_pressed("LSHIFT"):
-                            _globals.selection_list = []
-                        _globals.selection_list.append(found_obj)
-                else:
-                    _globals.selection_list = []
+            #    _globals.set_selection(found_obj)
+            #    if found_obj:
+            #        if found_obj not in _globals.selection_list:
+            #            if not events.key_pressed("LSHIFT"):
+            #                _globals.selection_list = []
+            #            _globals.selection_list.append(found_obj)
+            #    else:
+            #        _globals.selection_list = []
 
 
-            if events.button_pressed("MONE") and events.key_pressed("LSHIFT"):
-                if self.focus is None:
-                    for obj in _globals.poly_dict:
-                        self.move_point(obj)
-                else:
-                    self.focus.points[self.focus_index] = self.get_pos()
-            else:
-                self.focus = None
-                self.focus_index = None
+            #if events.button_pressed("MONE") and events.key_pressed("LSHIFT"):
+            #    if self.focus is None:
+            #        for obj in _globals.poly_dict:
+            #            self.move_point(obj)
+            #    else:
+            #        self.focus.points[self.focus_index] = self.get_pos()
+            #else:
+            #    self.focus = None
+            #    self.focus_index = None
 
-            # this for loop should be in the if statement, this is super inefficient
-            for obj in _globals.selection_list:
-                if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
-                    self.move_rect(obj)
-                else:
-                    obj.move_offset = None
+            ## this for loop should be in the if statement, this is super inefficient
+            #for obj in _globals.selection_list:
+            #    if events.button_pressed("MONE") and not events.key_pressed("LSHIFT"):
+            #        self.move_rect(obj)
+            #    else:
+            #        obj.move_offset = None
         else:
             pass
 

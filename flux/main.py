@@ -113,18 +113,26 @@ class Flux:
         events.update()
         self.ui.update()
         self.renderer.update_sprite_groups(mouse)
+        #self.renderer.update_clouds(mouse)
+        #self.renderer.update_player(mouse)
+        #self.renderer.update_ball(mouse)
+        #self.renderer.update_balloons(mouse)
         self.renderer.draw_sprite_groups(self.display.fake_display)
 
         console.update(self.delta_time)
 
-        _globals.draw_everything()
+        #_globals.draw_everything()
         mouse.update()
         self.frame_index += 1
-        print(_globals.clicked_on_sprites)
+        #print(_globals.clicked_on_sprites)
         if _globals.sprite_selection is not None:
-            print(_globals.sprite_selection)
-            print(_globals.sprite_selection.name)
-            print(_globals.sprite_selection._layer)
+            print("sprite: " + str(_globals.sprite_selection))
+            print("sprite_name: " + str(_globals.sprite_selection.name))
+            print("sprite_layer: " + str(_globals.sprite_selection._layer))
+        else:
+            print("sprite: None")
+            print("sprite_name: None")
+            print("sprite_layer: None")
 
     def flush(self):
         events.flush()
