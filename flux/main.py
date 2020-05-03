@@ -120,6 +120,11 @@ class Flux:
         _globals.draw_everything()
         mouse.update()
         self.frame_index += 1
+        print(_globals.clicked_on_sprites)
+        if _globals.sprite_selection is not None:
+            print(_globals.sprite_selection)
+            print(_globals.sprite_selection.name)
+            print(_globals.sprite_selection._layer)
 
     def flush(self):
         events.flush()

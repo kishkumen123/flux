@@ -1,5 +1,6 @@
 import pygame
 
+from collections import OrderedDict
 from flux import _globals
 from flux.events import events
 from flux.layer import layer
@@ -77,15 +78,64 @@ class Mouse:
         else:
             obj.move_offset = [(obj.points[i][0] - mouse.get_pos()[0], obj.points[i][1] - mouse.get_pos()[1]) for i, _ in enumerate(obj.points)]
 
+    def update_selection_list(self):
+        if _globals.clicked_on_sprites:
+            clicked_on_list = list(_globals.clicked_on_sprites.items())
+            highest_sprite = clicked_on_list[-1][-1][-1] 
+            _globals.sprite_selection = highest_sprite
+
     def update(self):
+        global clicked_on_sprites
         if _globals.editor:
             #self.update_render_group()
+
             self.rect = renderer.draw_circle(pygame.mouse.get_pos(), 5, (250, 0, 0, 0))
+
+            if events.button_pressed_once("MONE"):
+                for group_name, group in renderer.sprite_group_dict.items():
+                    for sprite in group.sprites():
+                        if sprite.rect.collidepoint(mouse.get_pos()):
+                            if group_name not in _globals.clicked_on_sprites:
+                                _globals.clicked_on_sprites[group_name] = []
+                            _globals.clicked_on_sprites[group_name].append(sprite)
+
+                _globals.clicked_on_sprites = OrderedDict(sorted(_globals.clicked_on_sprites.items()))
+            if events.button_released("MONE"):
+                _globals.clicked_on_sprites = {}
+
+
+            #TODO: this shit is garbage, plz reimplement later(soon)
+            if events.button_pressed_once("MTWO"):
+                self.point_at_click = pygame.mouse.get_pos()
+
+            if events.button_pressed("MTWO"):
+                self.selection_box = renderer.draw_quad((self.point_at_click[0], self.point_at_click[1]), (pygame.mouse.get_pos()[0] - self.point_at_click[0], pygame.mouse.get_pos()[1] - self.point_at_click[1]), (100, 100, 100), 3)
+
+            if events.button_released("MTWO"):
+                self.point_at_click = None
+                _globals.sprite_selection_list = []
+                for group_name, group in renderer.sprite_group_dict.items():
+                    for sprite in group.sprites():
+                        if sprite.rect.collidepoint(mouse.get_pos()):
+                            _globals.sprite_selection_list.append(sprite)
+                #for obj in _globals.poly_dict:
+                    #if self.selection_box.colliderect(obj.rect):
+                        #_globals.selection_list.append(obj)
+
+                if _globals.sprite_selection_list:
+                    _globals.sprite_selection = None
+
+            self.update_selection_list()
+                
 
             if _globals.selection_list:
                 for obj in _globals.selection_list:
                     color = self.eval_highlight_color(obj.color)
                     renderer.draw_poly(tuple(obj.points), color, 3)
+
+
+
+
 
             if events.button_pressed_once("MONE"):
                 found_obj = None
@@ -103,21 +153,6 @@ class Mouse:
                 else:
                     _globals.selection_list = []
 
-            if events.button_pressed_once("MTWO"):
-                self.point_at_click = pygame.mouse.get_pos()
-
-            if events.button_pressed("MTWO"):
-                self.selection_box = renderer.draw_quad((self.point_at_click[0], self.point_at_click[1]), (pygame.mouse.get_pos()[0] - self.point_at_click[0], pygame.mouse.get_pos()[1] - self.point_at_click[1]), (100, 100, 100), 3)
-
-            if events.button_released("MTWO"):
-                self.point_at_click = None
-                _globals.selection_list = []
-                for obj in _globals.poly_dict:
-                    if self.selection_box.colliderect(obj.rect):
-                        _globals.selection_list.append(obj)
-
-                if _globals.selection_list:
-                    _globals.selection = None
 
             if events.button_pressed("MONE") and events.key_pressed("LSHIFT"):
                 if self.focus is None:

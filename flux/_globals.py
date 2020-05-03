@@ -1,4 +1,21 @@
 from flux.renderer import render_layer, renderer
+from collections import OrderedDict
+
+
+clicked_on_sprites = OrderedDict()
+sprite_selection = None
+sprite_selectioN_list = []
+
+
+
+
+
+
+
+
+
+
+
 
 running = True
 history_output = []
@@ -6,6 +23,7 @@ history_input = []
 cursor_underscored = 1
 editor = 1
 poly_dict = []
+
 selection = None
 selection_list = []
 player = None

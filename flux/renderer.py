@@ -1,31 +1,11 @@
 import pygame
 
+from flux import _globals
 from collections import OrderedDict
 from flux.screen import Display
 from flux.fonts import fonts
 from flux.utils import load_image
 from flux.events import events
-
-#class RenderGroups():
-#
-#    def __init__(self):
-#        self.group_dict= {}
-#
-#    def __getitem__(self, name):
-#        return self.group_dict[name]
-#    
-#    def create(self, name):
-#        self.group_dict[name] = pygame.sprite.LayeredUpdates()
-#        return self.group_dict[name]
-#
-#    def update(self, exclude=None):
-#        for group in self.group_dict.values():
-#            group.update()
-#
-#    def draw(self, screen, exclude=None):
-#        for group in self.group_dict.values():
-#            group.draw(screen)
-
 
 
 
@@ -44,18 +24,30 @@ class Sprite(pygame.sprite.Sprite):
         self.offset_calced = False
         self.offset = (0, 0)
 
+    def __repr__(self):
+        return "<Sprite %s>" % self.name
+
     def update(self, mouse):
         if events.button_pressed("MONE", "layer_all"):
-            if mouse.get_rect().colliderect(self.rect):
-                if not self.offset_calced:
-                    self.offset = (mouse.get_pos()[0] - self.rect.x, mouse.get_pos()[1] - self.rect.y)
-                    self.offset_calced = True
-                if self.offset_calced:
-                    if self._layer == 0:
+            if _globals.sprite_selection == self:
+                if mouse.get_rect().colliderect(self.rect):
+                    if not self.offset_calced:
+                        self.offset = (mouse.get_pos()[0] - self.rect.x, mouse.get_pos()[1] - self.rect.y)
+                        self.offset_calced = True
+                    if self.offset_calced:
                         self.rect.x = mouse.get_pos()[0] - self.offset[0]
                         self.rect.y = mouse.get_pos()[1] - self.offset[1]
         else:
             self.offset_calced = False
+
+        if events.key_pressed("a", "layer_all"):
+            self.rect.x -= 1
+        if events.key_pressed("d", "layer_all"):
+            self.rect.x += 1
+        if events.key_pressed("w", "layer_all"):
+            self.rect.y -= 1
+        if events.key_pressed("s", "layer_all"):
+            self.rect.y += 1
 
 
 class Renderer:
@@ -66,6 +58,9 @@ class Renderer:
     def create_sprite_group(self, name):
         self.sprite_group_dict[name] = pygame.sprite.LayeredUpdates()
         return self.sprite_group_dict[name]
+
+    def create_sprite(self, group, layer, image, x, y):
+        return Sprite(self.sprite_group_dict[group], layer, image, x, y)
     
     def update_sprite_groups(self, mouse, exclude=None):
         for group in self.sprite_group_dict.values():
@@ -83,8 +78,9 @@ class Renderer:
             else:
                 group.draw(screen)
 
-    def create_sprite(self, group, layer, image, x, y):
-        return Sprite(self.sprite_group_dict[group], layer, image, x, y)
+
+
+
 
 
 
