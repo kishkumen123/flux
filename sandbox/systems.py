@@ -41,6 +41,5 @@ class TransformScaleSprite():
             transform = e.components[Transform]
             sprite = e.components[Sprite]
             if "blue" in sprite.name:
-                print(transform.position.x)
-                transform.position.x += 100 * dt
-                sprite.image = pygame.transform.scale(sprite.image, (sprite.image.get_width() + int(200 * dt), sprite.image.get_height() + int(200 * dt)))
+                transform.translate(100 * dt, 0)
+                sprite.scale(sprite.image.get_width() + int(200 * dt), sprite.image.get_height() + int(200 * dt))

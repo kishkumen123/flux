@@ -16,6 +16,9 @@ class Sprite(pygame.sprite.Sprite):
         self.name = image.split(".")[0]
         self.render = True
 
+    def scale(self, sizex, sizey):
+        self.image = pygame.transform.scale(self.image, (sizex, sizey))
+
     def __repr__(self):
         return "<Sprite - name: %s, layer: %s>" % (self.name, self._layer)
 
@@ -28,6 +31,10 @@ class Transform():
     def __init__(self, position=(0,0), scale=(1, 1)):
         self.position = Vector2(position)
         self.scale = Vector2(scale)
+
+    def translate(self, x, y):
+        self.position.x += x
+        self.position.y += y
 
 
 components_list = [
