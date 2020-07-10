@@ -9,6 +9,15 @@ class RenderSystem():
 
     @classmethod
     def update(cls, exclude=None):
+        entities = EM.entities_of_component(Transform, Sprite)
+        
+        for e in entities:
+            sprite = e.components[Sprite]
+            transform = e.components[Transform]
+
+            sprite.image = pygame.transform.scale(sprite.image, (transform.scale.x, transform.scale.y))
+            sprite.rect = transform.position
+
         for group in sprite_groups.group_dict.values():
             group.update()
 
@@ -18,20 +27,22 @@ class RenderSystem():
             group.draw(screen)
 
 
-class SpritePosition():
+class ScaleSprite():
 
     @classmethod
-    def update(self):
+    def update(self, dt):
         entities = EM.entities_of_component(Transform, Sprite)
 
         for e in entities:
-            transform = e.components[Transform]
             sprite = e.components[Sprite]
+            transform = e.components[Transform]
 
-            sprite.rect = transform.position
+            if "blue" in sprite.name:
+                transform.scale.x += int(200 * dt)
+                transform.scale.y += int(200 * dt)
 
 
-class TransformScaleSprite():
+class TranslateSprite():
 
     @classmethod
     def update(self, dt):
@@ -41,5 +52,4 @@ class TransformScaleSprite():
             transform = e.components[Transform]
             sprite = e.components[Sprite]
             if "blue" in sprite.name:
-                transform.translate(100 * dt, 0)
-                sprite.scale(sprite.image.get_width() + int(200 * dt), sprite.image.get_height() + int(200 * dt))
+                transform.position.x += 100 * dt
