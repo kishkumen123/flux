@@ -1,23 +1,13 @@
-
 if __name__ == "__main__":
     from flux.main import Flux
+    from components import components_list
+    from systems import RenderSystem, SpritePosition, TransformScaleSprite
 
     engine = Flux()
     engine.init()
-
-    engine.renderer.create_sprite_group("group1")
-
-    engine.renderer.create_sprite("group1", 0, "red.jpg", 100, 100)
-    engine.renderer.create_sprite("group1", 1, "yellow.jpg", 110, 110)
-    engine.renderer.create_sprite("group1", 0, "blue.jpg", 120, 120)
-    engine.renderer.create_sprite("group1", 3, "white.jpg", 130, 130)
-    engine.renderer.create_sprite("group1", 2, "purple.jpg", 140, 140)
-
-    engine.renderer.create_sprite("group1", 0, "red.jpg", 200, 200)
-    engine.renderer.create_sprite("group1", 1, "yellow.jpg", 210, 210)
-    engine.renderer.create_sprite("group1", 3, "blue.jpg", 220, 220)
-    engine.renderer.create_sprite("group1", 4, "white.jpg", 230, 230)
-    engine.renderer.create_sprite("group1", 5, "purple.jpg", 240, 240)
+    engine.register_components(components_list)
+    engine.init_groups("groups.json")
+    engine.load_entities("entities.json")
 
     #engine.ui.create_panel("panel1", size=[300, 500], position=[150, 150], debug=True, _layer="layer_1", show=True)
     #engine.ui.create_button("button1", parent="panel1", size=[100, 50])
@@ -46,10 +36,14 @@ if __name__ == "__main__":
     move_speed = 0.7
     engine.load_level("one")
 
-    while engine.is_running():
 
-        if engine.key_pressed_once("TAB", "layer_all"):
-            engine.ui.toggle_panel("panel1")
+    while engine.is_running():
+        RenderSystem.draw(display.fake_display)
+        SpritePosition.update()
+        TransformScaleSprite.update(engine.delta_time)
+
+        #if engine.key_pressed_once("TAB", "layer_all"):
+            #engine.ui.toggle_panel("panel1")
 
         #if engine.key_pressed("a", "layer_0"):
         #    world.move(x=-move_speed)
@@ -67,7 +61,6 @@ if __name__ == "__main__":
 
 
         #world.update()
-        #engine.draw_poly()
         engine.flush()
         display.swap_buffer()
         display.clear_screen()

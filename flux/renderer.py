@@ -8,7 +8,6 @@ from flux.utils import load_image
 from flux.events import events
 
 
-
 class Sprite(pygame.sprite.Sprite):
 
     def __init__(self, group, layer, image, x, y, name=None):
@@ -48,18 +47,17 @@ class Sprite(pygame.sprite.Sprite):
                         if self.offset_calced:
                             self.rect.x = mouse.get_pos()[0] - self.offset[0]
                             self.rect.y = mouse.get_pos()[1] - self.offset[1]
-
         else:
             self.offset_calced = False
 
-        if events.key_pressed("a", "layer_all"):
-            self.rect.x -= 1
-        if events.key_pressed("d", "layer_all"):
-            self.rect.x += 1
-        if events.key_pressed("w", "layer_all"):
-            self.rect.y -= 1
-        if events.key_pressed("s", "layer_all"):
-            self.rect.y += 1
+    #    if events.key_pressed("a", "layer_all"):
+    #        self.rect.x -= 1
+    #    if events.key_pressed("d", "layer_all"):
+    #        self.rect.x += 1
+    #    if events.key_pressed("w", "layer_all"):
+    #        self.rect.y -= 1
+    #    if events.key_pressed("s", "layer_all"):
+    #        self.rect.y += 1
 
 
 
@@ -74,7 +72,10 @@ class Renderer:
         return self.sprite_group_dict[name]
 
     def create_sprite(self, group, layer, image, x, y):
-        return Sprite(self.sprite_group_dict[group], layer, image, x, y)
+        if isinstance(group, str):
+            return Sprite(self.sprite_group_dict[group], layer, image, x, y)
+        if isinstance(group, pygame.sprite.LayeredUpdates):
+            return Sprite(group, layer, image, x, y)
     
     def update_sprite_groups(self, mouse, exclude=None):
         for group in self.sprite_group_dict.values():
@@ -92,6 +93,8 @@ class Renderer:
             else:
                 group.draw(screen)
 
+    def get_group(self, name):
+        return self.sprite_group_dict[name]
 
 
 
@@ -233,6 +236,6 @@ class RenderLayer:
     def update(self, _layer, _group_name, group_element, _data):
         self.layer[_layer][_group_name].update(group_element, _data)
 
+render_layer = RenderLayer()
 
 renderer = Renderer()
-render_layer = RenderLayer()

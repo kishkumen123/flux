@@ -66,6 +66,11 @@ turn slider in to DOD
 
 
 
+sprites:
+    scalling
+    get rid of old code
+    change pygame.draw.w.e to sprites
+
 sprite layers:
     need to have layers for sprite to determine draw order and have it easily modifiable
 
