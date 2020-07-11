@@ -1,3 +1,4 @@
+
 if __name__ == "__main__":
     from flux.main import Flux
     from components import components_list
@@ -21,12 +22,25 @@ if __name__ == "__main__":
         #TranslateSprite.update(engine.delta_time)
         #ScaleSprite.update(engine.delta_time)
 
+        #if engine.button_released("M_LEFT", "layer_all"):
+            #print("M_LEFT - released")
+        if engine.button_pressed_once("M_LEFT", "layer_all"):
+            print("M_LEFT - pressed once")
+        #if engine.button_pressed("M_LEFT", "layer_all"):
+        #    print("M_LEFT - pressed")
+        #if engine.button_pressed("M_RIGHT", "layer_all"):
+        #    print("M_RIGHT - pressed")
+        #if engine.button_pressed("M_MIDDLE", "layer_all"):
+        #    print("M_MIDDLE - pressed")
+        #if engine.button_pressed("M_SCROLLDOWN", "layer_all"):
+        #    print("M_SCROLLDOWN - pressed")
+        #if engine.button_pressed("M_SCROLLUP", "layer_all"):
+        #    print("M_SCROLLUP - pressed")
 
         if engine.key_pressed("K_ESCAPE", "layer_all"):
             engine.kill()
         if engine.event_triggered("QUIT", "layer_all"):
             engine.kill()
-
 
         engine.flush()
         display.swap_buffer()
