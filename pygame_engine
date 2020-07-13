@@ -21,7 +21,7 @@ GUI:
 
 OTHER:
 	parent child relationships
-	optional? ecs (have the work flow complete so that user can just create entities, give them components,
+	DONE - optional? ecs (have the work flow complete so that user can just create entities, give them components,
 		and have systems interact with those components if they exist in the world)
 
 	layers, layer indicators to show only things on certain layers or toggle on off
@@ -62,30 +62,22 @@ IMPROVEMENTS:
 
 ---TODO---
 
-turn slider in to DOD
 
-
-
-sprites:
-    scalling
-    get rid of old code
-    change pygame.draw.w.e to sprites
-
-sprite layers:
-    need to have layers for sprite to determine draw order and have it easily modifiable
+re-work event system:
+    - redo key press, press_once, press_repeat
+    - redo text input, input_once, input_repeat
+    - redo m button_press,button_press_once, button_held
+    - redo events
+    - redo mouse, make it an entity with a circular sprite that draws at the position of the mouse
 
 bugs:
-    - text still repeats with special characters. still have to look into it AGAIN
-    also looks like there is a text_input and repeat functionality built in... pygame.key.___
     special symbols on key up arnt registering cause they are mod=1
-    if ` or ~ it auto registers are text input, so need to accept on next key down
 
 object selection:
-    create layers for polygons - to improve selection process, to improve draw order,
-        more console commands
     adding console commands for selected object - showing data, deleting, maybe creating
 
 text input:
+    REWORK IN PROGRESS
     improvements:
         tab completes should turn into a second layer that shows a list of all
         the available commands
@@ -93,6 +85,7 @@ text input:
         copy paste to clipboard
     not important:
         wrapping lines
+
 done:
     tab complete from commands - second tab gets next item in list
     ctrl r for history

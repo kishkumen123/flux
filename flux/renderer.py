@@ -2,7 +2,7 @@ import pygame
 
 from flux import _globals
 from collections import OrderedDict
-from flux.screen import Display
+from flux.display import display
 from flux.fonts import fonts
 from flux.utils import load_image
 from flux.events import events
@@ -100,27 +100,27 @@ class Renderer:
 
 
     def draw_circle(self, position, radius, color, width=0):
-        return pygame.draw.circle(Display.fake_display, color, position, radius, width)
+        return pygame.draw.circle(display.display, color, position, radius, width)
 
     def draw_quad(self, position, size, color, width=0):
         rect = pygame.Rect(position, size)
-        pygame.draw.rect(Display.fake_display, color, rect, width)
+        pygame.draw.rect(display.display, color, rect, width)
         return rect
 
     def draw_poly(self, points, color, width=0):
-        return pygame.draw.polygon(Display.fake_display, color, points, width)
+        return pygame.draw.polygon(display.display, color, points, width)
 
     def draw_text(self, text="TEXT", position=None, color=(255, 0, 0), rect=None, clamp=None, padding=(0, 0)):
         surface = fonts["consolas"].render(text, True, color)
 
         if position:
-            Display.fake_display.blit(surface, position)
+            display.display.blit(surface, position)
         elif rect and clamp:
             clamp_position = self.get_text_clamp(rect, clamp, surface, padding)
             if clamp_position is None:
                 raise Exception("clamp attribute doesnt exist: %s" % clamp)
 
-            Display.fake_display.blit(surface, clamp_position)
+            display.display.blit(surface, clamp_position)
         else:
             raise Exception("rect and clamp must be set or position- rect: %s - clamp: %s - position: %s" % (rect, clamp, position))
         return surface
@@ -149,7 +149,7 @@ class Renderer:
         return fonts["consolas"].render(text, True, color).get_rect()
 
     def circle_rect(self, position, radius, color, width=0):
-        return pygame.draw.circle(Display.fake_display, color, position, radius, width)
+        return pygame.draw.circle(display.display, color, position, radius, width)
 
     def draw(self, _type, data):
         if _type is "text":
@@ -239,3 +239,4 @@ class RenderLayer:
 render_layer = RenderLayer()
 
 renderer = Renderer()
+

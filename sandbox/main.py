@@ -1,50 +1,45 @@
 
 if __name__ == "__main__":
+    import pygame
     from flux.main import Flux
-    from components import components_list
-    from systems import RenderSystem, ScaleSprite, TranslateSprite
+    #from components import components_list
+    #from systems import RenderSystem, ScaleSprite, TranslateSprite
 
-    engine = Flux()
-    engine.init()
-    engine.register_components(components_list)
-    engine.init_groups("resources/data/groups.json")
-    engine.load_entities("resources/data/entities.json")
+    flux = Flux()
+    flux.init()
+    display = flux.get_display()
+    flux.set_fps(120)
 
-    display = engine.init_display((1280, 720))
-    background = engine.create_surface((100, 100), (200, 255, 255))
-    engine.set_fps(120)
+    #flux.register_components(components_list)
+    #flux.init_groups("resources/data/groups.json")
+    #flux.load_entities("resources/data/entities.json")
 
-    #engine.load_level("one")
 
-    while engine.is_running():
+    while flux.is_running():
         #RenderSystem.update()
-        #RenderSystem.draw(display.fake_display)
-        #TranslateSprite.update(engine.delta_time)
-        #ScaleSprite.update(engine.delta_time)
+        #RenderSystem.draw(display)
+        #TranslateSprite.update(flux.dt)
+        #ScaleSprite.update(flux.dt)
+        
+        if flux.key_held("K_ESCAPE", "layer_all"):
+            flux.quit()
+        if flux.key_pressed("K_w", "layer_all"):
+            print("YES")
+        if flux.key_pressed("K_w", "layer_all"):
+            print("2YES")
+        if flux.key_pressed("K_HOME", "layer_all"):
+            print("NO")
+        if flux.key_pressed("K_HOME", "layer_all"):
+            print("2NO")
 
-        #if engine.button_released("M_LEFT", "layer_all"):
-            #print("M_LEFT - released")
-        if engine.button_pressed_once("M_LEFT", "layer_all"):
-            print("M_LEFT - pressed once")
-        #if engine.button_pressed("M_LEFT", "layer_all"):
-        #    print("M_LEFT - pressed")
-        #if engine.button_pressed("M_RIGHT", "layer_all"):
-        #    print("M_RIGHT - pressed")
-        #if engine.button_pressed("M_MIDDLE", "layer_all"):
-        #    print("M_MIDDLE - pressed")
-        #if engine.button_pressed("M_SCROLLDOWN", "layer_all"):
-        #    print("M_SCROLLDOWN - pressed")
-        #if engine.button_pressed("M_SCROLLUP", "layer_all"):
-        #    print("M_SCROLLUP - pressed")
 
-        if engine.key_pressed("K_ESCAPE", "layer_all"):
-            engine.kill()
-        if engine.event_triggered("QUIT", "layer_all"):
-            engine.kill()
+        if flux.key_released("K_w", "layer_all"):
+            print("RELEASED W")
+        if flux.key_released("K_HOME", "layer_all"):
+            print("RELEASED HOME")
 
-        engine.flush()
-        display.swap_buffer()
-        display.clear_screen()
-        engine.update()
+        pygame.display.update()
+        display.fill((0, 0, 0))
+        flux.update()
 
-    engine.quit()
+    flux.quit()

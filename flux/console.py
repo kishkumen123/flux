@@ -1,14 +1,67 @@
+import pygame
+from enum import Enum
 from flux import _globals
-from flux.screen import Display
+from flux.display import display
 from flux.layer import layer
 from flux.events import events
-from flux.mouse import mouse
-from flux.renderer import renderer
-from flux.commands import init_commands, run_command, get_commands
+from flux.fmath import lerp2v, Vector2
+#from flux.mouse import mouse
+#from flux.renderer import renderer
+#from flux.commands import init_commands, run_command, get_commands
 
+
+class CState(Enum):
+    CLOSED = 0
+    OPEN_SMALL = 0.3
+    OPEN_BIG = 0.7
+
+
+class C:
+    def __init__(self):
+        self.state = CState.CLOSED
+        self.open_speed = 0.01
+        self.lerp_percent = 0
+
+        self.current_size = Vector2((display.x,0))
+        self.start_size = Vector2((display.x,0))
+        self.end_size = Vector2((display.x,0))
+        self.position = Vector2((0,0))
+
+        self.background_color = (39, 40, 34)
+
+    def update_end_size(self):
+        if self.state == CState.CLOSED:
+            return CState.CLOSED.value * display.y
+        elif self.state == CState.OPEN_SMALL:
+            return CState.OPEN_SMALL.value * display.y
+        elif self.state == CState.OPEN_BIG:
+            return CState.OPEN_BIG.value * display.y
+
+    def update(self, dt):
+        if events.key_pressed("K_BACKQUOTE", "layer_all"):
+            self.lerp_percent = 0
+            self.start_size = self.current_size
+
+            if self.state == CState.CLOSED:
+                self.state = CState.OPEN_SMALL
+            elif self.state == CState.OPEN_SMALL:
+                self.state = CState.CLOSED
+
+            self.end_size.y = self.update_end_size()
+            
+
+        if self.lerp_percent < 1:
+            self.lerp_percent += self.open_speed
+            self.current_size = lerp2v(self.start_size, self.end_size, self.lerp_percent)
+
+        if self.current_size.y > 1:
+            pygame.draw.rect(display.window, self.background_color, (self.position, self.current_size))
+
+
+c = C()
 
 class Console:
-    init_commands()
+    #init_commands()
 
     def __init__(self):
         self.text = ""
@@ -162,10 +215,12 @@ class Console:
     def update(self, dt):
         self.history_length = len(_globals.history_input)
 
-        if events.key_pressed_once("ESCAPE", "layer_999"):
+        if events.key_pressed_once("K_ESCAPE", "layer_999"):
+            print("here")
             self.set_openess("CLOSED")
             layer.pop_layer()
-        if events.key_pressed("BACKQUOTE", "layer_all") and events.key_pressed("LSHIFT", "layer_all"):
+
+        if events.key_pressed_once("K_BACKQUOTE", "layer_all") and events.key_pressed("K_LSHIFT", "layer_all"):
             if self.open_amount == "MAX":
                 self.set_openess("CLOSED")
                 layer.pop_layer()
@@ -173,11 +228,14 @@ class Console:
                 self.set_openess("MAX")
                 layer.set_layer("layer_999")
 
-        if events.key_pressed_once("BACKQUOTE", "layer_all") and not events.key_pressed("LSHIFT", "layer_all"):
+        if events.key_pressed_once("K_BACKQUOTE", "layer_all") and not events.key_pressed("K_LSHIFT", "layer_all"):
+            print("1")
             if self.open_amount == "MIN":
+                print("2")
                 self.set_openess("CLOSED")
                 layer.pop_layer()
             else:
+                print("3")
                 self.set_openess("MIN")
                 layer.set_layer("layer_999")
 
@@ -191,27 +249,29 @@ class Console:
                     if self.scrollable:
                         self.mouse_wheel_offset += 20
 
-            key = events.handle_text_input_event_repeat("layer_999")
-            if key:
+            #key = events.text_input_repeat("layer_999")
+            key = events.text_input("layer_999")
+            if key and key != "`":
                 self.add_text_at_cursor(key)
 
-            if events.key_pressed_repeat("BACKSPACE", "layer_999"):
-                self.remove_text_at_cursor()
-            if events.key_pressed_once("RETURN", "layer_999") and len(self.text):
+            #if events.key_pressed_repeat("K_BACKSPACE", "layer_999"):
+                #self.remove_text_at_cursor()
+
+            if events.key_pressed_once("K_RETURN", "layer_999") and len(self.text):
                 self.search_history = False
                 run_command(self.text)
                 self.text = ""
                 self.history_index = None
                 self.cursor_index = 0
 
-            if events.key_pressed_repeat("LEFT", "layer_999"):
-                if self.cursor_index > 0:
-                    self.cursor_index -= 1
-            if events.key_pressed_repeat("RIGHT", "layer_999"):
-                if self.cursor_index < self.cursor_max:
-                    self.cursor_index += 1
+            #if events.key_pressed_repeat("K_LEFT", "layer_999"):
+                #if self.cursor_index > 0:
+                    #self.cursor_index -= 1
+            #if events.key_pressed_repeat("K_RIGHT", "layer_999"):
+                #if self.cursor_index < self.cursor_max:
+                    #self.cursor_index += 1
 
-            if events.key_pressed_once("UP", "layer_999"):
+            if events.key_pressed_once("K_UP", "layer_999"):
                 if self.history_index is None:
                     self.history_index = self.history_length
                     self.stored_text = self.text
@@ -221,7 +281,7 @@ class Console:
                     self.text = _globals.history_input[self.history_index]
                     self.cursor_max = len(self.text)
                     self.cursor_index = self.cursor_max
-            if events.key_pressed_once("DOWN", "layer_999"):
+            if events.key_pressed_once("K_DOWN", "layer_999"):
                 if self.history_index is not None:
                     self.history_index += 1
                     if self.history_index >= self.history_length:
@@ -233,14 +293,14 @@ class Console:
                     self.cursor_max = len(self.text)
                     self.cursor_index = self.cursor_max
 
-            if events.key_pressed_once("HOME", "layer_999"):
+            if events.key_pressed_once("K_HOME", "layer_999"):
                 self.cursor_index = 0
-            if events.key_pressed_once("END", "layer_999"):
+            if events.key_pressed_once("K_END", "layer_999"):
                 self.cursor_index = self.cursor_max
-            if events.key_pressed_once("TAB", "layer_999"):
+            if events.key_pressed_once("K_TAB", "layer_999"):
                 self.text = self.autocomplete_text
                 self.cursor_index = len(self.text)
-            if events.key_pressed("LCTRL", "layer_all") and events.key_pressed_once("r", "layer_all"):
+            if events.key_pressed("K_LCTRL", "layer_all") and events.key_pressed_once("K_r", "layer_all"):
                 self.search_history = True
 
             if self.search_history:
@@ -258,4 +318,4 @@ class Console:
             self.draw_cursor()
 
 
-console = Console()
+#console = Console()

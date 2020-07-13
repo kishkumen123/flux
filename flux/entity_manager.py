@@ -1,3 +1,4 @@
+
 class Entity():
     def __init__(self):
         self._id = id(self)
@@ -12,8 +13,8 @@ class Entity():
 
 class EM():
     entities = {}
-    ce_mapping = {}
     components = {}
+    ce_mapping = {}
 
     @classmethod
     def create(cls, components=None, arguments=None):

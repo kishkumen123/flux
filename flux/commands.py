@@ -2,7 +2,6 @@ import json
 import os
 
 from flux import _globals
-from flux.poly import Poly
 
 commands = {}
 
@@ -19,7 +18,6 @@ def init_commands():
     add_command("editor", command_editor, tooltip="enables/disables editor mode")
     add_command("save_level", command_save_level, 1, 1, tooltip="saves the current level to a file")
     add_command("new_level", command_new_level, tooltip="creates a blank new level")
-    add_command("level", command_level, 1, 1, tooltip="loads level")
     add_command("quit", command_quit, tooltip="quit the engine")
     add_command("exit", command_quit, tooltip="quit the engine")
     add_command("clear", command_clear, tooltip="clears console history")
@@ -28,11 +26,21 @@ def init_commands():
     add_command("selection_data", command_selection_data, tooltip="shows selection data")
 
 
+def add_command(name, proc, arg_count_min=0, arg_count_max=0, tooltip=""):
+    info = CommandInfo()
+    info.name = name
+    info.proc = proc
+    info.arg_count_min = arg_count_min
+    info.arg_count_max = arg_count_max
+    info.tooltip = tooltip
+    commands[str(name)] = info
+
+
 def get_commands():
     return commands.values()
 
 
-def get_commands_names():
+def get_command_names():
     return commands.keys()
 
 
@@ -57,16 +65,6 @@ def run_command(command_string):
         command.proc(command_arguments)
     else:
         command_output("Uknown command \"%s\"" % command_name)
-
-
-def add_command(name, proc, arg_count_min=0, arg_count_max=0, tooltip=""):
-    info = CommandInfo()
-    info.name = name
-    info.proc = proc
-    info.arg_count_min = arg_count_min
-    info.arg_count_max = arg_count_max
-    info.tooltip = tooltip
-    commands[str(name)] = info
 
 
 def command_output(command):
@@ -133,24 +131,6 @@ def command_save_level(arguments):
                 data["poly"].append(poly_data)
             #figure out how to indent but not indent lists
             json.dump(data, f)
-    else:
-        command_output("command takes 1 argument of filename")
-
-
-def command_level(arguments):
-    if len(arguments) == 1:
-        path = os.path.join(os.getcwd(), "levels", str(arguments[0]))
-
-        if os.path.exists(path):
-            _globals.poly_dict = []
-            _globals.selection = None
-            with open(path, "r") as f:
-                data = json.load(f)
-                for obj in data["poly"]:
-                    poly = Poly(obj["name"], obj["layer"], obj["color"], obj["points"], None, obj["width"])
-                    _globals.poly_dict.append(poly)
-        else:
-            command_output("filename %s does not exist" % str(arguments[0]))
     else:
         command_output("command takes 1 argument of filename")
 
