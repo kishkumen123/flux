@@ -14,7 +14,6 @@ if __name__ == "__main__":
     #flux.init_groups("resources/data/groups.json")
     #flux.load_entities("resources/data/entities.json")
 
-
     while flux.is_running():
         #RenderSystem.update()
         #RenderSystem.draw(display)
