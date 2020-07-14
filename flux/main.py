@@ -81,11 +81,15 @@ class Flux:
     def key_released(self, key, layer="layer_0"):
         return events.key_released(key, layer)
 
+    def text_input(self, layer="layer_0"):
+        return events.text_input(layer)
+
     def flip(self):
         pygame.display.flip()
 
     def quit(self):
         print("quit")
+        _globals.running = False
         pygame.quit()
         sys.exit(0)
 
@@ -96,8 +100,8 @@ class Flux:
         self.update_dt()
         events.update()
 
-        #console.update(self.dt)
-        c.update(self.dt)
+        #console.update(self._dt)
+        c.update(self._dt)
         self.frame_index += 1
 
     def kill(self):

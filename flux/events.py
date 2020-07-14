@@ -1,5 +1,6 @@
 import pygame
 import string
+import sys
 
 from flux.layer import layer
 from flux import _globals
@@ -10,8 +11,21 @@ class Events:
     def __init__(self):
         self.keys = {name:pygame.__dict__[name] for name in dir(pygame) if "K_" in name}
         self.keys_held = []
+        self.keys_pressed = set()
         self.keys_released = set()
-        self.keys_pressed_once = set()
+        self.text_pressed = []
+
+        self.text_list = string.digits + string.ascii_letters + string.punctuation + " space"
+        self.text_list = self.text_list.replace("`", "")
+        self.text_list = self.text_list.replace("~", "")
+
+    def text_input(self, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
+            if len(self.text_pressed):
+                text = self.text_pressed.pop()
+                if text in self.text_list:
+                    return text
+        return None
 
     def key_held(self, key_name, _layer="layer_0"):
         if _layer == layer.get_layer() or _layer == "layer_all":
@@ -21,9 +35,10 @@ class Events:
 
     def key_pressed(self, key_name, _layer="layer_0"):
         if _layer == layer.get_layer() or _layer == "layer_all":
-            if self.key_held(key_name):
-                key = self.keys.get(key_name)
-                return key in self.keys_pressed_once
+            key = self.keys.get(key_name)
+            if key in self.keys_pressed:
+                self.keys_pressed.remove(key)
+                return True
         return False
 
     def key_released(self, key_name, _layer="layer_0"):
@@ -33,16 +48,20 @@ class Events:
         return False
 
     def update(self):
-        self.keys_released = set()
-        self.keys_pressed_once = set()
+        self.keys_pressed.clear()
+        self.keys_released.clear()
+        self.text_pressed.clear()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 _globals.running = False
+                pygame.quit()
+                sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 self.keys_held.append(event.key)
-                self.keys_pressed_once.add(event.key)
+                self.keys_pressed.add(event.key)
+                self.text_pressed.append(event.unicode)
             if event.type == pygame.KEYUP:
                 self.keys_held.remove(event.key)
                 self.keys_released.add(event.key)

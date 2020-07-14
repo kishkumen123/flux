@@ -4,7 +4,7 @@ from flux import _globals
 from flux.display import display
 from flux.layer import layer
 from flux.events import events
-from flux.fmath import lerp2v, Vector2
+from flux.fmath import lerp2v, Vector2, v2distance
 #from flux.mouse import mouse
 #from flux.renderer import renderer
 #from flux.commands import init_commands, run_command, get_commands
@@ -16,20 +16,38 @@ class CState(Enum):
     OPEN_BIG = 0.7
 
 
+# TODO: REMEMBER TO OPTIMIZE THIS SO THAT IT ONLY DRAWS STUFF WHEN THINGS CHANGE LIKE INPUTING NEW HISTORY OR TYPING IN LETTERS
 class C:
     def __init__(self):
         self.state = CState.CLOSED
-        self.open_speed = 0.01
+        self.open_speed = 1000
         self.lerp_percent = 0
 
-        self.current_size = Vector2((display.x,0))
-        self.start_size = Vector2((display.x,0))
-        self.end_size = Vector2((display.x,0))
-        self.position = Vector2((0,0))
+        self.current_position = Vector2((display.x,0))
+        self.start_position = Vector2((display.x,0))
+        self.end_position = Vector2((display.x,0))
+        self.cursor_position = 5
 
         self.background_color = (39, 40, 34)
+        self.textfield_color = (60, 61, 56)
+        self.cursor_color = (231, 232, 226)
+        #self.history_color = (255, 175, 0)
+        self.history_color = (202, 202, 202)
+        self.text_color = (202, 202, 202)
+        self.tag_color = (255, 175, 0)
 
-    def update_end_size(self):
+        self.text_tag = "λ/> "
+        self.text = ""
+        self.text_mask = ""
+        self.tag_size = len(self.text)
+        self.history_output = ["Welcome to the Console!", "I like banana caramel milk shakes - (>:;)", "loooooooooooooooooooooooooooooooooooooooooooolcicles"]
+        self.history_input = []
+
+        pygame.font.init()
+        self.font = pygame.font.SysFont("consolas", 20)
+        self.tag_surface = self.font.render(self.text_tag, True, self.tag_color)
+
+    def update_end_position(self):
         if self.state == CState.CLOSED:
             return CState.CLOSED.value * display.y
         elif self.state == CState.OPEN_SMALL:
@@ -37,26 +55,68 @@ class C:
         elif self.state == CState.OPEN_BIG:
             return CState.OPEN_BIG.value * display.y
 
+    def draw_history(self, console_rect, textfield_rect):
+        for i, text in enumerate(self.history_output):
+            history_surface = self.font.render(text, True, self.history_color)
+            display.window.blit(history_surface, (5, console_rect.h - textfield_rect.size[1] - (22 * i + 8)))
+
     def update(self, dt):
+        if events.key_pressed("K_ESCAPE", "layer_999"):
+            self.lerp_percent = 0
+            self.start_position = self.current_position
+            self.state = CState.CLOSED
+            self.end_position.y = self.update_end_position()
+            layer.pop_layer()
+
         if events.key_pressed("K_BACKQUOTE", "layer_all"):
             self.lerp_percent = 0
-            self.start_size = self.current_size
+            self.start_position = self.current_position
 
-            if self.state == CState.CLOSED:
-                self.state = CState.OPEN_SMALL
-            elif self.state == CState.OPEN_SMALL:
-                self.state = CState.CLOSED
+            if events.key_held("K_LSHIFT", "layer_all"):
+                if self.state == CState.OPEN_BIG:
+                    self.state = CState.CLOSED
+                    layer.pop_layer()
+                else:
+                    self.state = CState.OPEN_BIG
+                    layer.set_layer("layer_999")
+            else:
+                if self.state == CState.OPEN_SMALL:
+                    self.state = CState.CLOSED
+                    layer.pop_layer()
+                else:
+                    self.state = CState.OPEN_SMALL
+                    layer.set_layer("layer_999")
+            self.end_position.y = self.update_end_position()
 
-            self.end_size.y = self.update_end_size()
-            
 
-        if self.lerp_percent < 1:
-            self.lerp_percent += self.open_speed
-            self.current_size = lerp2v(self.start_size, self.end_size, self.lerp_percent)
+        lerp_distance = v2distance(self.start_position, self.end_position)
+        if lerp_distance > 0 and self.lerp_percent < 1:
+            self.lerp_percent += (self.open_speed / lerp_distance) * dt
+            self.current_position = lerp2v(self.start_position, self.end_position, self.lerp_percent)
 
-        if self.current_size.y > 1:
-            pygame.draw.rect(display.window, self.background_color, (self.position, self.current_size))
+        text = events.text_input("layer_999")
+        if text is not None:
+            self.text += text
+        if self.current_position.y > 0:
+            console_rect = pygame.draw.rect(display.window, self.background_color, ((0, 0), self.current_position))
+            textfield_rect = pygame.draw.rect(display.window, self.textfield_color, ((0, console_rect.h), (display.x, 24)))
+            self.draw_history(console_rect, textfield_rect)
 
+            text_surface = self.font.render(self.text, True, self.text_color)
+            display.window.blit(text_surface, (self.font.size(self.text_tag)[0], textfield_rect.y + 2))
+            display.window.blit(self.tag_surface, (2, textfield_rect.y + 2))
+
+            cursor_x = self.cursor_position + self.font.size(self.text)[0] + self.font.size(self.text_tag)[0]
+            cursor_rect = pygame.draw.rect(display.window, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
+
+            if events.key_pressed("K_RETURN", "layer_999"):
+                if len(self.text) > self.tag_size:
+                    self.history_output.insert(0, self.text[self.tag_size:])
+                    self.text = self.text[:self.tag_size]
+
+            if events.key_pressed("K_BACKSPACE", "layer_999"):
+                if len(self.text) > 0:
+                    self.text = self.text[:-1]
 
 c = C()
 
@@ -216,7 +276,6 @@ class Console:
         self.history_length = len(_globals.history_input)
 
         if events.key_pressed_once("K_ESCAPE", "layer_999"):
-            print("here")
             self.set_openess("CLOSED")
             layer.pop_layer()
 
@@ -229,13 +288,10 @@ class Console:
                 layer.set_layer("layer_999")
 
         if events.key_pressed_once("K_BACKQUOTE", "layer_all") and not events.key_pressed("K_LSHIFT", "layer_all"):
-            print("1")
             if self.open_amount == "MIN":
-                print("2")
                 self.set_openess("CLOSED")
                 layer.pop_layer()
             else:
-                print("3")
                 self.set_openess("MIN")
                 layer.set_layer("layer_999")
 
