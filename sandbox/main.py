@@ -21,23 +21,9 @@ if __name__ == "__main__":
         #TranslateSprite.update(flux.dt)
         #ScaleSprite.update(flux.dt)
         
-        if flux.key_held("K_ESCAPE", "layer_all"):
+        if flux.key_pressed("K_ESCAPE", "layer_all"):
             flux.quit()
-        if flux.key_pressed("K_w", "layer_all"):
-            print("YES")
-        if flux.key_pressed("K_w", "layer_all"):
-            print("2YES")
-        if flux.key_pressed("K_HOME", "layer_all"):
-            print("NO")
-        if flux.key_pressed("K_HOME", "layer_all"):
-            print("2NO")
-
-
-        if flux.key_released("K_w", "layer_all"):
-            print("RELEASED W")
-        if flux.key_released("K_HOME", "layer_all"):
-            print("RELEASED HOME")
-
+        
         pygame.display.update()
         display.fill((0, 0, 0))
         flux.update()
