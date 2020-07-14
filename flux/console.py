@@ -7,7 +7,7 @@ from flux.events import events
 from flux.fmath import lerp2v, Vector2, v2distance
 #from flux.mouse import mouse
 #from flux.renderer import renderer
-#from flux.commands import init_commands, run_command, get_commands
+from flux.commands import init_commands, run_command, get_commands
 
 
 class CState(Enum):
@@ -18,6 +18,8 @@ class CState(Enum):
 
 # TODO: REMEMBER TO OPTIMIZE THIS SO THAT IT ONLY DRAWS STUFF WHEN THINGS CHANGE LIKE INPUTING NEW HISTORY OR TYPING IN LETTERS
 class C:
+    init_commands()
+
     def __init__(self):
         self.state = CState.CLOSED
         self.open_speed = 1000
@@ -31,21 +33,19 @@ class C:
         self.background_color = (39, 40, 34)
         self.textfield_color = (60, 61, 56)
         self.cursor_color = (231, 232, 226)
-        #self.history_color = (255, 175, 0)
         self.history_color = (202, 202, 202)
         self.text_color = (202, 202, 202)
         self.tag_color = (255, 175, 0)
 
-        self.text_tag = "λ/> "
+        self.tag_text = "λ/> "
         self.text = ""
         self.text_mask = ""
         self.tag_size = len(self.text)
-        self.history_output = ["Welcome to the Console!", "I like banana caramel milk shakes - (>:;)", "loooooooooooooooooooooooooooooooooooooooooooolcicles"]
         self.history_input = []
 
         pygame.font.init()
         self.font = pygame.font.SysFont("consolas", 20)
-        self.tag_surface = self.font.render(self.text_tag, True, self.tag_color)
+        self.tag_surface = self.font.render(self.tag_text, True, self.tag_color)
 
     def update_end_position(self):
         if self.state == CState.CLOSED:
@@ -56,7 +56,7 @@ class C:
             return CState.OPEN_BIG.value * display.y
 
     def draw_history(self, console_rect, textfield_rect):
-        for i, text in enumerate(self.history_output):
+        for i, text in enumerate(_globals.history_output):
             history_surface = self.font.render(text, True, self.history_color)
             display.window.blit(history_surface, (5, console_rect.h - textfield_rect.size[1] - (22 * i + 8)))
 
@@ -96,7 +96,6 @@ class C:
 
         text = events.text_input("layer_999")
         if text is not None:
-            print(text)
             self.text += text
             self.text_mask = self.text
         if self.current_position.y > 0:
@@ -105,21 +104,23 @@ class C:
             self.draw_history(console_rect, textfield_rect)
 
             text_surface = self.font.render(self.text, True, self.text_color)
-            display.window.blit(text_surface, (self.font.size(self.text_tag)[0], textfield_rect.y + 2))
+            display.window.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
             display.window.blit(self.tag_surface, (2, textfield_rect.y + 2))
 
-            cursor_x = self.cursor_position + self.font.size(self.text_mask)[0] + self.font.size(self.text_tag)[0]
+            cursor_x = self.cursor_position + self.font.size(self.text_mask)[0] + self.font.size(self.tag_text)[0]
             cursor_rect = pygame.draw.rect(display.window, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
 
             if events.key_pressed("K_RETURN", "layer_999"):
                 if len(self.text) > self.tag_size:
-                    self.history_output.insert(0, self.text[self.tag_size:])
+                    _globals.history_output.insert(0, self.text[self.tag_size:])
+                    run_command(self.text)
                     self.text = self.text[:self.tag_size]
                     self.text_mask = self.text
 
             if events.key_pressed("K_BACKSPACE", "layer_999"):
                 if len(self.text) > 0:
                     self.text = self.text[:-1]
+                    self.text_mask = self.text
 
             if events.key_pressed("K_LEFT", "layer_999"):
                 self.text_mask = self.text_mask[:-1]
