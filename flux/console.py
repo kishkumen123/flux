@@ -50,7 +50,6 @@ class C:
         self.tag_text = "λ/> "
         self.text = ""
         self.text_mask = ""
-        self.tag_size = len(self.text)
         self.history_input = []
 
         pygame.font.init()
@@ -121,10 +120,10 @@ class C:
             cursor_rect = pygame.draw.rect(display.window, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
 
             if events.key_pressed("K_RETURN", "layer_999"):
-                if len(self.text) > self.tag_size:
-                    _globals.history_output.insert(0, self.text[self.tag_size:])
+                if len(self.text) > 0:
+                    _globals.history_output.insert(0, self.text)
                     run_command(self.text)
-                    self.text = self.text[:self.tag_size]
+                    self.text = ""
                     self.text_mask = self.text
 
             if events.key_pressed("K_BACKSPACE", "layer_999"):
