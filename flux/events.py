@@ -23,7 +23,7 @@ class Events:
         if _layer == layer.get_layer() or _layer == "layer_all":
             if len(self.text_pressed):
                 text = self.text_pressed.pop()
-                if text in self.text_list:
+                if text in self.text_list and text != "":
                     return text
         return None
 

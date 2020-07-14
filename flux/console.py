@@ -96,7 +96,9 @@ class C:
 
         text = events.text_input("layer_999")
         if text is not None:
+            print(text)
             self.text += text
+            self.text_mask = self.text
         if self.current_position.y > 0:
             console_rect = pygame.draw.rect(display.window, self.background_color, ((0, 0), self.current_position))
             textfield_rect = pygame.draw.rect(display.window, self.textfield_color, ((0, console_rect.h), (display.x, 24)))
@@ -106,17 +108,23 @@ class C:
             display.window.blit(text_surface, (self.font.size(self.text_tag)[0], textfield_rect.y + 2))
             display.window.blit(self.tag_surface, (2, textfield_rect.y + 2))
 
-            cursor_x = self.cursor_position + self.font.size(self.text)[0] + self.font.size(self.text_tag)[0]
+            cursor_x = self.cursor_position + self.font.size(self.text_mask)[0] + self.font.size(self.text_tag)[0]
             cursor_rect = pygame.draw.rect(display.window, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
 
             if events.key_pressed("K_RETURN", "layer_999"):
                 if len(self.text) > self.tag_size:
                     self.history_output.insert(0, self.text[self.tag_size:])
                     self.text = self.text[:self.tag_size]
+                    self.text_mask = self.text
 
             if events.key_pressed("K_BACKSPACE", "layer_999"):
                 if len(self.text) > 0:
                     self.text = self.text[:-1]
+
+            if events.key_pressed("K_LEFT", "layer_999"):
+                self.text_mask = self.text_mask[:-1]
+            if events.key_pressed("K_RIGHT", "layer_999"):
+                self.text_mask = self.text[:len(self.text_mask) + 1]
 
 c = C()
 
