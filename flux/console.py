@@ -20,6 +20,16 @@ class CState(Enum):
 class C:
     init_commands()
 
+    """
+    left to do -
+        - insert text at cursor position
+        - text repeat
+        - tab auto complete
+        - ctrl r search input history
+        - up/down scroll input history
+        - scrollwheel output histroy 
+    """
+
     def __init__(self):
         self.state = CState.CLOSED
         self.open_speed = 1000
@@ -126,7 +136,10 @@ class C:
                 self.text_mask = self.text_mask[:-1]
             if events.key_pressed("K_RIGHT", "layer_999"):
                 self.text_mask = self.text[:len(self.text_mask) + 1]
-
+            if events.key_pressed("K_HOME", "layer_999"):
+                self.text_mask = ""
+            if events.key_pressed("K_END", "layer_999"):
+                self.text_mask = self.text
 c = C()
 
 class Console:
@@ -282,29 +295,29 @@ class Console:
             self.autocomplete_text = ""
 
     def update(self, dt):
-        self.history_length = len(_globals.history_input)
+        #self.history_length = len(_globals.history_input)
 
-        if events.key_pressed_once("K_ESCAPE", "layer_999"):
-            self.set_openess("CLOSED")
-            layer.pop_layer()
+        #if events.key_pressed_once("K_ESCAPE", "layer_999"):
+        #    self.set_openess("CLOSED")
+        #    layer.pop_layer()
 
-        if events.key_pressed_once("K_BACKQUOTE", "layer_all") and events.key_pressed("K_LSHIFT", "layer_all"):
-            if self.open_amount == "MAX":
-                self.set_openess("CLOSED")
-                layer.pop_layer()
-            else:
-                self.set_openess("MAX")
-                layer.set_layer("layer_999")
+        #if events.key_pressed_once("K_BACKQUOTE", "layer_all") and events.key_pressed("K_LSHIFT", "layer_all"):
+        #    if self.open_amount == "MAX":
+        #        self.set_openess("CLOSED")
+        #        layer.pop_layer()
+        #    else:
+        #        self.set_openess("MAX")
+        #        layer.set_layer("layer_999")
 
-        if events.key_pressed_once("K_BACKQUOTE", "layer_all") and not events.key_pressed("K_LSHIFT", "layer_all"):
-            if self.open_amount == "MIN":
-                self.set_openess("CLOSED")
-                layer.pop_layer()
-            else:
-                self.set_openess("MIN")
-                layer.set_layer("layer_999")
+        #if events.key_pressed_once("K_BACKQUOTE", "layer_all") and not events.key_pressed("K_LSHIFT", "layer_all"):
+        #    if self.open_amount == "MIN":
+        #        self.set_openess("CLOSED")
+        #        layer.pop_layer()
+        #    else:
+        #        self.set_openess("MIN")
+        #        layer.set_layer("layer_999")
 
-        self.animate_console(dt)
+        #self.animate_console(dt)
         if self.y > 0:
             if mouse.get_pos()[1] < self.y:
                 if events.mouse_wheel_down:
@@ -315,19 +328,19 @@ class Console:
                         self.mouse_wheel_offset += 20
 
             #key = events.text_input_repeat("layer_999")
-            key = events.text_input("layer_999")
-            if key and key != "`":
-                self.add_text_at_cursor(key)
+            #key = events.text_input("layer_999")
+            #if key and key != "`":
+            #    self.add_text_at_cursor(key)
 
             #if events.key_pressed_repeat("K_BACKSPACE", "layer_999"):
                 #self.remove_text_at_cursor()
 
-            if events.key_pressed_once("K_RETURN", "layer_999") and len(self.text):
-                self.search_history = False
-                run_command(self.text)
-                self.text = ""
-                self.history_index = None
-                self.cursor_index = 0
+            #if events.key_pressed_once("K_RETURN", "layer_999") and len(self.text):
+            #    self.search_history = False
+            #    run_command(self.text)
+            #    self.text = ""
+            #    self.history_index = None
+            #    self.cursor_index = 0
 
             #if events.key_pressed_repeat("K_LEFT", "layer_999"):
                 #if self.cursor_index > 0:
@@ -358,9 +371,9 @@ class Console:
                     self.cursor_max = len(self.text)
                     self.cursor_index = self.cursor_max
 
-            if events.key_pressed_once("K_HOME", "layer_999"):
-                self.cursor_index = 0
-            if events.key_pressed_once("K_END", "layer_999"):
+            #if events.key_pressed_once("K_HOME", "layer_999"):
+            #    self.cursor_index = 0
+            #if events.key_pressed_once("K_END", "layer_999"):
                 self.cursor_index = self.cursor_max
             if events.key_pressed_once("K_TAB", "layer_999"):
                 self.text = self.autocomplete_text
@@ -375,12 +388,12 @@ class Console:
 
             self.cursor_max = len(self.text)
 
-            self.draw_background()
-            self.draw_textfield()
-            self.draw_history()
-            self.draw_text()
-            self.draw_autocomplete_suggestion()
-            self.draw_cursor()
+            #self.draw_background()
+            #self.draw_textfield()
+            #self.draw_history()
+            #self.draw_text()
+            #self.draw_autocomplete_suggestion()
+            #self.draw_cursor()
 
 
 #console = Console()
