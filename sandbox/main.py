@@ -22,6 +22,10 @@ if __name__ == "__main__":
         
         if flux.key_pressed("K_ESCAPE", "layer_all"):
             flux.quit()
+
+        #text = flux.text_input_repeat("layer_0")
+        #if text:
+            #print(text)
         
         pygame.display.update()
         display.fill((0, 0, 0))

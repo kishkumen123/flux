@@ -84,6 +84,9 @@ class Flux:
     def text_input(self, layer="layer_0"):
         return events.text_input(layer)
 
+    def text_input_repeat(self, layer="layer_0"):
+        return events.text_input_repeat(layer)
+
     def key_held(self, key, layer="layer_0"):
         return events.key_held(key, layer)
 

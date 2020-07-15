@@ -23,7 +23,6 @@ class C:
     """
     left to do -
         console
-        - scrollwheel output histroy 
         - tab auto complete
         - ctrl r search input history
 
@@ -111,7 +110,8 @@ class C:
             self.lerp_percent += (self.open_speed / lerp_distance) * dt
             self.current_position = lerp2v(self.start_position, self.end_position, self.lerp_percent)
 
-        text = events.text_input("layer_999")
+        #text = events.text_input("layer_999")
+        text = events.text_input_repeat("layer_999")
         if text is not None:
             left = self.text[:self.cursor_index]
             right = self.text[self.cursor_index:]

@@ -13,7 +13,7 @@ class Events:
         self.keys_held = set()
         self.keys_pressed = set()
         self.keys_released = set()
-        self.text_pressed = set()
+        self.text_pressed = []
         self.buttons_held = set()
         self.buttons_pressed = set()
         self.buttons_released = set()
@@ -22,6 +22,13 @@ class Events:
         self.text_list = string.digits + string.ascii_letters + string.punctuation + " space"
         self.text_list = self.text_list.replace("`", "")
         self.text_list = self.text_list.replace("~", "")
+
+        self.text_delay_first = 0.4
+        self.text_delay_second = 0.04
+        self.text_ticks = pygame.time.get_ticks()
+        self.ticks_started = False
+        self.first_done = False
+        self.last_text = ""
 
 
     def mouse_held(self, button_name, _layer="layer_0"):
@@ -44,14 +51,6 @@ class Events:
             return button in self.buttons_released
         return False
 
-    def text_input(self, _layer="layer_0"):
-        if _layer == layer.get_layer() or _layer == "layer_all":
-            if len(self.text_pressed):
-                text = self.text_pressed.pop()
-                if text in self.text_list and text != "":
-                    return text
-        return None
-
     def key_held(self, key_name, _layer="layer_0"):
         if _layer == layer.get_layer() or _layer == "layer_all":
             key = self.keys.get(key_name)
@@ -71,6 +70,37 @@ class Events:
             key = self.keys.get(key_name)
             return key in self.keys_released
         return False
+
+    def text_input(self, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
+            if len(self.text_pressed):
+                text = self.text_pressed.pop()
+                if text in self.text_list and text != "":
+                    return text
+        return None
+
+    def text_input_repeat(self, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
+            if len(self.text_pressed):
+                temp = self.text_pressed[-1]
+                if temp != self.last_text:
+                    self.ticks_started = False
+                    self.first_done = False
+                self.last_text = temp
+
+            if self.last_text in self.text_list and self.last_text != "":
+                if not self.ticks_started:
+                    self.ticks_started = True
+                    self.text_ticks = pygame.time.get_ticks()
+                    return self.last_text
+                elif ((pygame.time.get_ticks() - self.text_ticks)/1000) > self.text_delay_first and not self.first_done:
+                    self.text_ticks = pygame.time.get_ticks()
+                    self.first_done = True
+                    return self.last_text
+                elif ((pygame.time.get_ticks() - self.text_ticks)/1000) > self.text_delay_second and self.first_done:
+                    self.text_ticks = pygame.time.get_ticks()
+                    return self.last_text
+        return None
 
     def update(self):
         self.keys_pressed.clear()
@@ -93,12 +123,13 @@ class Events:
                 self.buttons_released.add(event.button)
 
             if event.type == pygame.KEYDOWN:
-                self.text_pressed.add(event.unicode)
+                self.text_pressed.append(event.unicode)
                 self.keys_held.add(event.key)
                 self.keys_pressed.add(event.key)
             if event.type == pygame.KEYUP:
                 self.keys_held.remove(event.key)
                 self.keys_released.add(event.key)
+                self.last_text = ""
 
 
 events = Events()
