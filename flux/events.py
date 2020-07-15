@@ -109,6 +109,8 @@ class Events:
         self.buttons_released.clear()
         self.text_pressed.clear()
 
+        if 1 not in pygame.key.get_pressed():
+            self.last_text = ""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 _globals.running = False
@@ -129,7 +131,6 @@ class Events:
             if event.type == pygame.KEYUP:
                 self.keys_held.remove(event.key)
                 self.keys_released.add(event.key)
-                self.last_text = ""
 
 
 events = Events()
