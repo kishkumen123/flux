@@ -72,6 +72,18 @@ class Flux:
                 arguments.append(d["components"][c])
             EM.create(components, arguments)
 
+    def mouse_held(self, button_name, layer="layer_0"):
+        return events.mouse_held(button_name, layer)
+
+    def mouse_pressed(self, button_name, layer="layer_0"):
+        return events.mouse_pressed(button_name, layer)
+            
+    def mouse_released(self, button_name, layer="layer_0"):
+        return events.mouse_released(button_name, layer)
+
+    def text_input(self, layer="layer_0"):
+        return events.text_input(layer)
+
     def key_held(self, key, layer="layer_0"):
         return events.key_held(key, layer)
 
@@ -80,9 +92,6 @@ class Flux:
 
     def key_released(self, key, layer="layer_0"):
         return events.key_released(key, layer)
-
-    def text_input(self, layer="layer_0"):
-        return events.text_input(layer)
 
     def flip(self):
         pygame.display.flip()

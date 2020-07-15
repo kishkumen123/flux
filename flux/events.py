@@ -10,14 +10,39 @@ class Events:
 
     def __init__(self):
         self.keys = {name:pygame.__dict__[name] for name in dir(pygame) if "K_" in name}
-        self.keys_held = []
+        self.keys_held = set()
         self.keys_pressed = set()
         self.keys_released = set()
-        self.text_pressed = []
+        self.text_pressed = set()
+        self.buttons_held = set()
+        self.buttons_pressed = set()
+        self.buttons_released = set()
 
+        self.mouse_buttons = {"M_ONE": 1, "M_TWO": 3, "M_MIDDLE": 2, "M_WHEELDOWN": 4, "M_WHEELUP": 5}
         self.text_list = string.digits + string.ascii_letters + string.punctuation + " space"
         self.text_list = self.text_list.replace("`", "")
         self.text_list = self.text_list.replace("~", "")
+
+
+    def mouse_held(self, button_name, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
+            button = self.mouse_buttons[button_name]
+            return button in self.buttons_held
+        return False
+
+    def mouse_pressed(self, button_name, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
+            button = self.mouse_buttons[button_name]
+            if button in self.buttons_pressed:
+                self.buttons_pressed.remove(button)
+                return True
+        return False
+
+    def mouse_released(self, button_name, _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
+            button = self.mouse_buttons[button_name]
+            return button in self.buttons_released
+        return False
 
     def text_input(self, _layer="layer_0"):
         if _layer == layer.get_layer() or _layer == "layer_all":
@@ -50,6 +75,8 @@ class Events:
     def update(self):
         self.keys_pressed.clear()
         self.keys_released.clear()
+        self.buttons_pressed.clear()
+        self.buttons_released.clear()
         self.text_pressed.clear()
 
         for event in pygame.event.get():
@@ -58,10 +85,17 @@ class Events:
                 pygame.quit()
                 sys.exit()
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.buttons_held.add(event.button)
+                self.buttons_pressed.add(event.button)
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.buttons_held.remove(event.button)
+                self.buttons_released.add(event.button)
+
             if event.type == pygame.KEYDOWN:
-                self.keys_held.append(event.key)
+                self.text_pressed.add(event.unicode)
+                self.keys_held.add(event.key)
                 self.keys_pressed.add(event.key)
-                self.text_pressed.append(event.unicode)
             if event.type == pygame.KEYUP:
                 self.keys_held.remove(event.key)
                 self.keys_released.add(event.key)

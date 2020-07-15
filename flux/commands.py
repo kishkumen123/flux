@@ -58,7 +58,7 @@ def run_command(command_string):
 
     command_name = command_array[0]
     command_arguments = command_array[1:]
-    command_input(command_string)
+    #command_input(command_string)
 
     command = get_command(command_name)
     if command is not None:

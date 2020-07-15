@@ -22,12 +22,13 @@ class C:
 
     """
     left to do -
-        - insert text at cursor position
-        - text repeat
+        console
+        - scrollwheel output histroy 
         - tab auto complete
         - ctrl r search input history
-        - up/down scroll input history
-        - scrollwheel output histroy 
+
+        events
+        - text repeat
     """
 
     def __init__(self):
@@ -39,6 +40,8 @@ class C:
         self.start_position = Vector2((display.x,0))
         self.end_position = Vector2((display.x,0))
         self.cursor_position = 5
+        self.cursor_index = 0
+        self.history_index = None
 
         self.background_color = (39, 40, 34)
         self.textfield_color = (60, 61, 56)
@@ -46,14 +49,16 @@ class C:
         self.history_color = (202, 202, 202)
         self.text_color = (202, 202, 202)
         self.tag_color = (255, 175, 0)
+        self.scroll_offset = 0
 
         self.tag_text = "λ/> "
         self.text = ""
-        self.text_mask = ""
+        self.mask_text = ""
+        self.stored_text = ""
         self.history_input = []
 
         pygame.font.init()
-        self.font = pygame.font.SysFont("consolas", 20)
+        self.font = pygame.font.SysFont("consolas", 18)
         self.tag_surface = self.font.render(self.tag_text, True, self.tag_color)
 
     def update_end_position(self):
@@ -64,10 +69,10 @@ class C:
         elif self.state == CState.OPEN_BIG:
             return CState.OPEN_BIG.value * display.y
 
-    def draw_history(self, console_rect, textfield_rect):
+    def draw_history(self, console_rect):
         for i, text in enumerate(_globals.history_output):
             history_surface = self.font.render(text, True, self.history_color)
-            display.window.blit(history_surface, (5, console_rect.h - textfield_rect.size[1] - (22 * i + 8)))
+            display.window.blit(history_surface, (5, (console_rect.h - self.font.size(text)[1] - (self.font.size(text)[1] * i) - 8)))
 
     def update(self, dt):
         if events.key_pressed("K_ESCAPE", "layer_999"):
@@ -105,40 +110,89 @@ class C:
 
         text = events.text_input("layer_999")
         if text is not None:
-            self.text += text
-            self.text_mask = self.text
+            left = self.text[:self.cursor_index]
+            right = self.text[self.cursor_index:]
+            self.text = left + text + right
+            self.mask_text = left + text 
+            self.cursor_index += 1
+
         if self.current_position.y > 0:
+            print(self.scroll_offset)
             console_rect = pygame.draw.rect(display.window, self.background_color, ((0, 0), self.current_position))
             textfield_rect = pygame.draw.rect(display.window, self.textfield_color, ((0, console_rect.h), (display.x, 24)))
-            self.draw_history(console_rect, textfield_rect)
-
+            self.draw_history(console_rect)
             text_surface = self.font.render(self.text, True, self.text_color)
             display.window.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
             display.window.blit(self.tag_surface, (2, textfield_rect.y + 2))
-
-            cursor_x = self.cursor_position + self.font.size(self.text_mask)[0] + self.font.size(self.tag_text)[0]
+            cursor_x = self.cursor_position + self.font.size(self.mask_text)[0] + self.font.size(self.tag_text)[0]
             cursor_rect = pygame.draw.rect(display.window, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
+
+            if console_rect.collidepoint(pygame.mouse.get_pos()):
+                if events.mouse_pressed("M_WHEELDOWN", "layer_999"):
+                    self.scroll_offset += 20
+                if events.mouse_pressed("M_WHEELUP", "layer_999"):
+                    self.scroll_offset -= 20
 
             if events.key_pressed("K_RETURN", "layer_999"):
                 if len(self.text) > 0:
                     _globals.history_output.insert(0, self.text)
+                    _globals.history_input.insert(0, self.text)
                     run_command(self.text)
                     self.text = ""
-                    self.text_mask = self.text
+                    self.mask_text = self.text
+                    self.cursor_index = 0
+                    self.stored_text = ""
+                    self.history_index = None
 
             if events.key_pressed("K_BACKSPACE", "layer_999"):
-                if len(self.text) > 0:
-                    self.text = self.text[:-1]
-                    self.text_mask = self.text
+                if self.cursor_index > 0:
+                    left = self.text[:self.cursor_index-1]
+                    right = self.text[self.cursor_index:]
+                    self.text = left + right
+                    self.mask_text = left
+                    if self.cursor_index > 0:
+                        self.cursor_index -= 1
 
             if events.key_pressed("K_LEFT", "layer_999"):
-                self.text_mask = self.text_mask[:-1]
+                self.mask_text = self.mask_text[:-1]
+                if self.cursor_index > 0:
+                    self.cursor_index -= 1
             if events.key_pressed("K_RIGHT", "layer_999"):
-                self.text_mask = self.text[:len(self.text_mask) + 1]
+                self.mask_text = self.text[:len(self.mask_text) + 1]
+                if self.cursor_index < len(self.text):
+                    self.cursor_index += 1
+
             if events.key_pressed("K_HOME", "layer_999"):
-                self.text_mask = ""
+                self.mask_text = ""
+                self.cursor_index = 0
             if events.key_pressed("K_END", "layer_999"):
-                self.text_mask = self.text
+                self.mask_text = self.text
+                self.cursor_index = len(self.text)
+
+            if events.key_pressed("K_UP", "layer_999"):
+                if len(_globals.history_input):
+                    if self.history_index is None:
+                        self.history_index = 0
+                        self.stored_text = self.text
+                    elif self.history_index < len(_globals.history_input) - 1:
+                        self.history_index += 1
+
+                    self.text = _globals.history_input[self.history_index]
+                    self.mask_text = self.text
+                    self.cursor_index = len(self.text)
+            if events.key_pressed("K_DOWN", "layer_999"):
+                if self.history_index is not None:
+                    if self.history_index > 0:
+                        self.history_index -= 1
+                        self.text = _globals.history_input[self.history_index]
+                    elif self.history_index == 0:
+                        self.history_index = None
+                        self.text = self.stored_text
+
+                    self.mask_text = self.text
+                    self.cursor_index = len(self.text)
+
+
 c = C()
 
 class Console:
@@ -348,27 +402,27 @@ class Console:
                 #if self.cursor_index < self.cursor_max:
                     #self.cursor_index += 1
 
-            if events.key_pressed_once("K_UP", "layer_999"):
-                if self.history_index is None:
-                    self.history_index = self.history_length
-                    self.stored_text = self.text
-                if self.history_index > 0:
-                    self.history_index -= 1
-                if len(_globals.history_input):
-                    self.text = _globals.history_input[self.history_index]
-                    self.cursor_max = len(self.text)
-                    self.cursor_index = self.cursor_max
-            if events.key_pressed_once("K_DOWN", "layer_999"):
-                if self.history_index is not None:
-                    self.history_index += 1
-                    if self.history_index >= self.history_length:
-                        self.history_index = None
-                        self.text = self.stored_text
-                        self.stored_text = ""
-                    else:
-                        self.text = _globals.history_input[self.history_index]
-                    self.cursor_max = len(self.text)
-                    self.cursor_index = self.cursor_max
+            #if events.key_pressed_once("K_UP", "layer_999"):
+            #    if self.history_index is None:
+            #        self.history_index = self.history_length
+            #        self.stored_text = self.text
+            #    if self.history_index > 0:
+            #        self.history_index -= 1
+            #    if len(_globals.history_input):
+            #        self.text = _globals.history_input[self.history_index]
+            #        self.cursor_max = len(self.text)
+            #        self.cursor_index = self.cursor_max
+            #if events.key_pressed_once("K_DOWN", "layer_999"):
+            #    if self.history_index is not None:
+            #        self.history_index += 1
+            #        if self.history_index >= self.history_length:
+            #            self.history_index = None
+            #            self.text = self.stored_text
+            #            self.stored_text = ""
+            #        else:
+            #            self.text = _globals.history_input[self.history_index]
+            #        self.cursor_max = len(self.text)
+            #        self.cursor_index = self.cursor_max
 
             #if events.key_pressed_once("K_HOME", "layer_999"):
             #    self.cursor_index = 0
