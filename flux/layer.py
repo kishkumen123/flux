@@ -1,8 +1,8 @@
 class Layer:
 
     def __init__(self):
-        self.layer = "layer_0"
-        self.layer_list = ["layer_0"]
+        self.layer_list = []
+        self.set_layer("layer_0")
 
     def append(self, layer):
         if layer not in self.layer_list:

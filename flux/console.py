@@ -16,6 +16,122 @@ class CState(Enum):
     OPEN_BIG = 0.7
 
 
+class ConsoleActions():
+    def __init__(self, c):
+        self.c = c
+
+    def close(self):
+        self.c.state = CState.CLOSED
+        self.c.lerp_percent = 0
+        self.c.start_position = self.c.current_position
+        self.c.end_position.y = self.c.update_end_position()
+        layer.pop_layer()
+
+    def open(self):
+        self.c.lerp_percent = 0
+        self.c.start_position = self.c.current_position
+
+        if events.key_held("K_LSHIFT", "layer_all"):
+            if self.c.state == CState.OPEN_BIG:
+                self.c.state = CState.CLOSED
+                layer.pop_layer()
+            else:
+                self.c.state = CState.OPEN_BIG
+                layer.set_layer("layer_999")
+        else:
+            if self.c.state == CState.OPEN_SMALL:
+                self.c.state = CState.CLOSED
+                layer.pop_layer()
+            else:
+                self.c.state = CState.OPEN_SMALL
+                layer.set_layer("layer_999")
+        self.c.end_position.y = self.c.update_end_position()
+
+    def update_text(self):
+        #text = events.text_input("layer_999")
+        text = events.text_input_repeat("layer_999")
+        if text is not None:
+            left = self.c.text[:self.c.cursor_index]
+            right = self.c.text[self.c.cursor_index:]
+            self.c.text = left + text + right
+            self.c.mask_text = left + text
+            self.c.cursor_index += 1
+
+    def animate_open(self, dt):
+        lerp_distance = v2distance(self.c.start_position, self.c.end_position)
+        if lerp_distance > 0 and self.c.lerp_percent < 1:
+            self.c.lerp_percent += (self.c.open_speed / lerp_distance) * dt
+            self.c.current_position = lerp2v(self.c.start_position, self.c.end_position, self.c.lerp_percent)
+
+    def run_command(self):
+        if len(self.c.text) > 0:
+            run_command(self.c.text)
+            self.c.text = ""
+            self.c.mask_text = self.c.text
+            self.c.cursor_index = 0
+            self.c.stored_text = ""
+            self.c.history_index = None
+
+    def scroll_down(self):
+        if self.c.history_y_position < 0:
+            self.c.scroll_offset += self.c.font.size(self.c.text)[1]
+
+    def scroll_up(self):
+        if self.c.scroll_offset != 0:
+            self.c.scroll_offset -= self.c.font.size(self.c.text)[1]
+
+    def backspace(self):
+        if self.c.cursor_index > 0:
+            left = self.c.text[:self.c.cursor_index-1]
+            right = self.c.text[self.c.cursor_index:]
+            self.c.text = left + right
+            self.c.mask_text = left
+            if self.c.cursor_index > 0:
+                self.c.cursor_index -= 1
+
+    def move_cursor_left(self):
+        self.c.mask_text = self.c.mask_text[:-1]
+        if self.c.cursor_index > 0:
+            self.c.cursor_index -= 1
+
+    def move_cursor_right(self):
+        self.c.mask_text = self.c.text[:len(self.c.mask_text) + 1]
+        if self.c.cursor_index < len(self.c.text):
+            self.c.cursor_index += 1
+
+    def move_cursor_to_home(self):
+        self.c.mask_text = ""
+        self.c.cursor_index = 0
+
+    def move_cursor_to_end(self):
+        self.c.mask_text = self.c.text
+        self.c.cursor_index = len(self.c.text)
+
+    def previous_history_entry(self):
+        if len(_globals.history_input):
+            if self.c.history_index is None:
+                self.c.history_index = 0
+                self.c.stored_text = self.c.text
+            elif self.c.history_index < len(_globals.history_input) - 1:
+                self.c.history_index += 1
+
+            self.c.text = _globals.history_input[self.c.history_index]
+            self.c.mask_text = self.c.text
+            self.c.cursor_index = len(self.c.text)
+
+    def next_history_entry(self):
+        if self.c.history_index is not None:
+            if self.c.history_index > 0:
+                self.c.history_index -= 1
+                self.c.text = _globals.history_input[self.c.history_index]
+            elif self.c.history_index == 0:
+                self.c.history_index = None
+                self.c.text = self.c.stored_text
+
+            self.c.mask_text = self.c.text
+            self.c.cursor_index = len(self.c.text)
+
+
 # TODO: REMEMBER TO OPTIMIZE THIS SO THAT IT ONLY DRAWS STUFF WHEN THINGS CHANGE LIKE INPUTING NEW HISTORY OR TYPING IN LETTERS
 class C:
     init_commands()
@@ -31,6 +147,8 @@ class C:
     """
 
     def __init__(self):
+        self.actions = ConsoleActions(self)
+
         self.state = CState.CLOSED
         self.open_speed = 1000
         self.lerp_percent = 0
@@ -76,123 +194,56 @@ class C:
             if self.history_y_position < console_rect.h:
                 display.window.blit(history_surface, (5, self.history_y_position))
 
+    def draw_all(self):
+        console_rect = pygame.draw.rect(display.window, self.background_color, ((0, 0), self.current_position))
+        self.draw_history(console_rect)
+        textfield_rect = pygame.draw.rect(display.window, self.textfield_color, ((0, console_rect.h), (display.x, 24)))
+        text_surface = self.font.render(self.text, True, self.text_color)
+        display.window.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
+        display.window.blit(self.tag_surface, (2, textfield_rect.y + 2))
+        cursor_x = self.cursor_position + self.font.size(self.mask_text)[0] + self.font.size(self.tag_text)[0]
+        cursor_rect = pygame.draw.rect(display.window, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
+        return console_rect
+
     def update(self, dt):
         if events.key_pressed("K_ESCAPE", "layer_999"):
-            self.lerp_percent = 0
-            self.start_position = self.current_position
-            self.state = CState.CLOSED
-            self.end_position.y = self.update_end_position()
-            layer.pop_layer()
+            self.actions.close()
 
         if events.key_pressed("K_BACKQUOTE", "layer_all"):
-            self.lerp_percent = 0
-            self.start_position = self.current_position
-
-            if events.key_held("K_LSHIFT", "layer_all"):
-                if self.state == CState.OPEN_BIG:
-                    self.state = CState.CLOSED
-                    layer.pop_layer()
-                else:
-                    self.state = CState.OPEN_BIG
-                    layer.set_layer("layer_999")
-            else:
-                if self.state == CState.OPEN_SMALL:
-                    self.state = CState.CLOSED
-                    layer.pop_layer()
-                else:
-                    self.state = CState.OPEN_SMALL
-                    layer.set_layer("layer_999")
-            self.end_position.y = self.update_end_position()
-
-
-        lerp_distance = v2distance(self.start_position, self.end_position)
-        if lerp_distance > 0 and self.lerp_percent < 1:
-            self.lerp_percent += (self.open_speed / lerp_distance) * dt
-            self.current_position = lerp2v(self.start_position, self.end_position, self.lerp_percent)
-
-        #text = events.text_input("layer_999")
-        text = events.text_input_repeat("layer_999")
-        if text is not None:
-            left = self.text[:self.cursor_index]
-            right = self.text[self.cursor_index:]
-            self.text = left + text + right
-            self.mask_text = left + text 
-            self.cursor_index += 1
+            self.actions.open()
 
         if self.current_position.y > 0:
-            console_rect = pygame.draw.rect(display.window, self.background_color, ((0, 0), self.current_position))
-            self.draw_history(console_rect)
-            textfield_rect = pygame.draw.rect(display.window, self.textfield_color, ((0, console_rect.h), (display.x, 24)))
-            text_surface = self.font.render(self.text, True, self.text_color)
-            display.window.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
-            display.window.blit(self.tag_surface, (2, textfield_rect.y + 2))
-            cursor_x = self.cursor_position + self.font.size(self.mask_text)[0] + self.font.size(self.tag_text)[0]
-            cursor_rect = pygame.draw.rect(display.window, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
+            console_rect = self.draw_all()
 
             if console_rect.collidepoint(pygame.mouse.get_pos()):
                 if events.mouse_pressed("M_WHEELDOWN", "layer_999"):
-                    if self.history_y_position < 0:
-                        self.scroll_offset += self.font.size(self.text)[1]
+                    self.actions.scroll_down()
                 if events.mouse_pressed("M_WHEELUP", "layer_999"):
-                    if self.scroll_offset != 0:
-                        self.scroll_offset -= self.font.size(self.text)[1]
+                    self.actions.scroll_up()
 
             if events.key_pressed("K_RETURN", "layer_999"):
-                if len(self.text) > 0:
-                    run_command(self.text)
-                    self.text = ""
-                    self.mask_text = self.text
-                    self.cursor_index = 0
-                    self.stored_text = ""
-                    self.history_index = None
+                self.actions.run_command()
 
             if events.key_pressed("K_BACKSPACE", "layer_999"):
-                if self.cursor_index > 0:
-                    left = self.text[:self.cursor_index-1]
-                    right = self.text[self.cursor_index:]
-                    self.text = left + right
-                    self.mask_text = left
-                    if self.cursor_index > 0:
-                        self.cursor_index -= 1
+                self.actions.backspace()
 
             if events.key_pressed("K_LEFT", "layer_999"):
-                self.mask_text = self.mask_text[:-1]
-                if self.cursor_index > 0:
-                    self.cursor_index -= 1
+                self.actions.move_cursor_left()
             if events.key_pressed("K_RIGHT", "layer_999"):
-                self.mask_text = self.text[:len(self.mask_text) + 1]
-                if self.cursor_index < len(self.text):
-                    self.cursor_index += 1
+                self.actions.move_cursor_right()
 
             if events.key_pressed("K_HOME", "layer_999"):
-                self.mask_text = ""
-                self.cursor_index = 0
+                self.actions.move_cursor_to_home()
             if events.key_pressed("K_END", "layer_999"):
-                self.mask_text = self.text
-                self.cursor_index = len(self.text)
+                self.actions.move_cursor_to_end()
 
             if events.key_pressed("K_UP", "layer_999"):
-                if len(_globals.history_input):
-                    if self.history_index is None:
-                        self.history_index = 0
-                        self.stored_text = self.text
-                    elif self.history_index < len(_globals.history_input) - 1:
-                        self.history_index += 1
-
-                    self.text = _globals.history_input[self.history_index]
-                    self.mask_text = self.text
-                    self.cursor_index = len(self.text)
+                self.actions.previous_history_entry()
             if events.key_pressed("K_DOWN", "layer_999"):
-                if self.history_index is not None:
-                    if self.history_index > 0:
-                        self.history_index -= 1
-                        self.text = _globals.history_input[self.history_index]
-                    elif self.history_index == 0:
-                        self.history_index = None
-                        self.text = self.stored_text
+                self.actions.next_history_entry()
 
-                    self.mask_text = self.text
-                    self.cursor_index = len(self.text)
+        self.actions.update_text()
+        self.actions.animate_open(dt)
 
 
 c = C()

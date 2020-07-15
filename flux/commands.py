@@ -64,7 +64,7 @@ def run_command(command_string):
     if command is not None:
         command.proc(command_arguments)
     else:
-        command_output("Uknown command \"%s\"" % command_name)
+        command_output("Unknown command \"%s\"" % command_name)
 
 
 def command_output(command):
