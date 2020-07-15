@@ -58,7 +58,7 @@ def run_command(command_string):
 
     command_name = command_array[0]
     command_arguments = command_array[1:]
-    #command_input(command_string)
+    command_input(command_string)
 
     command = get_command(command_name)
     if command is not None:
@@ -68,11 +68,11 @@ def run_command(command_string):
 
 
 def command_output(command):
-    _globals.history_output.append(str(command))
+    _globals.history_output.insert(0, str(command))
 
 
 def command_input(command):
-    _globals.history_input.append(command)
+    _globals.history_input.insert(0, command)
 
 
 def command_ls(arguments):

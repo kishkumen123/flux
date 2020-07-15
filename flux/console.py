@@ -72,7 +72,8 @@ class C:
     def draw_history(self, console_rect):
         for i, text in enumerate(_globals.history_output):
             history_surface = self.font.render(text, True, self.history_color)
-            display.window.blit(history_surface, (5, (console_rect.h - self.font.size(text)[1] - (self.font.size(text)[1] * i) - 8)))
+            #(console_rect.h - self.font.size(text)[1] - (self.font.size(text)[1] * i) - 8) + self.scroll_offset))
+            display.window.blit(history_surface, (5, (console_rect.h - self.font.size(text)[1] - (self.font.size(text)[1] * i) - 8) + self.scroll_offset))
 
     def update(self, dt):
         if events.key_pressed("K_ESCAPE", "layer_999"):
@@ -117,10 +118,10 @@ class C:
             self.cursor_index += 1
 
         if self.current_position.y > 0:
-            print(self.scroll_offset)
+            #print(self.scroll_offset)
             console_rect = pygame.draw.rect(display.window, self.background_color, ((0, 0), self.current_position))
-            textfield_rect = pygame.draw.rect(display.window, self.textfield_color, ((0, console_rect.h), (display.x, 24)))
             self.draw_history(console_rect)
+            textfield_rect = pygame.draw.rect(display.window, self.textfield_color, ((0, console_rect.h), (display.x, 24)))
             text_surface = self.font.render(self.text, True, self.text_color)
             display.window.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
             display.window.blit(self.tag_surface, (2, textfield_rect.y + 2))
@@ -129,14 +130,13 @@ class C:
 
             if console_rect.collidepoint(pygame.mouse.get_pos()):
                 if events.mouse_pressed("M_WHEELDOWN", "layer_999"):
-                    self.scroll_offset += 20
+                    self.scroll_offset += self.font.size(self.text)[1]
                 if events.mouse_pressed("M_WHEELUP", "layer_999"):
-                    self.scroll_offset -= 20
+                    if self.scroll_offset != 0:
+                        self.scroll_offset -= self.font.size(self.text)[1]
 
             if events.key_pressed("K_RETURN", "layer_999"):
                 if len(self.text) > 0:
-                    _globals.history_output.insert(0, self.text)
-                    _globals.history_input.insert(0, self.text)
                     run_command(self.text)
                     self.text = ""
                     self.mask_text = self.text
