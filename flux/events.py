@@ -24,50 +24,50 @@ class Events:
         self.text_list = self.text_list.replace("~", "")
 
 
-    def mouse_held(self, button_name, _layer="layer_0"):
-        if _layer == layer.get_layer() or _layer == "layer_all":
+    def mouse_held(self, button_name, layer_name="layer_0"):
+        if layer.current_layer_is(layer_name):
             button = self.mouse_buttons[button_name]
             return button in self.buttons_held
         return False
 
-    def mouse_pressed(self, button_name, _layer="layer_0"):
-        if _layer == layer.get_layer() or _layer == "layer_all":
+    def mouse_pressed(self, button_name, layer_name="layer_0"):
+        if layer.current_layer_is(layer_name):
             button = self.mouse_buttons[button_name]
             if button in self.buttons_pressed:
                 self.buttons_pressed.remove(button)
                 return True
         return False
 
-    def mouse_released(self, button_name, _layer="layer_0"):
-        if _layer == layer.get_layer() or _layer == "layer_all":
+    def mouse_released(self, button_name, layer_name="layer_0"):
+        if layer.current_layer_is(layer_name):
             button = self.mouse_buttons[button_name]
             return button in self.buttons_released
         return False
 
-    def text_input(self, _layer="layer_0"):
-        if _layer == layer.get_layer() or _layer == "layer_all":
+    def text_input(self, layer_name="layer_0"):
+        if layer.current_layer_is(layer_name):
             if len(self.text_pressed):
                 text = self.text_pressed.pop()
                 if text in self.text_list and text != "":
                     return text
         return None
 
-    def key_held(self, key_name, _layer="layer_0"):
-        if _layer == layer.get_layer() or _layer == "layer_all":
+    def key_held(self, key_name, layer_name="layer_0"):
+        if layer.current_layer_is(layer_name):
             key = self.keys.get(key_name)
             return key in self.keys_held
         return False
 
-    def key_pressed(self, key_name, _layer="layer_0"):
-        if _layer == layer.get_layer() or _layer == "layer_all":
+    def key_pressed(self, key_name, layer_name="layer_0"):
+        if layer.current_layer_is(layer_name):
             key = self.keys.get(key_name)
             if key in self.keys_pressed:
                 self.keys_pressed.remove(key)
                 return True
         return False
 
-    def key_released(self, key_name, _layer="layer_0"):
-        if _layer == layer.get_layer() or _layer == "layer_all":
+    def key_released(self, key_name, layer_name="layer_0"):
+        if layer.current_layer_is(layer_name):
             key = self.keys.get(key_name)
             return key in self.keys_released
         return False
@@ -265,7 +265,7 @@ events = Events()
     #    return False
     #def key_released(self, key, _layer="layer_0"):
     #    if _layer == layer.get_layer() or _layer == "layer_all":
-    #        if self.keys[key] in self.keys_released and self.register_release_once: 
+    #        if self.keys[key] in self.keys_released and self.register_release_once:
     #            self.keys_released.remove(self.keys[key])
     #            self.register_release_once = False
     #            return True
@@ -308,7 +308,7 @@ events = Events()
         #    if event.type == pygame.MOUSEBUTTONUP:
         #        #print(event)
         #        self.m_event = None
-        #    
+        #
         #    if event.type == pygame.KEYDOWN:
         #        self.keys_pressed.append(event.key)
         #        self.event = event

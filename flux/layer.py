@@ -23,5 +23,10 @@ class Layer:
     def get_layer(self):
         return self.layer
 
+    def current_layer_is(self, layer_name):
+        if layer_name == 'layer_all' or layer_name == layer.get_layer():
+            return True
+        return False
+
 
 layer = Layer()
