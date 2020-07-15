@@ -50,6 +50,7 @@ class C:
         self.text_color = (202, 202, 202)
         self.tag_color = (255, 175, 0)
         self.scroll_offset = 0
+        self.history_y_position = 0
 
         self.tag_text = "λ/> "
         self.text = ""
@@ -72,8 +73,9 @@ class C:
     def draw_history(self, console_rect):
         for i, text in enumerate(_globals.history_output):
             history_surface = self.font.render(text, True, self.history_color)
-            #(console_rect.h - self.font.size(text)[1] - (self.font.size(text)[1] * i) - 8) + self.scroll_offset))
-            display.window.blit(history_surface, (5, (console_rect.h - self.font.size(text)[1] - (self.font.size(text)[1] * i) - 8) + self.scroll_offset))
+            self.history_y_position = (console_rect.h - self.font.size(text)[1] - (self.font.size(text)[1] * i) - 8) + self.scroll_offset
+            if self.history_y_position < console_rect.h:
+                display.window.blit(history_surface, (5, self.history_y_position))
 
     def update(self, dt):
         if events.key_pressed("K_ESCAPE", "layer_999"):
@@ -118,7 +120,6 @@ class C:
             self.cursor_index += 1
 
         if self.current_position.y > 0:
-            #print(self.scroll_offset)
             console_rect = pygame.draw.rect(display.window, self.background_color, ((0, 0), self.current_position))
             self.draw_history(console_rect)
             textfield_rect = pygame.draw.rect(display.window, self.textfield_color, ((0, console_rect.h), (display.x, 24)))
@@ -130,7 +131,8 @@ class C:
 
             if console_rect.collidepoint(pygame.mouse.get_pos()):
                 if events.mouse_pressed("M_WHEELDOWN", "layer_999"):
-                    self.scroll_offset += self.font.size(self.text)[1]
+                    if self.history_y_position < 0:
+                        self.scroll_offset += self.font.size(self.text)[1]
                 if events.mouse_pressed("M_WHEELUP", "layer_999"):
                     if self.scroll_offset != 0:
                         self.scroll_offset -= self.font.size(self.text)[1]
