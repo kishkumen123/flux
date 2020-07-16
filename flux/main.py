@@ -6,8 +6,8 @@ import json
 import sys
 
 from flux import _globals
-from flux.events import events
-from flux.display import display
+#from flux.events import events
+#from flux.display import display
 from flux.entity_manager import EM
 from flux.sprite_groups import sprite_groups
 from flux.console import c
@@ -26,6 +26,9 @@ class Flux:
         self.events = events
         self.sprite_groups = None
         self.sprite_groups = sprite_groups
+
+    def display(self, d):
+        _globals.display = d
 
     def init(self):
         pygame.init()
@@ -87,6 +90,9 @@ class Flux:
     def text_input_repeat(self, layer="layer_0"):
         return events.text_input_repeat(layer)
 
+    def key_repeat(self, key, layer="layer_0"):
+        return events.key_repeat(key, layer)
+
     def key_held(self, key, layer="layer_0"):
         return events.key_held(key, layer)
 
@@ -110,7 +116,7 @@ class Flux:
 
     def update(self):
         self.update_dt()
-        events.update()
+        #events.update()
 
         #console.update(self._dt)
         c.update(self._dt)

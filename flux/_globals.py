@@ -3,3 +3,4 @@ history_output = ["Welcome to the Console!", "I like banana caramel milk shakes 
 #history_output = []
 history_input = []
 editor = 1
+display = None

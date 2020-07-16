@@ -11,7 +11,7 @@ class Events:
     def __init__(self):
         self.keys = {name:pygame.__dict__[name] for name in dir(pygame) if "K_" in name}
         self.keys_held = set()
-        self.keys_pressed = set()
+        self.keys_pressed = []
         self.keys_released = set()
         self.text_pressed = []
         self.buttons_held = set()
@@ -25,6 +25,12 @@ class Events:
 
         self.text_delay_first = 0.4
         self.text_delay_second = 0.04
+
+        self.key_ticks = pygame.time.get_ticks()
+        self.key_ticks_started = False
+        self.key_first_done = False
+        self.last_key = ""
+
         self.text_ticks = pygame.time.get_ticks()
         self.ticks_started = False
         self.first_done = False
@@ -50,6 +56,29 @@ class Events:
             button = self.mouse_buttons[button_name]
             return button in self.buttons_released
         return False
+
+    def key_repeat(self, key_name,  _layer="layer_0"):
+        if _layer == layer.get_layer() or _layer == "layer_all":
+            key = self.keys.get(key_name)
+            if len(self.keys_pressed):
+                temp = self.keys_pressed[-1]
+                if temp != self.last_key:
+                    self.ticks_started = False
+                    self.first_done = False
+                self.last_key = temp
+
+            if not self.key_ticks_started:
+                self.key_ticks_started = True
+                self.key_ticks = pygame.time.get_ticks()
+                return self.last_key
+            elif ((pygame.time.get_ticks() - self.key_ticks)/1000) > self.text_delay_first and not self.key_first_done:
+                self.key_ticks = pygame.time.get_ticks()
+                self.key_first_done = True
+                return self.last_key
+            elif ((pygame.time.get_ticks() - self.key_ticks)/1000) > self.text_delay_second and self.key_first_done:
+                self.key_ticks = pygame.time.get_ticks()
+                return self.last_key
+        return None
 
     def key_held(self, key_name, layer_name="layer_0"):
         if layer.current_layer_is(layer_name):
@@ -109,28 +138,36 @@ class Events:
         self.buttons_released.clear()
         self.text_pressed.clear()
 
-        if 1 not in pygame.key.get_pressed():
-            self.last_text = ""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                _globals.running = False
-                pygame.quit()
-                sys.exit()
+        #for event in pygame.event.get():
+        #    if event.type == pygame.QUIT:
+        #        _globals.running = False
+        #        pygame.quit()
+        #        sys.exit()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                self.buttons_held.add(event.button)
-                self.buttons_pressed.add(event.button)
-            if event.type == pygame.MOUSEBUTTONUP:
-                self.buttons_held.remove(event.button)
-                self.buttons_released.add(event.button)
+        #    # maybe this is callable from anywhere?
+        #    # handle_text_event(event)
+        #    # handle_key_event(event)
+        #    # handle_mouse_event(event)
 
-            if event.type == pygame.KEYDOWN:
-                self.text_pressed.append(event.unicode)
-                self.keys_held.add(event.key)
-                self.keys_pressed.add(event.key)
-            if event.type == pygame.KEYUP:
-                self.keys_held.remove(event.key)
-                self.keys_released.add(event.key)
+        #    # for handle_ in _global.events:
+        #    #     handle_(event)
+
+        #    if event.type == pygame.MOUSEBUTTONDOWN:
+        #        self.buttons_held.add(event.button)
+        #        self.buttons_pressed.add(event.button)
+        #    if event.type == pygame.MOUSEBUTTONUP:
+        #        self.buttons_held.remove(event.button)
+        #        self.buttons_released.add(event.button)
+
+        #    if event.type == pygame.KEYDOWN:
+        #        self.text_pressed.append(event.unicode)
+        #        self.keys_held.add(event.key)
+        #        self.keys_pressed.append(event.key)
+        #    if event.type == pygame.KEYUP:
+        #        self.keys_held.remove(event.key)
+        #        self.keys_released.add(event.key)
+        #        if 1 not in pygame.key.get_pressed():
+        #            self.last_text = ""
 
 
 events = Events()
