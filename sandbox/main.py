@@ -64,35 +64,75 @@ if __name__ == "__main__":
      
     pygame.init()
      
-    fps = 60
+    fps = 120
     clock = pygame.time.Clock()
      
     width, height = 1024, 720
     screen = pygame.display.set_mode((width, height))
-
-    c = C(screen)
      
+    c = C(screen)
 
     while True:
         dt = clock.tick(60) / 1000
         screen.fill((0, 0, 0))
-
-        if pygame.event.peek(QUIT):
-            pygame.quit()
-            sys.exit(0)
-
-        if c.state == CState.CLOSED:
-            if pygame.event.peek(KEYDOWN):
-                event = pygame.event.get(pygame.KEYDOWN)[0]
-                if event.key == K_ESCAPE:
-                    pygame.quit()
-                    sys.exit(0)
-                if event.key == K_BACKQUOTE and not event.mod:
-                    c.open(CState.OPEN_SMALL)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
                 if event.key == K_BACKQUOTE and event.mod:
                     c.open(CState.OPEN_BIG)
+                if event.key == K_BACKQUOTE and not event.mod:
+                    c.open(CState.OPEN_SMALL)
+                if event.key == K_ESCAPE:
+                    if c.state == CState.CLOSED:
+                        pygame.quit()
+                        sys.exit()
+                    else:
+                        c.open(CState.CLOSED)
 
+    
+      
         c.update(dt)
-        pygame.event.get()
         pygame.display.flip()
         clock.tick(fps)
+
+    #import sys
+    # 
+    #import pygame
+    #from pygame.locals import *
+    #from console import C, CState
+    # 
+    #pygame.init()
+    # 
+    #fps = 60
+    #clock = pygame.time.Clock()
+    # 
+    #width, height = 1024, 720
+    #screen = pygame.display.set_mode((width, height))
+
+    #c = C(screen)
+
+    #while True:
+    #    dt = clock.tick(60) / 1000
+    #    screen.fill((0, 0, 0))
+
+    #    if pygame.event.peek(QUIT):
+    #        pygame.quit()
+    #        sys.exit(0)
+
+    #    if c.state == CState.CLOSED:
+    #        if pygame.event.peek(KEYDOWN):
+    #            event = pygame.event.get(pygame.KEYDOWN)[0]
+    #            if event.key == K_ESCAPE:
+    #                pygame.quit()
+    #                sys.exit(0)
+    #            if event.key == K_BACKQUOTE and not event.mod:
+    #                c.open(CState.OPEN_SMALL)
+    #            if event.key == K_BACKQUOTE and event.mod:
+    #                c.open(CState.OPEN_BIG)
+
+    #    c.update(dt)
+    #    pygame.event.get()
+    #    pygame.display.flip()
+    #    clock.tick(fps)

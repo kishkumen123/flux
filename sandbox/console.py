@@ -36,7 +36,7 @@ class C:
     def __init__(self, screen):
         self.state = CState.CLOSED
         self.screen = screen
-        self.open_speed = 1000
+        self.open_speed = 2000
         self.lerp_percent = 0
 
         self.current_position = Vector2((self.screen.get_width() ,0))
