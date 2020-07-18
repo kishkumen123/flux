@@ -1,7 +1,7 @@
 import pygame
 from pygame import Surface
-from flux.entity_manager import EM
-from flux.sprite_groups import sprite_groups
+from entity_manager import EM
+from sprite_groups import sprite_groups
 from components import Transform, Sprite
 
 

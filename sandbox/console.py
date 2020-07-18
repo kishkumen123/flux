@@ -1,16 +1,14 @@
 
 import pygame
+import string
 from pygame.locals import * 
 from enum import Enum
 
-from flux import _globals
-#from flux.display import display
-#from flux.layer import layer
-#from flux.events import events
-from flux.fmath import lerp2v, Vector2, v2distance
-#from flux.mouse import mouse
-#from flux.renderer import renderer
-#from flux.commands import init_commands, run_command, get_commands
+import math
+import _globals
+
+from fmath import v2lerp, Vector2, v2distance
+from commands import init_commands, run_command, get_commands
 
 
 class CState(Enum):
@@ -21,30 +19,31 @@ class CState(Enum):
 
 # TODO: REMEMBER TO OPTIMIZE THIS SO THAT IT ONLY DRAWS STUFF WHEN THINGS CHANGE LIKE INPUTING NEW HISTORY OR TYPING IN LETTERS
 class C:
-    #init_commands()
+    init_commands()
 
     """
     left to do -
         console
-        - tab auto complete
         - ctrl r search input history
 
         events
         - key repeat
     """
 
-    def __init__(self, screen):
+    def __init__(self, screen, font):
         self.state = CState.CLOSED
         self.screen = screen
-        self.open_speed = 2000
+        self.open_speed = 1000
         self.lerp_percent = 0
 
         self.current_position = Vector2((self.screen.get_width() ,0))
         self.start_position = Vector2((self.screen.get_width(), 0))
         self.end_position = Vector2((self.screen.get_width(), 0))
         self.cursor_position = 5
+        self.scroll_offset = 0
         self.cursor_index = 0
         self.history_index = None
+        self.history_y_position = 0
 
         self.background_color = (39, 40, 34)
         self.textfield_color = (60, 61, 56)
@@ -52,18 +51,22 @@ class C:
         self.history_color = (202, 202, 202)
         self.text_color = (202, 202, 202)
         self.tag_color = (255, 175, 0)
-        self.scroll_offset = 0
-        self.history_y_position = 0
+        self.autocomplete_color = (150, 150, 150)
 
         self.tag_text = "λ/> "
         self.text = ""
         self.mask_text = ""
         self.stored_text = ""
-        self.history_input = []
-
-        pygame.font.init()
-        self.font = pygame.font.SysFont("consolas", 18)
+        self.autocomplete_text = ""
+        self.autocomplete_from = get_commands()
+        
+        self.font = font
         self.tag_surface = self.font.render(self.tag_text, True, self.tag_color)
+
+        # @incomplete- this needs to go away once we make textinput events
+        self.textinput_list = string.digits + string.ascii_letters + string.punctuation + " "
+        self.textinput_list = self.textinput_list.replace("`", "")
+        self.textinput_list = self.textinput_list.replace("~", "")
 
     def update_end_position(self):
         if self.state == CState.CLOSED:
@@ -80,6 +83,32 @@ class C:
             if self.history_y_position < console_rect.h:
                 self.screen.blit(history_surface, (5, self.history_y_position))
 
+    # @incomplete- not working in alphabetical order but works well enough for now
+    def get_autocomplete_text(self, autocomplete_from):
+        if len(self.text) > 0:
+            for auto in autocomplete_from:
+                left = auto[:len(self.text)]
+                right = auto[len(self.text):]
+                if self.text == left and len(self.text) < len(auto):
+                    return right
+
+    def draw_everything(self):
+        console_rect = pygame.draw.rect(self.screen, self.background_color, ((0, 0), self.current_position))
+        self.draw_history(console_rect)
+        textfield_rect = pygame.draw.rect(self.screen, self.textfield_color, ((0, console_rect.h), (self.screen.get_width(), 24)))
+        text_surface = self.font.render(self.text, True, self.text_color)
+        self.screen.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
+        self.screen.blit(self.tag_surface, (2, textfield_rect.y + 2))
+        autocomplete_surface = self.font.render(self.autocomplete_text, True, self.autocomplete_color)
+        self.screen.blit(autocomplete_surface, (self.font.size(self.tag_text)[0] + self.font.size(self.text)[0], textfield_rect.y + 2))
+        cursor_x = self.cursor_position + self.font.size(self.mask_text)[0] + self.font.size(self.tag_text)[0]
+        cursor_rect = pygame.draw.rect(self.screen, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
+
+    def animate_console(self, lerp_distance, dt):
+        if lerp_distance > 0 and self.lerp_percent < 1:
+            self.lerp_percent += (self.open_speed / lerp_distance) * dt
+            self.current_position = v2lerp(self.start_position, self.end_position, self.lerp_percent)
+
     def open(self, state):
         if self.state != state:
             self.lerp_percent = 0
@@ -90,102 +119,123 @@ class C:
     def update(self, dt):
         if self.state != CState.CLOSED:
             if pygame.event.peek(KEYDOWN):
-                event = pygame.event.get(pygame.KEYDOWN)[0]
+                event = pygame.event.get(KEYDOWN)[0]
                 if event.key == K_ESCAPE:
                     self.open(CState.CLOSED)
                 if event.key == K_BACKQUOTE and not event.mod:
-                    self.open(CState.OPEN_SMALL)
-                if event.key == K_BACKQUOTE and event.mod:
-                    self.open(CState.OPEN_BIG)
-
-                left = self.text[:self.cursor_index]
-                right = self.text[self.cursor_index:]
-                self.text = left + event.unicode + right
-                self.mask_text = left + event.unicode 
-                self.cursor_index += 1
+                    if self.state == CState.OPEN_SMALL:
+                        self.open(CState.CLOSED)
+                    else:
+                        self.open(CState.OPEN_SMALL)
+                if event.key == K_BACKQUOTE and event.mod == 1:
+                    if self.state == CState.OPEN_BIG:
+                        self.open(CState.CLOSED)
+                    else:
+                        self.open(CState.OPEN_BIG)
+            
+                # @incomplete- this line is rediculouse. need to get textinput events in the event queue
+                if event.unicode in self.textinput_list and event.unicode != "":
+                    left = self.text[:self.cursor_index]
+                    right = self.text[self.cursor_index:]
+                    self.text = left + event.unicode + right
+                    self.mask_text = left + event.unicode 
+                    self.cursor_index += 1
+                    self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
 
                 if event.key == K_RETURN:
                     if len(self.text) > 0:
-                        #run_command(self.text)
+                        run_command(self.text)
                         self.text = ""
                         self.mask_text = self.text
                         self.cursor_index = 0
                         self.stored_text = ""
                         self.history_index = None
+                        self.autocomplete_text = ""
+                        self.autocomplete_from = get_commands()
 
+                if event.key == K_BACKSPACE:
+                    if self.cursor_index > 0:
+                        left = self.text[:self.cursor_index-1]
+                        right = self.text[self.cursor_index:]
+                        self.text = left + right
+                        self.mask_text = left
+                        self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
+                        if self.cursor_index > 0:
+                            self.cursor_index -= 1
+
+                if event.key == K_TAB:
+                    self.text = self.text + self.autocomplete_text
+                    self.mask_text = self.text
+                    self.cursor_index = len(self.text)
+                    self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
+
+                if event.key == K_r and event.mod == 64:
+                    self.text = ""
+                    self.mask_text = ""
+                    self.cursor_index = len(self.text)
+                    self.autocomplete_text = ""
+                    self.autocomplete_from = _globals.history_input
+
+                if event.key == K_LEFT:
+                    self.mask_text = self.mask_text[:-1]
+                    if self.cursor_index > 0:
+                        self.cursor_index -= 1
+                if event.key == K_RIGHT:
+                    self.mask_text = self.text[:len(self.mask_text) + 1]
+                    if self.cursor_index < len(self.text):
+                        self.cursor_index += 1
+                        
+                if event.key == K_HOME:
+                    self.mask_text = ""
+                    self.cursor_index = 0
+                if event.key == K_END:
+                    self.mask_text = self.text
+                    self.cursor_index = len(self.text)
+
+                if event.key == K_UP:
+                    if len(_globals.history_input):
+                        if self.history_index is None:
+                            self.history_index = 0
+                            self.stored_text = self.text
+                        elif self.history_index < len(_globals.history_input) - 1:
+                            self.history_index += 1
+
+                        self.text = _globals.history_input[self.history_index]
+                        self.mask_text = self.text
+                        self.cursor_index = len(self.text)
+                if event.key == K_DOWN:
+                    if self.history_index is not None:
+                        if self.history_index > 0:
+                            self.history_index -= 1
+                            self.text = _globals.history_input[self.history_index]
+                        elif self.history_index == 0:
+                            self.history_index = None
+                            self.text = self.stored_text
+
+                        self.mask_text = self.text
+                        self.cursor_index = len(self.text)
+
+
+            # @incomplete- if i want to scroll in greater increments, the end of the scroll has the text that
+            # much further down from the top of the screen and should stop at the edge of the top of the screen
+            if pygame.event.peek(MOUSEBUTTONDOWN):
+                event = pygame.event.get(MOUSEBUTTONDOWN)[0]
+                if event.button == 4:
+                    if self.history_y_position < 0:
+                        self.scroll_offset += self.font.size(self.text)[1]
+                if event.button == 5:
+                    if self.scroll_offset != 0:
+                        self.scroll_offset -= self.font.size(self.text)[1]
 
 
         lerp_distance = v2distance(self.start_position, self.end_position)
-        if lerp_distance > 0 and self.lerp_percent < 1:
-            self.lerp_percent += (self.open_speed / lerp_distance) * dt
-            self.current_position = lerp2v(self.start_position, self.end_position, self.lerp_percent)
-
+        self.animate_console(lerp_distance, dt)
 
         if self.current_position.y > 0:
-            console_rect = pygame.draw.rect(self.screen, self.background_color, ((0, 0), self.current_position))
-            self.draw_history(console_rect)
-            textfield_rect = pygame.draw.rect(self.screen, self.textfield_color, ((0, console_rect.h), (self.screen.get_width(), 24)))
-            text_surface = self.font.render(self.text, True, self.text_color)
-            self.screen.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
-            self.screen.blit(self.tag_surface, (2, textfield_rect.y + 2))
-            cursor_x = self.cursor_position + self.font.size(self.mask_text)[0] + self.font.size(self.tag_text)[0]
-            cursor_rect = pygame.draw.rect(self.screen, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
+            self.draw_everything()
 
-            #if console_rect.collidepoint(pygame.mouse.get_pos()):
-            #    if events.mouse_pressed("M_WHEELDOWN", "layer_999"):
-            #        if self.history_y_position < 0:
-            #            self.scroll_offset += self.font.size(self.text)[1]
-            #    if events.mouse_pressed("M_WHEELUP", "layer_999"):
-            #        if self.scroll_offset != 0:
-            #            self.scroll_offset -= self.font.size(self.text)[1]
 
-            #if events.key_pressed("K_BACKSPACE", "layer_999"):
-            #    if self.cursor_index > 0:
-            #        left = self.text[:self.cursor_index-1]
-            #        right = self.text[self.cursor_index:]
-            #        self.text = left + right
-            #        self.mask_text = left
-            #        if self.cursor_index > 0:
-            #            self.cursor_index -= 1
 
-            #if events.key_pressed("K_LEFT", "layer_999"):
-            #    self.mask_text = self.mask_text[:-1]
-            #    if self.cursor_index > 0:
-            #        self.cursor_index -= 1
-            #if events.key_pressed("K_RIGHT", "layer_999"):
-            #    self.mask_text = self.text[:len(self.mask_text) + 1]
-            #    if self.cursor_index < len(self.text):
-            #        self.cursor_index += 1
-
-            #if events.key_pressed("K_HOME", "layer_999"):
-            #    self.mask_text = ""
-            #    self.cursor_index = 0
-            #if events.key_pressed("K_END", "layer_999"):
-            #    self.mask_text = self.text
-            #    self.cursor_index = len(self.text)
-
-            #if events.key_pressed("K_UP", "layer_999"):
-            #    if len(_globals.history_input):
-            #        if self.history_index is None:
-            #            self.history_index = 0
-            #            self.stored_text = self.text
-            #        elif self.history_index < len(_globals.history_input) - 1:
-            #            self.history_index += 1
-
-            #        self.text = _globals.history_input[self.history_index]
-            #        self.mask_text = self.text
-            #        self.cursor_index = len(self.text)
-            #if events.key_pressed("K_DOWN", "layer_999"):
-            #    if self.history_index is not None:
-            #        if self.history_index > 0:
-            #            self.history_index -= 1
-            #            self.text = _globals.history_input[self.history_index]
-            #        elif self.history_index == 0:
-            #            self.history_index = None
-            #            self.text = self.stored_text
-
-            #        self.mask_text = self.text
-            #        self.cursor_index = len(self.text)
 
 
 class Console:
@@ -364,14 +414,14 @@ class Console:
         #        layer.set_layer("layer_999")
 
         #self.animate_console(dt)
-        if self.y > 0:
-            if mouse.get_pos()[1] < self.y:
-                if events.mouse_wheel_down:
-                    if self.mouse_wheel_offset != 0:
-                        self.mouse_wheel_offset -= 20
-                if events.mouse_wheel_up:
-                    if self.scrollable:
-                        self.mouse_wheel_offset += 20
+        #if self.y > 0:
+        #    if mouse.get_pos()[1] < self.y:
+        #        if events.mouse_wheel_down:
+        #            if self.mouse_wheel_offset != 0:
+        #                self.mouse_wheel_offset -= 20
+        #        if events.mouse_wheel_up:
+        #            if self.scrollable:
+        #                self.mouse_wheel_offset += 20
 
             #key = events.text_input_repeat("layer_999")
             #key = events.text_input("layer_999")
@@ -420,19 +470,19 @@ class Console:
             #if events.key_pressed_once("K_HOME", "layer_999"):
             #    self.cursor_index = 0
             #if events.key_pressed_once("K_END", "layer_999"):
-                self.cursor_index = self.cursor_max
-            if events.key_pressed_once("K_TAB", "layer_999"):
-                self.text = self.autocomplete_text
-                self.cursor_index = len(self.text)
+            #    self.cursor_index = self.cursor_max
+            #if events.key_pressed_once("K_TAB", "layer_999"):
+                #self.text = self.autocomplete_text
+                #self.cursor_index = len(self.text)
             if events.key_pressed("K_LCTRL", "layer_all") and events.key_pressed_once("K_r", "layer_all"):
                 self.search_history = True
 
             if self.search_history:
                 self.autocomplete_input_history()
-            else:
-                self.autcomplete_known_commands()
+            #else:
+                #self.autcomplete_known_commands()
 
-            self.cursor_max = len(self.text)
+            #self.cursor_max = len(self.text)
 
             #self.draw_background()
             #self.draw_textfield()

@@ -138,36 +138,36 @@ class Events:
         self.buttons_released.clear()
         self.text_pressed.clear()
 
-        #for event in pygame.event.get():
-        #    if event.type == pygame.QUIT:
-        #        _globals.running = False
-        #        pygame.quit()
-        #        sys.exit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                _globals.running = False
+                pygame.quit()
+                sys.exit()
 
-        #    # maybe this is callable from anywhere?
-        #    # handle_text_event(event)
-        #    # handle_key_event(event)
-        #    # handle_mouse_event(event)
+            # maybe this is callable from anywhere?
+            # handle_text_event(event)
+            # handle_key_event(event)
+            # handle_mouse_event(event)
 
-        #    # for handle_ in _global.events:
-        #    #     handle_(event)
+            # for handle_ in _global.events:
+            #     handle_(event)
 
-        #    if event.type == pygame.MOUSEBUTTONDOWN:
-        #        self.buttons_held.add(event.button)
-        #        self.buttons_pressed.add(event.button)
-        #    if event.type == pygame.MOUSEBUTTONUP:
-        #        self.buttons_held.remove(event.button)
-        #        self.buttons_released.add(event.button)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.buttons_held.add(event.button)
+                self.buttons_pressed.add(event.button)
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.buttons_held.remove(event.button)
+                self.buttons_released.add(event.button)
 
-        #    if event.type == pygame.KEYDOWN:
-        #        self.text_pressed.append(event.unicode)
-        #        self.keys_held.add(event.key)
-        #        self.keys_pressed.append(event.key)
-        #    if event.type == pygame.KEYUP:
-        #        self.keys_held.remove(event.key)
-        #        self.keys_released.add(event.key)
-        #        if 1 not in pygame.key.get_pressed():
-        #            self.last_text = ""
+            if event.type == pygame.KEYDOWN:
+                self.text_pressed.append(event.unicode)
+                self.keys_held.add(event.key)
+                self.keys_pressed.append(event.key)
+            if event.type == pygame.KEYUP:
+                self.keys_held.remove(event.key)
+                self.keys_released.add(event.key)
+                if 1 not in pygame.key.get_pressed():
+                    self.last_text = ""
 
 
 events = Events()

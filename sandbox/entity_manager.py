@@ -1,3 +1,8 @@
+import json
+
+from sprite_groups import sprite_groups
+
+
 class Entity():
     def __init__(self):
         self._id = id(self)
@@ -47,11 +52,12 @@ class EM():
         result = []
 
         for c in components:
-            entities = EM.ce_mapping[c]
-            for e in entities:
-                if all(c in list(e.components.keys()) for c in components):
-                    if e not in result:
-                        result.append(e)
+            entities = EM.ce_mapping.get(c)
+            if entities:
+                for e in entities:
+                    if all(c in list(e.components.keys()) for c in components):
+                        if e not in result:
+                            result.append(e)
         return result
 
     @classmethod
@@ -78,3 +84,27 @@ class EM():
     @classmethod
     def flush(cls):
         EM.entities = {}
+
+
+def register_components(components):
+    for c in components:
+        EM.register_component(c)
+
+def init_groups(groups_json):
+    with open(groups_json) as f:
+        groups_data = json.load(f)
+
+    for g in groups_data["groups"]:
+        sprite_groups.create(g)
+
+def load_entities(entities_json):
+    with open(entities_json) as f:
+        data = json.load(f) 
+
+    for e, d in data.items():
+        components = []
+        arguments = []
+        for c in d["components"].keys():
+            components.append(EM.components[c])
+            arguments.append(d["components"][c])
+        EM.create(components, arguments)

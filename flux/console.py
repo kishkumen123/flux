@@ -1,7 +1,7 @@
 import pygame
 from enum import Enum
 from flux import _globals
-from flux.display import display
+#from flux.display import display
 from flux.layer import layer
 from flux.events import events
 from flux.fmath import lerp2v, Vector2, v2distance
@@ -35,9 +35,9 @@ class C:
         self.open_speed = 1000
         self.lerp_percent = 0
 
-        self.current_position = Vector2((display.x,0))
-        self.start_position = Vector2((display.x,0))
-        self.end_position = Vector2((display.x,0))
+        self.current_position = Vector2((1024,0))
+        self.start_position = Vector2((1024,0))
+        self.end_position = Vector2((1024,0))
         self.cursor_position = 5
         self.cursor_index = 0
         self.history_index = None
@@ -61,22 +61,22 @@ class C:
         self.font = pygame.font.SysFont("consolas", 18)
         self.tag_surface = self.font.render(self.tag_text, True, self.tag_color)
 
-    def update_end_position(self):
+    def update_end_position(self, screen):
         if self.state == CState.CLOSED:
-            return CState.CLOSED.value * display.y
+            return CState.CLOSED.value * screen.get_height()
         elif self.state == CState.OPEN_SMALL:
-            return CState.OPEN_SMALL.value * display.y
+            return CState.OPEN_SMALL.value * screen.get_height()
         elif self.state == CState.OPEN_BIG:
-            return CState.OPEN_BIG.value * display.y
+            return CState.OPEN_BIG.value * screen.get_height()
 
-    def draw_history(self, console_rect):
+    def draw_history(self, console_rect, screen):
         for i, text in enumerate(_globals.history_output):
             history_surface = self.font.render(text, True, self.history_color)
             self.history_y_position = (console_rect.h - self.font.size(text)[1] - (self.font.size(text)[1] * i) - 8) + self.scroll_offset
             if self.history_y_position < console_rect.h:
-                display.window.blit(history_surface, (5, self.history_y_position))
+                screen.blit(history_surface, (5, self.history_y_position))
 
-    def update(self, dt):
+    def update(self, screen, dt):
         if events.key_pressed("K_ESCAPE", "layer_999"):
             self.lerp_percent = 0
             self.start_position = self.current_position
@@ -102,7 +102,7 @@ class C:
                 else:
                     self.state = CState.OPEN_SMALL
                     layer.set_layer("layer_999")
-            self.end_position.y = self.update_end_position()
+            self.end_position.y = self.update_end_position(screen)
 
 
         lerp_distance = v2distance(self.start_position, self.end_position)
@@ -120,14 +120,14 @@ class C:
             self.cursor_index += 1
 
         if self.current_position.y > 0:
-            console_rect = pygame.draw.rect(display.window, self.background_color, ((0, 0), self.current_position))
-            self.draw_history(console_rect)
-            textfield_rect = pygame.draw.rect(display.window, self.textfield_color, ((0, console_rect.h), (display.x, 24)))
+            console_rect = pygame.draw.rect(screen, self.background_color, ((0, 0), self.current_position))
+            self.draw_history(console_rect, screen)
+            textfield_rect = pygame.draw.rect(screen, self.textfield_color, ((0, console_rect.h), (screen.get_width(), 24)))
             text_surface = self.font.render(self.text, True, self.text_color)
-            display.window.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
-            display.window.blit(self.tag_surface, (2, textfield_rect.y + 2))
+            screen.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
+            screen.blit(self.tag_surface, (2, textfield_rect.y + 2))
             cursor_x = self.cursor_position + self.font.size(self.mask_text)[0] + self.font.size(self.tag_text)[0]
-            cursor_rect = pygame.draw.rect(display.window, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
+            cursor_rect = pygame.draw.rect(screen, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
 
             if console_rect.collidepoint(pygame.mouse.get_pos()):
                 if events.mouse_pressed("M_WHEELDOWN", "layer_999"):

@@ -1,7 +1,7 @@
 import pygame
 
-from flux.fmath import Vector2, load_image
-from flux.sprite_groups import sprite_groups
+from fmath import Vector2
+from sprite_groups import sprite_groups
 
 
 class Sprite(pygame.sprite.Sprite):

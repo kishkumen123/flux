@@ -6,7 +6,7 @@ import json
 import sys
 
 from flux import _globals
-#from flux.events import events
+from flux.events import events
 #from flux.display import display
 from flux.entity_manager import EM
 from flux.sprite_groups import sprite_groups
@@ -19,12 +19,11 @@ class Flux:
 
     def __init__(self, fps=60):
         self.fps = fps
-        self.clock = pygame.time.Clock()
+        #self.clock = pygame.time.Clock()
         self._dt = 0
         self._elapsed_time = 0
         self.frame_index = 1
         self.events = events
-        self.sprite_groups = None
         self.sprite_groups = sprite_groups
 
     def display(self, d):
@@ -114,12 +113,12 @@ class Flux:
     def is_running(self):
         return _globals.running
 
-    def update(self):
-        self.update_dt()
-        #events.update()
+    def update(self, screen, dt):
+        #self.update_dt()
+        events.update()
 
         #console.update(self._dt)
-        c.update(self._dt)
+        c.update(screen, dt)
         self.frame_index += 1
 
     def kill(self):
