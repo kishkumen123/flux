@@ -7,6 +7,10 @@ def v2lerp(v1, v2, f):
 
     return Vector2((x, y))
 
+def v2distance(a, b):
+    return abs(math.sqrt(math.pow(a[0] - b[0], 2) + math.pow(a[1] - b[1], 2)))
+
+
 class Vector2(tuple):
     def __init__(self, values=0):
         if len(values) > 2:
@@ -27,6 +31,3 @@ class Vector2(tuple):
 
     def __str__(self):
         return "<Vector2 (%s, %s)>" % (self.x, self.y)
-
-def v2distance(a, b):
-    return abs(math.sqrt(math.pow(a[0] - b[0], 2) + math.pow(a[1] - b[1], 2)))

@@ -45,27 +45,29 @@ class EM():
     def map_components(cls, e, c):
         if c not in EM.ce_mapping.keys():
             EM.ce_mapping[c] = []
-        EM.ce_mapping[c].append(e)
+        EM.ce_mapping[c].append(e._id)
 
     @classmethod
     def entities_of_component(cls, *components):
         result = []
 
         for c in components:
-            entities = EM.ce_mapping.get(c)
-            if entities:
-                for e in entities:
-                    if all(c in list(e.components.keys()) for c in components):
-                        if e not in result:
-                            result.append(e)
+            entities = EM.ce_mapping.get(c, [])
+            for e_id in entities:
+                if all(c in list(EM.entities[e_id].components.keys()) for c in components):
+                    if e_id not in result:
+                        result.append(e_id)
         return result
 
     @classmethod
-    def destroy(cls, _id):
-        if _id in EM.entities.keys():
-            del EM.entities[_id]
+    def destroy(cls, e_id):
+        if e_id in EM.entities.keys():
+            del EM.entities[e_id]
+            for key in EM.ce_mapping.keys():
+                if e_id in EM.ce_mapping[key]:
+                    EM.ce_mapping[key].remove(e_id)
         else:
-            raise Exception("destroyed e: %s - doesnt exist" % _id)
+            raise Exception("cant destroy e: %s - doesnt exist" % _id)
 
     @classmethod
     def add(cls, e):
@@ -75,11 +77,8 @@ class EM():
         EM.entities[e._id] = e
 
     @classmethod
-    def alive(cls, _id):
-        if _id in EM.entities.keys():
-            return True
-        else:
-            return False
+    def alive(cls, e_id):
+        return e_id in EM.entities.keys()
 
     @classmethod
     def flush(cls):

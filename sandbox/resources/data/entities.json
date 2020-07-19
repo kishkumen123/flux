@@ -55,7 +55,7 @@
     "5": { 
         "components":{
             "Transform": {
-                "position": [240, 240],
+                "position": [500, 500],
                 "scale": [50, 50]
             },
             "Sprite": {
