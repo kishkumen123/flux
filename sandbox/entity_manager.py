@@ -56,7 +56,22 @@ class EM():
             for e_id in entities:
                 if all(c in list(EM.entities[e_id].components.keys()) for c in components):
                     if e_id not in result:
+                        result.append(EM.entities[e_id])
+
+        return result
+
+
+    @classmethod
+    def ids_of_component(cls, *components):
+        result = []
+
+        for c in components:
+            entities = EM.ce_mapping.get(c, [])
+            for e_id in entities:
+                if all(c in list(EM.entities[e_id].components.keys()) for c in components):
+                    if e_id not in result:
                         result.append(e_id)
+
         return result
 
     @classmethod

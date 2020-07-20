@@ -48,7 +48,7 @@
             "Sprite": {
                 "image": "resources/sprites/yellow.jpg",
                 "group": "5",
-                "layer": 0
+                "layer": 1
             }
         }
     },
