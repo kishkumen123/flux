@@ -1,0 +1,9 @@
+position=(220,220)
+velocity=(0,0)
+name="rafik"
+age=30
+sprite="purple.jpg"
+group=3
+layer=0
+Renderable=1
+scale=[50, 50]

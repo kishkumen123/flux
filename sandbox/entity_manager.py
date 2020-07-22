@@ -1,18 +1,32 @@
+import pygame
 import json
+import os
+import glob
 
-from sprite_groups import sprite_groups
 
+textures = {}
+
+class Properties:
+    def __init__(self, values=None):
+        self.Renderable = 0
+        self.set_values(values)
+
+    def set_values(self, values):
+        if values is not None:
+            for i, key in enumerate(self.__dict__.keys()):
+                self.__dict__[key] = values[i]
 
 class Entity():
     def __init__(self):
-        self._id = id(self)
+        self._id = None
+        self.property = Properties()
         self.components = {}
 
-    def add(self, c, a):
-        if c not in self.components.keys():
-            self.components[c] = c(**a)
-        else:
-            raise Exception("cannot add duplicate components: %s to the same entity %s" % (c, self))
+    def __repr__(self):
+        return "<%s>" % self.__dict__
+
+    def __getattr__(self, attr):
+        return None
 
 
 class EM():
@@ -21,7 +35,7 @@ class EM():
     ce_mapping = {}
 
     @classmethod
-    def create(cls, components=None, arguments=None):
+    def create(cls, _id, components=None, arguments=None):
         e = Entity()
         EM.entities[e._id] = e
 
@@ -33,6 +47,22 @@ class EM():
                     e.add(c, {})
                 cls.map_components(e, c)
         return e
+
+    @classmethod
+    def entities_of_property(self, props=None):
+        result =  []
+        for e in self.entities.values():
+
+            for key in e.property.__dict__.keys():
+                if props.__dict__[key] == e.property.__dict__[key]:
+                    result.append(e)
+
+            #for prop in props:
+                #if prop 
+
+            #if e.property.Renderable:
+                #result.append(e)
+        return result
 
     @classmethod
     def register_component(cls, c):
@@ -100,25 +130,22 @@ class EM():
         EM.entities = {}
 
 
-def register_components(components):
-    for c in components:
-        EM.register_component(c)
+def load_entities(path):
+    files = glob.glob(path)
+    for _file in files:
+        with open(_file) as f:
+            e = Entity()
+            for line in f:
+                line = line.strip("\n")
+                name, value = line.split("=")
+                
+                e.__dict__[name] = eval(value)
+                if name in e.property.__dict__.keys():
+                    e.property.__dict__[name] = eval(value)
+            e.__dict__["_id"] = eval(os.path.basename(_file).split("_")[-1])
+        EM.add(e)
 
-def init_groups(groups_json):
-    with open(groups_json) as f:
-        groups_data = json.load(f)
-
-    for g in groups_data["groups"]:
-        sprite_groups.create(g)
-
-def load_entities(entities_json):
-    with open(entities_json) as f:
-        data = json.load(f) 
-
-    for e, d in data.items():
-        components = []
-        arguments = []
-        for c in d["components"].keys():
-            components.append(EM.components[c])
-            arguments.append(d["components"][c])
-        EM.create(components, arguments)
+def load_textures(path):
+    files = glob.glob(path)
+    for _file in files:
+        textures[os.path.basename(_file)] = pygame.image.load(_file)

@@ -1,0 +1,9 @@
+position=(230,230)
+velocity=(0,0)
+name="c"
+age=1
+sprite="yellow.jpg"
+group=5
+layer=1
+Renderable=1
+scale=[50, 50]

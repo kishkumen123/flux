@@ -1,0 +1,9 @@
+position=(200,200)
+velocity=(0,100)
+name="stefan"
+age=1
+sprite="blue.jpg"
+group=1
+layer=0
+Renderable=1
+scale=[50, 50]

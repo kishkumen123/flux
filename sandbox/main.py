@@ -4,7 +4,7 @@ import _globals
 from pygame.locals import *
 from console import Console, CState
 
-from entity_manager import EM, register_components, init_groups, load_entities
+from entity_manager import EM, load_entities, load_textures
 from components import components_list
 from systems import RenderSystem, ScaleSprite, TranslateSprite, MovePlayer, CS, ParticleSystem, MouseMoveSprite
 from sprite_groups import sprite_groups
@@ -27,9 +27,10 @@ font = pygame.font.SysFont("consolas", 18)
 console = Console(screen, font)
 
 
-register_components(components_list)
-init_groups("resources/data/groups.json")
-load_entities("resources/data/entities.json")
+#register_components(components_list)
+#init_groups("resources/data/groups.json")
+load_entities("resources/data/entities/*")
+load_textures("resources/data/textures/*")
 
 
 while _globals.running:
@@ -37,14 +38,13 @@ while _globals.running:
     elapsed_time += dt
 
     screen.fill((0, 0, 0))
-    RenderSystem.update()
     RenderSystem.draw(screen)
-    MovePlayer.update(dt)
+    #MovePlayer.update(dt)
     #TranslateSprite.update(dt)
-    #ScaleSprite.update(dt)
-    CS.update()
-    ParticleSystem.update(screen, dt)
-    MouseMoveSprite.update()
+    ScaleSprite.update(dt)
+    #CS.update()
+    #ParticleSystem.update(screen, dt)
+    #MouseMoveSprite.update()
 
     if pygame.event.peek(QUIT):
         pygame.quit()

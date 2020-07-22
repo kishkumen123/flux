@@ -6,48 +6,33 @@ from entity_manager import EM
 from sprite_groups import sprite_groups
 from components import Transform, Sprite, Particle
 from controller import Controller
-from entity_manager import EM
+from entity_manager import EM, Properties, textures
 from sprite_manager import SM
 
 
 class RenderSystem():
 
     @classmethod
-    def update(cls, exclude=None):
-        e_ids = EM.ids_of_component(Transform, Sprite)
-        
-        for _id in e_ids:
-            sprite = EM.entities[_id].components[Sprite]
-            transform = EM.entities[_id].components[Transform]
-
-            sprite.image = pygame.transform.scale(sprite.image, (transform.scale.x, transform.scale.y))
-            sprite.rect.x = transform.position.x
-            sprite.rect.y = transform.position.y
-
-    @classmethod
     def draw(cls, screen, exclude=None):
-        entities = EM.entities_of_component(Transform, Sprite)
+        entities = EM.entities_of_property(Properties([1]))
         sorted_entities = SM.sort(entities)
 
         for e in sorted_entities:
-            sprite = e.components[Sprite]
-            transform = e.components[Transform]
-            screen.blit(sprite.image, (transform.position.x, transform.position.y))
+            texture = textures[e.sprite]
+            texture = pygame.transform.scale(texture, (e.scale[0], e.scale[1]))
+            screen.blit(texture, (e.position[0], e.position[1]))
 
 
 class ScaleSprite():
 
     @classmethod
     def update(self, dt):
-        e_ids = EM.ids_of_component(Transform, Sprite)
+        entities = EM.entities_of_property(Properties([1]))
 
-        for _id in e_ids:
-            sprite = EM.entities[_id].components[Sprite]
-            transform = EM.entities[_id].components[Transform]
-
-            if "blue" in sprite.name:
-                transform.scale.x += int(200 * dt)
-                transform.scale.y += int(200 * dt)
+        for e in entities:
+            if 1 == e._id:
+                e.scale[0] += int(200 * dt)
+                e.scale[1] += int(200 * dt)
 
 
 class TranslateSprite():
@@ -119,7 +104,7 @@ class ParticleSystem:
     def update(self, screen, dt):
         if Controller.m3:
             mx, my = pygame.mouse.get_pos()
-            EM.create([Transform, Particle], [{"position": [random.randint(mx-50, mx+50), random.randint(my-50, my+50)], "scale": [20, 20]}, {"alive_time": 10, "velocity": [100, -200], "radius": [8, 16]}])
+            EM.create([Transform, Particle], [{"position": [random.randint(mx-30, mx+30), random.randint(my-30, my+30)], "scale": [20, 20]}, {"alive_time": 10, "velocity": [100, -200], "radius": [8, 16]}])
 
         e_ids = EM.ids_of_component(Transform, Particle)
         
@@ -131,7 +116,7 @@ class ParticleSystem:
                 transform.position.x += particle.velocity.x * dt
                 transform.position.y += particle.velocity.y * dt
 
-                #particle.velocity.y += 1000 * dt
+                particle.velocity.y += 1000 * dt
                 particle.radius -= 10 * dt
                 pygame.draw.circle(screen, (255, 255, 255), (int(transform.position.x), int(transform.position.y)), int(particle.radius))
             else:
