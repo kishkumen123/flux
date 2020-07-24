@@ -1,13 +1,11 @@
 import sys
 import pygame
 import _globals
+
 from pygame.locals import *
 from console import Console, CState
-
-from entity_manager import EM, load_entities, load_textures
-from components import components_list
+from entity_manager import EM, load_textures
 from systems import RenderSystem, ScaleSprite, TranslateSprite, MovePlayer, CS, ParticleSystem, MouseMoveSprite
-from sprite_groups import sprite_groups
 from controller import Controller
  
 
@@ -27,10 +25,8 @@ font = pygame.font.SysFont("consolas", 18)
 console = Console(screen, font)
 
 
-#register_components(components_list)
-#init_groups("resources/data/groups.json")
-load_entities("resources/data/entities/*")
-load_textures("resources/data/textures/*")
+load_textures("data/textures/*")
+EM.load_entities("data/entities/*")
 
 
 while _globals.running:
@@ -39,12 +35,12 @@ while _globals.running:
 
     screen.fill((0, 0, 0))
     RenderSystem.draw(screen)
-    #MovePlayer.update(dt)
+    #ScaleSprite.update(dt)
     #TranslateSprite.update(dt)
-    ScaleSprite.update(dt)
-    #CS.update()
-    #ParticleSystem.update(screen, dt)
-    #MouseMoveSprite.update()
+    MovePlayer.update(dt)
+    MouseMoveSprite.update()
+    CS.update()
+    ParticleSystem.update(screen, dt)
 
     if pygame.event.peek(QUIT):
         pygame.quit()

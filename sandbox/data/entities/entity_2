@@ -1,0 +1,15 @@
+position=[210,210]
+velocity=[0,0]
+name="b"
+age=1
+sprite_source="red.jpg"
+sprite=textures[e.sprite_source]
+sprite_rect=e.sprite.get_rect()
+group=4
+layer=0
+scale=[50, 50]
+move_offset=None
+
+Renderable=1
+Movable=0
+MouseMovable=1

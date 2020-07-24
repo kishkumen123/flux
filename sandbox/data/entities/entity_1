@@ -1,0 +1,15 @@
+position=[230,230]
+velocity=[0,0]
+name="c"
+age=1
+sprite_source="yellow.jpg"
+sprite=textures[e.sprite_source]
+sprite_rect=e.sprite.get_rect()
+group=5
+layer=1
+scale=[50, 50]
+move_offset=None
+
+Renderable=1
+Movable=0
+MouseMovable=1

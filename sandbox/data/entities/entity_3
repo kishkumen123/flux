@@ -1,0 +1,15 @@
+position=[500,500]
+velocity=[0,0]
+name="a"
+age=1
+sprite_source="purple.jpg"
+sprite=textures[e.sprite_source]
+sprite_rect=e.sprite.get_rect()
+group=5
+layer=0
+scale=[50, 50]
+move_offset=None
+
+Renderable=1
+Movable=1
+MouseMovable=1

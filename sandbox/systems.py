@@ -1,10 +1,10 @@
 import pygame
 import random
 
-from pygame import Surface
+#from pygame import Surface
 from entity_manager import EM
-from sprite_groups import sprite_groups
-from components import Transform, Sprite, Particle
+#from sprite_groups import sprite_groups
+#from components import Transform, Sprite, Particle
 from controller import Controller
 from entity_manager import EM, Properties, textures
 from sprite_manager import SM
@@ -14,22 +14,29 @@ class RenderSystem():
 
     @classmethod
     def draw(cls, screen, exclude=None):
-        entities = EM.entities_of_property(Properties([1]))
+        #entities = EM.entities_of_property("Renderable")
+        #entities = EM.entities_of_property(Properties.Renderable)
+        entities = []
+
+        for e in EM.entities.values():
+            if e.property.Renderable:
+                entities.append(e)
         sorted_entities = SM.sort(entities)
 
         for e in sorted_entities:
-            texture = textures[e.sprite]
-            texture = pygame.transform.scale(texture, (e.scale[0], e.scale[1]))
-            screen.blit(texture, (e.position[0], e.position[1]))
+            e.sprite_rect.x = e.position[0]
+            e.sprite_rect.y = e.position[1]
+            e.sprite = pygame.transform.scale(e.sprite, (e.scale[0], e.scale[1]))
+            screen.blit(e.sprite, (e.sprite_rect.x, e.sprite_rect.y))
 
 
 class ScaleSprite():
 
     @classmethod
     def update(self, dt):
-        entities = EM.entities_of_property(Properties([1]))
+        #entities = EM.entities_of_property(Properties([1,0,1]))
 
-        for e in entities:
+        for e in EM.entities.values():
             if 1 == e._id:
                 e.scale[0] += int(200 * dt)
                 e.scale[1] += int(200 * dt)
@@ -39,62 +46,61 @@ class TranslateSprite():
 
     @classmethod
     def update(self, dt):
-        e_ids = EM.ids_of_component(Transform, Sprite)
+        #entities = EM.entities_of_property(Properties([1,0,1]))
 
-        for _id in e_ids:
-            transform = EM.entities[_id].components[Transform]
-            sprite = EM.entities[_id].components[Sprite]
-            if "blue" in sprite.name:
-                transform.position.x += 100 * dt
+        for e in EM.entities.values():
+            if 1 == e._id:
+                e.position[0] += 100 * dt
 
 
 class MovePlayer():
 
     @classmethod
     def update(self, dt):
-        e_ids = EM.ids_of_component(Transform, Sprite)
+        #entities = EM.entities_of_property(Properties([1,1,1]))
 
-        for _id in e_ids:
-            transform = EM.entities[_id].components[Transform]
-            sprite = EM.entities[_id].components[Sprite]
 
-            if "white" in sprite.name:
+        for e in EM.entities.values():
+            if e.property.Movable:
                 if Controller.left:
-                    transform.position.x -= 100 * dt
+                    e.position[0] -= 100 * dt
                 if Controller.right:
-                    transform.position.x += 100 * dt
+                    e.position[0] += 100 * dt
                 if Controller.up:
-                    transform.position.y -= 100 * dt
+                    e.position[1] -= 100 * dt
                 if Controller.down:
-                    transform.position.y += 100 * dt
+                    e.position[1] += 100 * dt
 
 
 class MouseMoveSprite():
     found = False
+    move_offset = None
 
     @classmethod
     def update(self):
-        entities = EM.entities_of_component(Transform, Sprite)
+        #entities = EM.entities_of_property(Properties([1,1,1]))
 
+        entities = []
+
+        for e in EM.entities.values():
+            if e.property.Renderable:
+                entities.append(e)
         sorted_entities = SM.sort(entities)
         sorted_entities.reverse()
 
+    
         for e in sorted_entities:
-            transform = e.components[Transform]
-            sprite = e.components[Sprite]
-
             if Controller.m1:
-                if sprite.rect.collidepoint(pygame.mouse.get_pos()):
-
-                    if transform.move_offset is None and not MouseMoveSprite.found:
-                        transform.move_offset = (pygame.mouse.get_pos()[0] - transform.position.x, pygame.mouse.get_pos()[1] - transform.position.y)
+                if e.sprite_rect.collidepoint(pygame.mouse.get_pos()):
+                    if e.move_offset is None and not MouseMoveSprite.found:
+                        e.move_offset = (pygame.mouse.get_pos()[0] - e.position[0], pygame.mouse.get_pos()[1] - e.position[1])
                         MouseMoveSprite.found = True
                         
-                if transform.move_offset:
-                    transform.position.x = pygame.mouse.get_pos()[0] - transform.move_offset[0]
-                    transform.position.y = pygame.mouse.get_pos()[1] - transform.move_offset[1]
+                if e.move_offset:
+                    e.position[0] = pygame.mouse.get_pos()[0] - e.move_offset[0]
+                    e.position[1] = pygame.mouse.get_pos()[1] - e.move_offset[1]
             else:
-                transform.move_offset = None
+                e.move_offset = None
                 MouseMoveSprite.found = False
 
 
@@ -103,46 +109,40 @@ class ParticleSystem:
     @classmethod
     def update(self, screen, dt):
         if Controller.m3:
-            mx, my = pygame.mouse.get_pos()
-            EM.create([Transform, Particle], [{"position": [random.randint(mx-30, mx+30), random.randint(my-30, my+30)], "scale": [20, 20]}, {"alive_time": 10, "velocity": [100, -200], "radius": [8, 16]}])
-
-        e_ids = EM.ids_of_component(Transform, Particle)
+            EM.load_entity("entity_5")
         
-        for _id in e_ids:
-            transform = EM.entities[_id].components[Transform]
-            particle = EM.entities[_id].components[Particle]
+        print(len(EM.entities.values()))
+        entities = list(EM.entities.values())
+        for e in entities:
+            if e.property.IsParticle:
+                if e.circle_radius > 1:
+                    e.position[0] += e.velocity[0] * dt
+                    e.position[1] += e.velocity[1] * dt
 
-            if particle.radius > 0:
-                transform.position.x += particle.velocity.x * dt
-                transform.position.y += particle.velocity.y * dt
-
-                particle.velocity.y += 1000 * dt
-                particle.radius -= 10 * dt
-                pygame.draw.circle(screen, (255, 255, 255), (int(transform.position.x), int(transform.position.y)), int(particle.radius))
-            else:
-                EM.destroy(_id)
+                    e.velocity[1] += 1000 * dt
+                    e.circle_radius -= 10 * dt
+                    pygame.draw.circle(screen, e.circle_color, (int(e.position[0]), int(e.position[1])), int(e.circle_radius))
+                else:
+                    EM.destroy(e._id)
 
 
 class CS:
-    player_sprite = None
+    player_sprite_rect = None
     colliders = []
 
     @classmethod
     def update(self, dt=0):
         CS.colliders.clear()
-        e_ids = EM.ids_of_component(Transform, Sprite)
+        #e_ids = EM.ids_of_component(Transform, Sprite)
         
-        if not CS.player_sprite:
-            for _id in e_ids:
-                sprite = EM.entities[_id].components[Sprite]
-                if "white" in sprite.name:
-                    CS.player_sprite = sprite
+        if CS.player_sprite_rect is None:
+            for e in EM.entities.values():
+                if e._id == 3:
+                    CS.player_sprite_rect = e.sprite_rect
 
-        for _id in e_ids:
-            transform = EM.entities[_id].components[Transform]
-            sprite = EM.entities[_id].components[Sprite]
-            if sprite != CS.player_sprite:
-                if CS.player_sprite.rect.colliderect(sprite.rect):
-                    CS.colliders.append(sprite.name)
+        for e in EM.entities.values():
+            if e._id != 3 and e.property.Renderable:
+                if CS.player_sprite_rect.colliderect(e.sprite_rect):
+                    CS.colliders.append(e._id)
 
         #print(CS.colliders)
