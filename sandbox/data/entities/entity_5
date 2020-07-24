@@ -1,14 +1,14 @@
 #noread
 _id=id(e)
-position=[pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]]
+position=v2(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1])
 
-velocity=[0,100]
+velocity=v2(0,100)
 name="stefan"
 age=1
 circle_color=(255, 255, 255)
 circle_radius=random.randint(8,16)
 alive_time=10
-velocity=[random.randint(-100, 100), -200]
+velocity=v2(random.randint(-100, 100), -200)
 
 
 IsParticle=1

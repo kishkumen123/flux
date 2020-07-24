@@ -1,4 +1,3 @@
-from components import Sprite
 
 class SM:
 

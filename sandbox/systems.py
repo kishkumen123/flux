@@ -1,10 +1,7 @@
 import pygame
 import random
 
-#from pygame import Surface
 from entity_manager import EM
-#from sprite_groups import sprite_groups
-#from components import Transform, Sprite, Particle
 from controller import Controller
 from entity_manager import EM, Properties, textures
 from sprite_manager import SM
@@ -111,17 +108,17 @@ class ParticleSystem:
         if Controller.m3:
             EM.load_entity("entity_5")
         
-        print(len(EM.entities.values()))
         entities = list(EM.entities.values())
         for e in entities:
             if e.property.IsParticle:
-                if e.circle_radius > 1:
-                    e.position[0] += e.velocity[0] * dt
-                    e.position[1] += e.velocity[1] * dt
+                if e.circle_radius > 0:
+                    e.position.x += e.velocity.x * dt
+                    e.position.y += e.velocity.y * dt
 
-                    e.velocity[1] += 1000 * dt
-                    e.circle_radius -= 10 * dt
-                    pygame.draw.circle(screen, e.circle_color, (int(e.position[0]), int(e.position[1])), int(e.circle_radius))
+                    e.velocity.y += 1000 * dt
+                    if (e.circle_radius - 10*dt) > 0:
+                        e.circle_radius -= 10 * dt
+                    pygame.draw.circle(screen, e.circle_color, (int(e.position.x), int(e.position.y)), int(e.circle_radius))
                 else:
                     EM.destroy(e._id)
 

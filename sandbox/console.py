@@ -7,7 +7,7 @@ from enum import Enum
 import math
 import _globals
 
-from fmath import v2lerp, Vector2, v2distance
+from fmath import v2lerp, v2, v2distance
 from commands import init_commands, run_command, get_commands
 
 
@@ -32,9 +32,9 @@ class Console:
         self.open_speed = 1000
         self.lerp_percent = 0
 
-        self.current_position = Vector2((self.screen.get_width() ,0))
-        self.start_position = Vector2((self.screen.get_width(), 0))
-        self.end_position = Vector2((self.screen.get_width(), 0))
+        self.current_position = v2(self.screen.get_width(),0)
+        self.start_position = v2(self.screen.get_width(), 0)
+        self.end_position = v2(self.screen.get_width(), 0)
         self.cursor_position = 5
         self.scroll_offset = 0
         self.cursor_index = 0
@@ -89,14 +89,14 @@ class Console:
                     return right
 
     def draw_everything(self):
-        console_rect = pygame.draw.rect(self.screen, self.background_color, ((0, 0), self.current_position))
+        console_rect = pygame.draw.rect(self.screen, self.background_color, ((0, 0), (self.current_position.x, self.current_position.y)))
         self.draw_history(console_rect)
         textfield_rect = pygame.draw.rect(self.screen, self.textfield_color, ((0, console_rect.h), (self.screen.get_width(), 24)))
         text_surface = self.font.render(self.text, True, self.text_color)
         self.screen.blit(text_surface, (self.font.size(self.tag_text)[0], textfield_rect.y + 2))
         self.screen.blit(self.tag_surface, (2, textfield_rect.y + 2))
         cursor_x = self.cursor_position + self.font.size(self.mask_text)[0] + self.font.size(self.tag_text)[0]
-        cursor_rect = pygame.draw.rect(self.screen, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), Vector2((10, 20))))
+        cursor_rect = pygame.draw.rect(self.screen, self.cursor_color, ((cursor_x - 5, textfield_rect.y + 1), (10, 20)))
         autocomplete_surface = self.font.render(self.autocomplete_text, True, self.autocomplete_color)
         self.screen.blit(autocomplete_surface, (self.font.size(self.tag_text)[0] + self.font.size(self.text)[0], textfield_rect.y + 2))
 

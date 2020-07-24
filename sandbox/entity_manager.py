@@ -2,7 +2,7 @@ import pygame
 import os
 import glob
 import random
-from fmath import Vector2
+from fmath import v2
 
 from enum import Enum
 
@@ -31,7 +31,6 @@ class Entity():
     def __init__(self):
         self._id = None
         self.property = Properties()
-        self.components = {}
 
     def __repr__(self):
         return "<%s>" % self.__dict__
@@ -42,73 +41,7 @@ class Entity():
 
 class EM():
     entities = {}
-   # components = {}
-    #property_map = {}
-
-   # @classmethod
-   # def create(cls, _id, components=None, arguments=None):
-   #     e = Entity()
-   #     EM.entities[e._id] = e
-
-   #     if components:
-   #         for i, c in enumerate(components):
-   #             if arguments:
-   #                 e.add(c, arguments[i])
-   #             else:
-   #                 e.add(c, {})
-   #             cls.map_components(e, c)
-   #     return e
-
-   # @classmethod
-   # def entities_of_property(self, props):
-   #     result = EM.property_map.get(props)
-   #     return result if result is not None else []
-   #     #for e in self.entities.values():
-
-   #     #    for key in props.__dict__.keys():
-   #     #        if props.__dict__[key] == e.property.__dict__[key]:
-   #     #            result.append(e)
-
-   #     #return result
-
-   # @classmethod
-   # def register_component(cls, c):
-   #     if c.__name__ not in EM.components.keys():
-   #         EM.components[c.__name__] = c
-   #     else:
-   #         raise Exception("components %s already registered" % c.__name__)
-
-   # @classmethod
-   # def map_components(cls, e, c):
-   #     if c not in EM.property_map.keys():
-   #         EM.property_map[c] = []
-   #     EM.property_map[c].append(e._id)
-
-   # @classmethod
-   # def entities_of_component(cls, *components):
-   #     result = []
-
-   #     for c in components:
-   #         entities = EM.property_map.get(c, [])
-   #         for e_id in entities:
-   #             if all(c in list(EM.entities[e_id].components.keys()) for c in components):
-   #                 if e_id not in result:
-   #                     result.append(EM.entities[e_id])
-
-   #     return result
-
-   # @classmethod
-   # def ids_of_component(cls, *components):
-   #     result = []
-
-   #     for c in components:
-   #         entities = EM.property_map.get(c, [])
-   #         for e_id in entities:
-   #             if all(c in list(EM.entities[e_id].components.keys()) for c in components):
-   #                 if e_id not in result:
-   #                     result.append(e_id)
-
-   #     return result
+    #property_map = {} // might be used later for optimized entity lookups
 
     @classmethod
     def destroy(cls, e_id):
