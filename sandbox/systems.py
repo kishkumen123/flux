@@ -22,8 +22,11 @@ class RenderSystem():
         for e in sorted_entities:
             e.rect.x = e.position[0]
             e.rect.y = e.position[1]
-            if e.property.UI:
+            if e.property.UIPanel:
                 pygame.draw.rect(screen, e.color, e.rect)
+            elif e.property.UIButton:
+                pygame.draw.rect(screen, e.color, e.rect)
+                screen.blit(e.text_surface, (e.position.x, e.position.y))
             else:
                 e.sprite = pygame.transform.scale(e.sprite, (e.scale[0], e.scale[1]))
                 screen.blit(e.sprite, (e.rect.x, e.rect.y))
@@ -151,7 +154,6 @@ class CS:
     @classmethod
     def update(self, dt=0):
         CS.colliders.clear()
-        #e_ids = EM.ids_of_component(Transform, Sprite)
         
         if CS.player_sprite_rect is None:
             for e in EM.entities.values():
@@ -166,9 +168,10 @@ class CS:
         #print(CS.colliders)
 
 class SelectSystem:
+    selected = False
 
     @classmethod
-    def update(self):
+    def update(cls):
         entities = []
 
         for e in EM.entities.values():
@@ -178,7 +181,10 @@ class SelectSystem:
         sorted_entities.reverse()
     
         for e in sorted_entities:
-            if Controller.m1:
+            if Controller.m1 and not SelectSystem.selected:
                 if e.rect.collidepoint(pygame.mouse.get_pos()):
-                    _globals.selected = e
+                    _globals.selection = e
+                    SelectSystem.selected = True
                     break
+        if Controller.m1 is False:
+            SelectSystem.selected = False

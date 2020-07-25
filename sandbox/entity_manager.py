@@ -2,8 +2,9 @@ import pygame
 import os
 import glob
 import random
-from fmath import v2
+import _globals
 
+from fmath import v2
 from enum import Enum
 
 
@@ -19,7 +20,8 @@ class Properties:
         self.Movable = 0
         self.MouseMovable = 0
         self.IsParticle = 0
-        self.UI = 0
+        self.UIPanel = 0
+        self.UIButton = 0
 
     def __getattr__(self, attr):
         return None
@@ -33,6 +35,7 @@ class Entity():
     def __init__(self):
         self._id = None
         self.property = Properties()
+        self.children = []
 
     def __repr__(self):
         return "<%s>" % self.__dict__
@@ -118,12 +121,12 @@ class EM():
                     if "#noread" in line or "#" in line:
                         continue
                     line = line.strip("\n")
-                    line = line.strip(" ")
+                    line = line.replace(" ", "")
                     name, value = line.split("=")
                     if data.get(name):
                         line = data[name]
                         line = line.strip("\n")
-                        line = line.strip(" ")
+                        line = line.replace(" ", "")
                         value = line.split("=")[1]
 
                     if name in e.property.__dict__.keys():

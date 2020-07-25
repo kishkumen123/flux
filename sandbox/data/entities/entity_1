@@ -4,7 +4,7 @@ sprite=textures[e.sprite_source]
 rect=e.sprite.get_rect()
 group=5
 layer=1
-scale=[50, 50]
+scale=v2(50,50)
 move_offset=None
 
 Renderable=1

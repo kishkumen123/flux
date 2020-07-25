@@ -7,3 +7,5 @@ class Controller:
 
     m1 = False
     m3 = False
+
+    alt = False
