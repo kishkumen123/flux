@@ -5,7 +5,7 @@ import _globals
 from pygame.locals import *
 from console import Console, CState
 from entity_manager import EM, load_textures
-from systems import RenderSystem, ScaleSprite, TranslateSprite, MovePlayer, CS, ParticleSystem, MouseMoveSprite
+from systems import RenderSystem, ScaleSprite, TranslateSprite, MovePlayer, CS, ParticleSystem, MouseMoveSprite, SelectSystem
 from controller import Controller
  
 
@@ -27,9 +27,15 @@ console = Console(screen, font)
 
 load_textures("data/textures/*")
 EM.load_entities("data/entities/*")
+e_panel = EM.load_entity("entity_6", {"position":"position=v2(300,300)", "color":"color=(70,74,71)", "rect":"rect=pygame.Rect(300,300,250,400)", "group":"group=5", "layer":"layer=10", "children":"children=[100, 101]"})
+e_button = EM.load_entity("entity_6", {"position":"position=v2(310,310)", "color":"color=(74,109,145)", "rect":"rect=pygame.Rect(310,310,100,50)", "group":"group=5", "layer":"layer=11", "_id":"_id=100", "MouseMovable":"MouseMovable=0"})
+e_button = EM.load_entity("entity_6", {"position":"position=v2(310,370)", "color":"color=(74,109,145)", "rect":"rect=pygame.Rect(310,370,100,50)", "group":"group=5", "layer":"layer=12", "_id":"_id=101", "MouseMovable":"MouseMovable=0"})
+
+#import pdb; pdb.set_trace()
 
 
 while _globals.running:
+    print(_globals.selected)
     dt = clock.tick(fps) / 1000
     elapsed_time += dt
 
@@ -39,8 +45,9 @@ while _globals.running:
     #TranslateSprite.update(dt)
     MovePlayer.update(dt)
     MouseMoveSprite.update()
-    CS.update()
     ParticleSystem.update(screen, dt)
+    CS.update()
+    SelectSystem.update()
 
     if pygame.event.peek(QUIT):
         pygame.quit()

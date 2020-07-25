@@ -19,6 +19,7 @@ class Properties:
         self.Movable = 0
         self.MouseMovable = 0
         self.IsParticle = 0
+        self.UI = 0
 
     def __getattr__(self, attr):
         return None
@@ -27,6 +28,7 @@ class Properties:
         return "<%s>" % self.__dict__
 
 
+#TODO:(Rafik) make it raise a better exception when it tries to access a variable that doesnt exist
 class Entity():
     def __init__(self):
         self._id = None
@@ -64,7 +66,9 @@ class EM():
 
     @classmethod
     def get(cls, _id):
-        return EM.entities.get(_id)
+        if EM.entities.get(_id) is None:
+            raise Exception("_id %s does not exist as an entity" % _id)
+        return EM.entities[_id]
 
     @classmethod
     def alive(cls, e_id):
@@ -93,9 +97,10 @@ class EM():
                         name, value = line.split("=")
                         
                         if e:
-                            e.__dict__[name] = eval(value)
                             if name in e.property.__dict__.keys():
                                 e.property.__dict__[name] = eval(value)
+                            else:
+                                e.__dict__[name] = eval(value)
                             
             if e: 
                 if e._id is None:
@@ -103,30 +108,33 @@ class EM():
                 EM.add(e)
 
     @classmethod
-    def load_entity(cls, entity):
-        files = glob.glob("data/entities/*")
-        for _file in files:
-            if entity in _file:
-                with open(_file) as f:
-                    e = Entity()
-                    for line in f:
-                        if len(line) > 1:
-                            if "#noread" in line or "#" in line:
-                                continue
-                            line = line.strip("\n")
-                            line = line.strip(" ")
-                            name, value = line.split("=")
-                            
-                            e.__dict__[name] = eval(value)
-                            if name in e.property.__dict__.keys():
-                                e.property.__dict__[name] = eval(value)
+    def load_entity(cls, entity, data):
+        _file = glob.glob("data/entities/" + entity)[0]
+        e = None
+        with open(_file) as f:
+            e = Entity()
+            for line in f:
+                if len(line) > 1:
+                    if "#noread" in line or "#" in line:
+                        continue
+                    line = line.strip("\n")
+                    line = line.strip(" ")
+                    name, value = line.split("=")
+                    if data.get(name):
+                        line = data[name]
+                        line = line.strip("\n")
+                        line = line.strip(" ")
+                        value = line.split("=")[1]
+
+                    if name in e.property.__dict__.keys():
+                        e.property.__dict__[name] = eval(value)
+                    else:
+                        e.__dict__[name] = eval(value)
                                 
-                if e._id is None:
-                    e.__dict__["_id"] = eval(os.path.basename(_file).split("_")[-1])
-                EM.add(e)
-
-
-
+            if e._id is None:
+                e.__dict__["_id"] = eval(os.path.basename(_file).split("_")[-1])
+            EM.add(e)
+        return e
 
 
 def load_textures(path):

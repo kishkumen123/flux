@@ -1,5 +1,6 @@
 import pygame
 import random
+import _globals
 
 from entity_manager import EM
 from controller import Controller
@@ -19,10 +20,13 @@ class RenderSystem():
         sorted_entities = SM.sort(entities)
 
         for e in sorted_entities:
-            e.sprite_rect.x = e.position[0]
-            e.sprite_rect.y = e.position[1]
-            e.sprite = pygame.transform.scale(e.sprite, (e.scale[0], e.scale[1]))
-            screen.blit(e.sprite, (e.sprite_rect.x, e.sprite_rect.y))
+            e.rect.x = e.position[0]
+            e.rect.y = e.position[1]
+            if e.property.UI:
+                pygame.draw.rect(screen, e.color, e.rect)
+            else:
+                e.sprite = pygame.transform.scale(e.sprite, (e.scale[0], e.scale[1]))
+                screen.blit(e.sprite, (e.rect.x, e.rect.y))
 
 
 class ScaleSprite():
@@ -31,8 +35,8 @@ class ScaleSprite():
     def update(self, dt):
         for e in EM.entities.values():
             if 1 == e._id:
-                e.scale[0] += int(200 * dt)
-                e.scale[1] += int(200 * dt)
+                e.scale.x += int(200 * dt)
+                e.scale.y += int(200 * dt)
 
 
 class TranslateSprite():
@@ -41,7 +45,7 @@ class TranslateSprite():
     def update(self, dt):
         for e in EM.entities.values():
             if 1 == e._id:
-                e.position[0] += 100 * dt
+                e.position.x += 100 * dt
 
 
 class MovePlayer():
@@ -61,13 +65,13 @@ class MovePlayer():
     @classmethod
     def move(cls, e, amount, dt):
         if Controller.left:
-            e.position[0] -= amount * dt
+            e.position.x -= amount * dt
         if Controller.right:
-            e.position[0] += amount * dt
+            e.position.x += amount * dt
         if Controller.up:
-            e.position[1] -= amount * dt
+            e.position.y -= amount * dt
         if Controller.down:
-            e.position[1] += amount * dt
+            e.position.y += amount * dt
 
 
 class MouseMoveSprite():
@@ -87,23 +91,23 @@ class MouseMoveSprite():
     
         for e in sorted_entities:
             if Controller.m1:
-                if e.sprite_rect.collidepoint(pygame.mouse.get_pos()):
+                if e.rect.collidepoint(pygame.mouse.get_pos()):
                     if e.move_offset is None and not MouseMoveSprite.found:
+                        MouseMoveSprite.found = True
                         e.move_offset = (pygame.mouse.get_pos()[0] - e.position[0], pygame.mouse.get_pos()[1] - e.position[1])
                         if e.children:
                             for _id in e.children:
                                 e_child = EM.get(_id)
                                 e_child.move_offset = (pygame.mouse.get_pos()[0] - e_child.position[0], pygame.mouse.get_pos()[1] - e_child.position[1])
-                        MouseMoveSprite.found = True
                         
-                if e.move_offset:
-                    e.position[0] = pygame.mouse.get_pos()[0] - e.move_offset[0]
-                    e.position[1] = pygame.mouse.get_pos()[1] - e.move_offset[1]
+                if e.move_offset and e.property.MouseMovable:
+                    e.position.x = pygame.mouse.get_pos()[0] - e.move_offset[0]
+                    e.position.y = pygame.mouse.get_pos()[1] - e.move_offset[1]
                     if e.children:
                         for _id in e.children:
                             e_child = EM.get(_id)
-                            e_child.position[0] = pygame.mouse.get_pos()[0] - e_child.move_offset[0]
-                            e_child.position[1] = pygame.mouse.get_pos()[1] - e_child.move_offset[1]
+                            e_child.position.x = pygame.mouse.get_pos()[0] - e_child.move_offset[0]
+                            e_child.position.y = pygame.mouse.get_pos()[1] - e_child.move_offset[1]
             else:
                 e.move_offset = None
                 if e.children:
@@ -118,7 +122,7 @@ class ParticleSystem:
     @classmethod
     def update(self, screen, dt):
         if Controller.m3:
-            EM.load_entity("entity_5")
+            EM.load_entity("entity_5", {})
 
         
         entities = list(EM.entities.values())
@@ -134,6 +138,7 @@ class ParticleSystem:
                     else:
                         e.circle_radius = 0
 
+                    #TODO:(Rafik) i wonder if this should be drawing here, and should be adding a drawable rect to the entitiy, and     then have it be drawn in the draw method
                     pygame.draw.circle(screen, e.circle_color, (int(e.position.x), int(e.position.y)), int(e.circle_radius))
                 else:
                     EM.destroy(e._id)
@@ -151,11 +156,29 @@ class CS:
         if CS.player_sprite_rect is None:
             for e in EM.entities.values():
                 if e._id == 3:
-                    CS.player_sprite_rect = e.sprite_rect
+                    CS.player_sprite_rect = e.rect
 
         for e in EM.entities.values():
             if e._id != 3 and e.property.Renderable:
-                if CS.player_sprite_rect.colliderect(e.sprite_rect):
+                if CS.player_sprite_rect.colliderect(e.rect):
                     CS.colliders.append(e._id)
 
         #print(CS.colliders)
+
+class SelectSystem:
+
+    @classmethod
+    def update(self):
+        entities = []
+
+        for e in EM.entities.values():
+            if e.property.Renderable:
+                entities.append(e)
+        sorted_entities = SM.sort(entities)
+        sorted_entities.reverse()
+    
+        for e in sorted_entities:
+            if Controller.m1:
+                if e.rect.collidepoint(pygame.mouse.get_pos()):
+                    _globals.selected = e
+                    break

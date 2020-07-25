@@ -1,7 +1,7 @@
-position=[230,230]
+position=v2(230, 230)
 sprite_source="yellow.jpg"
 sprite=textures[e.sprite_source]
-sprite_rect=e.sprite.get_rect()
+rect=e.sprite.get_rect()
 group=5
 layer=1
 scale=[50, 50]
