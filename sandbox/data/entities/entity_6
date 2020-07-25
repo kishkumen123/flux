@@ -1,6 +1,6 @@
 #noread
-_id=id(e)
-position=v2(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1])
+id=id(e)
+position=v2(0,0)
 
 velocity=v2(0,100)
 circle_color=(255, 255, 255)
@@ -9,4 +9,4 @@ alive_time=10
 velocity=v2(random.randint(-100, 100), -200)
 
 
-IsParticle=1
+#IsParticle=1

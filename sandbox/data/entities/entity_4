@@ -1,15 +1,14 @@
 position=[200,200]
-velocity=[0,100]
-name="stefan"
-age=1
+
 sprite_source="blue.jpg"
 sprite=textures[e.sprite_source]
 sprite_rect=e.sprite.get_rect()
 group=1
 layer=0
+
 scale=[50, 50]
 move_offset=None
+children=[3,2]
 
 Renderable=1
-Movable=0
 MouseMovable=1

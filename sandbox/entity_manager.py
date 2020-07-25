@@ -10,8 +10,8 @@ from enum import Enum
 textures = {}
 
 
-class Mappings(Enum):
-    Renderable = "Renderable"
+#class Mappings(Enum): // might be used for faster entity lookups
+    #Renderable = "Renderable"
 
 class Properties:
     def __init__(self):
@@ -63,6 +63,10 @@ class EM():
             #EM.property_map[key] = e
 
     @classmethod
+    def get(cls, _id):
+        return EM.entities.get(_id)
+
+    @classmethod
     def alive(cls, e_id):
         return e_id in EM.entities.keys()
 
@@ -74,6 +78,7 @@ class EM():
     def load_entities(cls, path):
         files = glob.glob(path)
         for _file in files:
+            e = None
             with open(_file) as f:
                 e = Entity()
                 for line in f:
@@ -81,13 +86,16 @@ class EM():
                         if "#noread" in line:
                             e = None
                             break
+                        elif "#" in line:
+                            continue
                         line = line.strip("\n")
                         line = line.strip(" ")
                         name, value = line.split("=")
                         
-                        e.__dict__[name] = eval(value)
-                        if name in e.property.__dict__.keys():
-                            e.property.__dict__[name] = eval(value)
+                        if e:
+                            e.__dict__[name] = eval(value)
+                            if name in e.property.__dict__.keys():
+                                e.property.__dict__[name] = eval(value)
                             
             if e: 
                 if e._id is None:
@@ -103,7 +111,7 @@ class EM():
                     e = Entity()
                     for line in f:
                         if len(line) > 1:
-                            if "#noread" in line:
+                            if "#noread" in line or "#" in line:
                                 continue
                             line = line.strip("\n")
                             line = line.strip(" ")

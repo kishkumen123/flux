@@ -1,7 +1,4 @@
 position=[500,500]
-velocity=[0,0]
-name="a"
-age=1
 sprite_source="purple.jpg"
 sprite=textures[e.sprite_source]
 sprite_rect=e.sprite.get_rect()

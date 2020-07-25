@@ -11,8 +11,6 @@ class RenderSystem():
 
     @classmethod
     def draw(cls, screen, exclude=None):
-        #entities = EM.entities_of_property("Renderable")
-        #entities = EM.entities_of_property(Properties.Renderable)
         entities = []
 
         for e in EM.entities.values():
@@ -31,8 +29,6 @@ class ScaleSprite():
 
     @classmethod
     def update(self, dt):
-        #entities = EM.entities_of_property(Properties([1,0,1]))
-
         for e in EM.entities.values():
             if 1 == e._id:
                 e.scale[0] += int(200 * dt)
@@ -43,8 +39,6 @@ class TranslateSprite():
 
     @classmethod
     def update(self, dt):
-        #entities = EM.entities_of_property(Properties([1,0,1]))
-
         for e in EM.entities.values():
             if 1 == e._id:
                 e.position[0] += 100 * dt
@@ -53,20 +47,27 @@ class TranslateSprite():
 class MovePlayer():
 
     @classmethod
-    def update(self, dt):
-        #entities = EM.entities_of_property(Properties([1,1,1]))
-
-
+    def update(cls, dt):
         for e in EM.entities.values():
             if e.property.Movable:
-                if Controller.left:
-                    e.position[0] -= 100 * dt
-                if Controller.right:
-                    e.position[0] += 100 * dt
-                if Controller.up:
-                    e.position[1] -= 100 * dt
-                if Controller.down:
-                    e.position[1] += 100 * dt
+                MovePlayer.move(e, 100, dt)
+                
+                if e.children:
+                    for _id in e.children:
+                        child_e = EM.get(_id)
+                        MovePlayer.move(child_e, 100, dt)
+
+
+    @classmethod
+    def move(cls, e, amount, dt):
+        if Controller.left:
+            e.position[0] -= amount * dt
+        if Controller.right:
+            e.position[0] += amount * dt
+        if Controller.up:
+            e.position[1] -= amount * dt
+        if Controller.down:
+            e.position[1] += amount * dt
 
 
 class MouseMoveSprite():
@@ -75,8 +76,6 @@ class MouseMoveSprite():
 
     @classmethod
     def update(self):
-        #entities = EM.entities_of_property(Properties([1,1,1]))
-
         entities = []
 
         for e in EM.entities.values():
@@ -91,13 +90,26 @@ class MouseMoveSprite():
                 if e.sprite_rect.collidepoint(pygame.mouse.get_pos()):
                     if e.move_offset is None and not MouseMoveSprite.found:
                         e.move_offset = (pygame.mouse.get_pos()[0] - e.position[0], pygame.mouse.get_pos()[1] - e.position[1])
+                        if e.children:
+                            for _id in e.children:
+                                e_child = EM.get(_id)
+                                e_child.move_offset = (pygame.mouse.get_pos()[0] - e_child.position[0], pygame.mouse.get_pos()[1] - e_child.position[1])
                         MouseMoveSprite.found = True
                         
                 if e.move_offset:
                     e.position[0] = pygame.mouse.get_pos()[0] - e.move_offset[0]
                     e.position[1] = pygame.mouse.get_pos()[1] - e.move_offset[1]
+                    if e.children:
+                        for _id in e.children:
+                            e_child = EM.get(_id)
+                            e_child.position[0] = pygame.mouse.get_pos()[0] - e_child.move_offset[0]
+                            e_child.position[1] = pygame.mouse.get_pos()[1] - e_child.move_offset[1]
             else:
                 e.move_offset = None
+                if e.children:
+                    for _id in e.children:
+                        e_child = EM.get(_id)
+                        e_child.move_offset = None
                 MouseMoveSprite.found = False
 
 
@@ -107,6 +119,7 @@ class ParticleSystem:
     def update(self, screen, dt):
         if Controller.m3:
             EM.load_entity("entity_5")
+
         
         entities = list(EM.entities.values())
         for e in entities:
@@ -118,6 +131,9 @@ class ParticleSystem:
                     e.velocity.y += 1000 * dt
                     if (e.circle_radius - 10*dt) > 0:
                         e.circle_radius -= 10 * dt
+                    else:
+                        e.circle_radius = 0
+
                     pygame.draw.circle(screen, e.circle_color, (int(e.position.x), int(e.position.y)), int(e.circle_radius))
                 else:
                     EM.destroy(e._id)

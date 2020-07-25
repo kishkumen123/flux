@@ -1,7 +1,4 @@
 position=[220,220]
-velocity=[0,0]
-name="rafik"
-age=30
 sprite_source="purple.jpg"
 sprite=textures[e.sprite_source]
 sprite_rect=e.sprite.get_rect()
@@ -11,5 +8,4 @@ scale=[50, 50]
 move_offset=None
 
 Renderable=1
-Movable=0
 MouseMovable=1
