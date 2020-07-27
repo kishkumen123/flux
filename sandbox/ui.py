@@ -28,10 +28,14 @@ class UI:
     active = 0
     canvases = {}
 
+
     #TODO(Rafik): make sure to figure out how to fix 2 buttons overlapping on each other
     @classmethod
     def hot_active(cls, _id, rect):
         result = False
+
+        if rect.collidepoint(pygame.mouse.get_pos()):
+            UI.hot = _id
 
         if UI.active == _id and not Controller.m1:
             if rect.collidepoint(pygame.mouse.get_pos()):
@@ -42,9 +46,6 @@ class UI:
         elif UI.hot == _id and Controller.m1:
             if UI.active == 0: 
                 UI.active = _id
-
-        if rect.collidepoint(pygame.mouse.get_pos()):
-            UI.hot = _id
 
         return result
 

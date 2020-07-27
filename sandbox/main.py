@@ -25,8 +25,8 @@ screen = pygame.display.set_mode((width, height))
 console = Console(screen, _globals.font)
 
 
-load_textures("data/textures/*")
-EM.load_entities("data/entities/*")
+#load_textures("data/textures/*")
+#EM.load_entities("data/entities/*")
 
 #e_panel = EM.load_entity("entity_6", {"position":"position=v2(300,300)", "color":"color=(70,74,71)", "rect":"rect=pygame.Rect(300,300,250,400)", "group":"group=4", "layer":"layer=7", "children":"children=[100, 101]"})
 #e_button = EM.load_entity("entity_button", {"position":"position=v2(310,310)", "color":"color=(74,109,145)", "rect":"rect=pygame.Rect(310,310,120,50)", "group":"group=4", "layer":"layer=7", "_id":"_id=100", "MouseMovable":"MouseMovable=0"})
@@ -189,7 +189,6 @@ while _globals.running:
             pass
         if UI.do_button(screen, 20, "button6", 18, 2, pygame.Rect(300, 360, 250, 50)):
             print("8")
-
 
     console.update(dt)
     pygame.display.flip()

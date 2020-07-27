@@ -23,6 +23,7 @@ class UIMouseMove():
         sorted_canvases = SM.sort_ui(entities)
         sorted_canvases.reverse()
 
+        print(UI.hot)
 
         for c in sorted_canvases:
             if Controller.m1 and not Controller.shift:
@@ -73,8 +74,8 @@ class UIResize():
                         if distances[0][1] < 15 and distances[1][1] < 15:
                             UIResize.side.append(distances[0][0])
                             UIResize.side.append(distances[1][0])
-
-                        UIResize.side.append(distances[0][0])
+                        else:
+                            UIResize.side.append(distances[0][0])
 
                 #if c.side_offset and e.property.MouseMovable:
                 if c.side_offset:

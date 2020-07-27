@@ -41,3 +41,8 @@ class v4():
 
     def __repr__(self):
         return "<Vector2 (%s, %s, %s, %s)>" % (self.x, self.y, self.z, self.w)
+
+
+#TODO(Rafik): MAKE A FUCKING CLAMP METHOD
+def clamp(): pass
+
