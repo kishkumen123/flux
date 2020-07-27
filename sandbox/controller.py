@@ -9,3 +9,4 @@ class Controller:
     m3 = False
 
     alt = False
+    shift = False

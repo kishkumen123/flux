@@ -6,6 +6,93 @@ from entity_manager import EM
 from controller import Controller
 from entity_manager import EM, Properties, textures
 from sprite_manager import SM
+from ui import UI
+
+
+
+
+class UIMouseMove():
+    found = False
+
+    @classmethod
+    def update(self):
+        entities = []
+
+        for c in UI.canvases.values():
+            entities.append(c)
+        sorted_canvases = SM.sort_ui(entities)
+        sorted_canvases.reverse()
+
+
+        for c in sorted_canvases:
+            if Controller.m1 and not Controller.shift:
+                if c.rect.collidepoint(pygame.mouse.get_pos()):
+                    if c.move_offset is None and not UIMouseMove.found:
+                        UIMouseMove.found = True
+                        c.move_offset = (pygame.mouse.get_pos()[0] - c.rect.x, pygame.mouse.get_pos()[1] - c.rect.y)
+
+                #if c.move_offset and e.property.MouseMovable:
+                if c.move_offset:
+                    c.rect.x = pygame.mouse.get_pos()[0] - c.move_offset[0]
+                    c.rect.y = pygame.mouse.get_pos()[1] - c.move_offset[1]
+            else:
+                c.move_offset = None
+                UIMouseMove.found = False
+
+
+class UIResize():
+    found = False
+    side = ""
+
+    @classmethod
+    def update(self):
+        entities = []
+
+        for c in UI.canvases.values():
+            entities.append(c)
+        sorted_canvases = SM.sort_ui(entities)
+        sorted_canvases.reverse()
+
+
+        for c in sorted_canvases:
+            if Controller.m1 and Controller.shift:
+                if c.rect.collidepoint(pygame.mouse.get_pos()):
+                    if c.side_offset is None and not UIResize.found:
+                        UIResize.found = True
+                        c.side_offset = (pygame.mouse.get_pos()[0] - c.rect.x, pygame.mouse.get_pos()[1] - c.rect.y)
+                        c.right_offset = (c.rect.x + c.rect.w) - pygame.mouse.get_pos()[0]
+                        c.bottom_offset = (c.rect.y + c.rect.h) - pygame.mouse.get_pos()[1]
+
+                        distances = [
+                            ("left", abs(c.rect.x - pygame.mouse.get_pos()[0])), 
+                            ("right", abs(c.rect.x + c.rect.w - pygame.mouse.get_pos()[0])), 
+                            ("top", abs(c.rect.y - pygame.mouse.get_pos()[1])), 
+                            ("bottom", abs(c.rect.y + c.rect.h - pygame.mouse.get_pos()[1]))
+                        ]
+                        distances.sort(key = lambda x: x[1])
+                        UIResize.side = distances[0][0]
+
+                #if c.side_offset and e.property.MouseMovable:
+                if c.side_offset:
+                    if UIResize.side == "left":
+                        x = pygame.mouse.get_pos()[0] - c.side_offset[0]
+                        c.rect.w -= x - c.rect.x
+                        c.rect.x = x
+                    if UIResize.side == "right":
+                        c.rect.w = (pygame.mouse.get_pos()[0] - c.rect.x) + c.right_offset
+                    if UIResize.side == "top":
+                        y = pygame.mouse.get_pos()[1] - c.side_offset[1]
+                        c.rect.h -= y - c.rect.y
+                        c.rect.y = y
+                    if UIResize.side == "bottom":
+                        c.rect.h = (pygame.mouse.get_pos()[1] - c.rect.y) + c.bottom_offset
+
+                    #c.rect.y = pygame.mouse.get_pos()[1] - c.side_offset[1]
+            else:
+                c.side_offset = None
+                UIResize.side = ""
+                UIResize.found = False
+
 
 
 class RenderSystem():
@@ -17,7 +104,7 @@ class RenderSystem():
         for e in EM.entities.values():
             if e.property.Renderable:
                 entities.append(e)
-        sorted_entities = SM.sort(entities)
+        sorted_entities = SM.sort_sprites(entities)
 
         for e in sorted_entities:
             e.rect.x = e.position[0]
@@ -58,7 +145,7 @@ class MovePlayer():
         for e in EM.entities.values():
             if e.property.Movable:
                 MovePlayer.move(e, 100, dt)
-                
+
                 if e.children:
                     for _id in e.children:
                         child_e = EM.get(_id)
@@ -79,7 +166,6 @@ class MovePlayer():
 
 class MouseMoveSprite():
     found = False
-    move_offset = None
 
     @classmethod
     def update(self):
@@ -88,10 +174,10 @@ class MouseMoveSprite():
         for e in EM.entities.values():
             if e.property.Renderable:
                 entities.append(e)
-        sorted_entities = SM.sort(entities)
+        sorted_entities = SM.sort_sprites(entities)
         sorted_entities.reverse()
 
-    
+
         for e in sorted_entities:
             if Controller.m1:
                 if e.rect.collidepoint(pygame.mouse.get_pos()):
@@ -102,7 +188,7 @@ class MouseMoveSprite():
                             for _id in e.children:
                                 e_child = EM.get(_id)
                                 e_child.move_offset = (pygame.mouse.get_pos()[0] - e_child.position[0], pygame.mouse.get_pos()[1] - e_child.position[1])
-                        
+
                 if e.move_offset and e.property.MouseMovable:
                     e.position.x = pygame.mouse.get_pos()[0] - e.move_offset[0]
                     e.position.y = pygame.mouse.get_pos()[1] - e.move_offset[1]
@@ -127,7 +213,7 @@ class ParticleSystem:
         if Controller.m3:
             EM.load_entity("entity_5", {})
 
-        
+
         entities = list(EM.entities.values())
         for e in entities:
             if e.property.IsParticle:
@@ -135,7 +221,7 @@ class ParticleSystem:
                     e.position.x += e.velocity.x * dt
                     e.position.y += e.velocity.y * dt
 
-                    e.velocity.y += 1000 * dt
+                    #e.velocity.y += 1000 * dt
                     if (e.circle_radius - 10*dt) > 0:
                         e.circle_radius -= 10 * dt
                     else:
@@ -154,7 +240,7 @@ class CS:
     @classmethod
     def update(self, dt=0):
         CS.colliders.clear()
-        
+
         if CS.player_sprite_rect is None:
             for e in EM.entities.values():
                 if e._id == 3:
@@ -177,9 +263,9 @@ class SelectSystem:
         for e in EM.entities.values():
             if e.property.Renderable:
                 entities.append(e)
-        sorted_entities = SM.sort(entities)
+        sorted_entities = SM.sort_sprites(entities)
         sorted_entities.reverse()
-    
+
         for e in sorted_entities:
             if Controller.m1 and not SelectSystem.selected:
                 if e.rect.collidepoint(pygame.mouse.get_pos()):

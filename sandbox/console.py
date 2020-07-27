@@ -116,6 +116,9 @@ class Console:
         if self.state != CState.CLOSED:
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
+
+
+
                     if event.key == K_ESCAPE:
                         self.open(CState.CLOSED)
                     if event.key == K_BACKQUOTE and not event.mod:
