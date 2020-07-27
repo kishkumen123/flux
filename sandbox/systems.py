@@ -42,7 +42,7 @@ class UIMouseMove():
 
 class UIResize():
     found = False
-    side = ""
+    side = []
 
     @classmethod
     def update(self):
@@ -70,27 +70,32 @@ class UIResize():
                             ("bottom", abs(c.rect.y + c.rect.h - pygame.mouse.get_pos()[1]))
                         ]
                         distances.sort(key = lambda x: x[1])
-                        UIResize.side = distances[0][0]
+                        if distances[0][1] < 15 and distances[1][1] < 15:
+                            UIResize.side.append(distances[0][0])
+                            UIResize.side.append(distances[1][0])
+
+                        UIResize.side.append(distances[0][0])
 
                 #if c.side_offset and e.property.MouseMovable:
                 if c.side_offset:
-                    if UIResize.side == "left":
-                        x = pygame.mouse.get_pos()[0] - c.side_offset[0]
-                        c.rect.w -= x - c.rect.x
-                        c.rect.x = x
-                    if UIResize.side == "right":
-                        c.rect.w = (pygame.mouse.get_pos()[0] - c.rect.x) + c.right_offset
-                    if UIResize.side == "top":
-                        y = pygame.mouse.get_pos()[1] - c.side_offset[1]
-                        c.rect.h -= y - c.rect.y
-                        c.rect.y = y
-                    if UIResize.side == "bottom":
-                        c.rect.h = (pygame.mouse.get_pos()[1] - c.rect.y) + c.bottom_offset
+                    for i, _ in enumerate(UIResize.side):
+                        if UIResize.side[i] == "left":
+                            x = pygame.mouse.get_pos()[0] - c.side_offset[0]
+                            c.rect.w -= x - c.rect.x
+                            c.rect.x = x
+                        if UIResize.side[i] == "right":
+                            c.rect.w = (pygame.mouse.get_pos()[0] - c.rect.x) + c.right_offset
+                        if UIResize.side[i] == "top":
+                            y = pygame.mouse.get_pos()[1] - c.side_offset[1]
+                            c.rect.h -= y - c.rect.y
+                            c.rect.y = y
+                        if UIResize.side[i] == "bottom":
+                            c.rect.h = (pygame.mouse.get_pos()[1] - c.rect.y) + c.bottom_offset
 
                     #c.rect.y = pygame.mouse.get_pos()[1] - c.side_offset[1]
             else:
                 c.side_offset = None
-                UIResize.side = ""
+                UIResize.side = []
                 UIResize.found = False
 
 
