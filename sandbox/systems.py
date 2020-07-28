@@ -23,10 +23,10 @@ class UIMouseMove():
         sorted_canvases = SM.sort_ui(entities)
         sorted_canvases.reverse()
 
-        print(UI.hot)
+        #print(UI.hot)
 
         for c in sorted_canvases:
-            if Controller.m1 and not Controller.shift:
+            if Controller.m1 and not Controller.shift and not UI.hot:
                 if c.rect.collidepoint(pygame.mouse.get_pos()):
                     if c.move_offset is None and not UIMouseMove.found:
                         UIMouseMove.found = True

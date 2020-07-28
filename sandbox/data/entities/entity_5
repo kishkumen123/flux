@@ -3,7 +3,7 @@ _id=id(e)
 position=v2(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1])
 velocity=v2(random.randint(-100, 100), -200)
 
-circle_color=(255, 255, 255)
+circle_color=(184, 148, 103)
 circle_radius=random.randint(8,16)
 alive_time=10
 
