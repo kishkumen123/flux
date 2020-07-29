@@ -7,15 +7,17 @@ from controller import Controller
 from entity_manager import EM, Properties, textures
 from sprite_manager import SM
 from ui import UI
+from events import Events
 
 
 
 
 class UIMouseMove():
     found = False
+    canvas = None
 
     @classmethod
-    def update(self):
+    def update(cls):
         entities = []
 
         for c in UI.canvases.values():
@@ -25,20 +27,31 @@ class UIMouseMove():
 
         #print(UI.hot)
 
-        for c in sorted_canvases:
-            if Controller.m1 and not Controller.shift and not UI.hot:
+        #if Events.mbutton_down(1) and not Controller.shift and not UI.hot:
+        if Events.mbutton_up(1):
+            if cls.canvas is not None:
+                cls.canvas.move_offset = None
+                cls.canvas = None
+                cls.found = False
+
+        if Events.mbutton_down(1) and not UI.hot:
+            print("OK")
+            for c in sorted_canvases:
                 if c.rect.collidepoint(pygame.mouse.get_pos()):
-                    if c.move_offset is None and not UIMouseMove.found:
+                    if c.move_offset is None and not cls.found:
                         UIMouseMove.found = True
                         c.move_offset = (pygame.mouse.get_pos()[0] - c.rect.x, pygame.mouse.get_pos()[1] - c.rect.y)
+                        cls.canvas = c
 
                 #if c.move_offset and e.property.MouseMovable:
-                if c.move_offset:
-                    c.rect.x = pygame.mouse.get_pos()[0] - c.move_offset[0]
-                    c.rect.y = pygame.mouse.get_pos()[1] - c.move_offset[1]
-            else:
-                c.move_offset = None
-                UIMouseMove.found = False
+        #else:
+            #if cls.canvas is not None:
+                #cls.canvas.move_offset = None
+                #UIMouseMove.found = False
+
+        if cls.canvas is not None:
+            cls.canvas.rect.x = pygame.mouse.get_pos()[0] - cls.canvas.move_offset[0]
+            cls.canvas.rect.y = pygame.mouse.get_pos()[1] - cls.canvas.move_offset[1]
 
 
 class UIResize():

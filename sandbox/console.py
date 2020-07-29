@@ -9,6 +9,7 @@ import _globals
 
 from fmath import v2lerp, v2, v2distance
 from commands import init_commands, run_command, get_commands
+from events import Events
 
 
 class CState(Enum):
@@ -20,11 +21,6 @@ class CState(Enum):
 # TODO: REMEMBER TO OPTIMIZE THIS SO THAT IT ONLY DRAWS STUFF WHEN THINGS CHANGE LIKE INPUTING NEW HISTORY OR TYPING IN LETTERS
 class Console:
     init_commands()
-
-    """
-    left to do -
-        - key repeat
-    """
 
     def __init__(self, screen, font):
         self.state = CState.CLOSED
@@ -63,6 +59,123 @@ class Console:
         self.textinput_list = string.digits + string.ascii_letters + string.punctuation + " "
         self.textinput_list = self.textinput_list.replace("`", "")
         self.textinput_list = self.textinput_list.replace("~", "")
+        self.event = None
+
+    def is_open(self):
+        return self.state != CState.CLOSED
+
+    def handle_event(self, event):
+        if Events.type(event, KEYDOWN):
+            if Events.key(event, K_ESCAPE):
+                self.open(CState.CLOSED)
+                pygame.key.set_repeat(0,0)
+            if Events.key(event, K_BACKQUOTE):
+                if self.state == CState.OPEN_SMALL:
+                    self.open(CState.CLOSED)
+                    pygame.key.set_repeat(0,0)
+                else:
+                    self.open(CState.OPEN_SMALL)
+            if Events.key(event, K_BACKQUOTE, 1):
+                if self.state == CState.OPEN_BIG:
+                    self.open(CState.CLOSED)
+                    pygame.key.set_repeat(0,0)
+                else:
+                    self.open(CState.OPEN_BIG)
+
+            # @incomplete- this line is rediculouse. need to get textinput events in the event queue
+            if event.unicode in self.textinput_list and event.unicode != "":
+                left = self.text[:self.cursor_index]
+                right = self.text[self.cursor_index:]
+                self.text = left + event.unicode + right
+                self.mask_text = left + event.unicode 
+                self.cursor_index += 1
+                self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
+
+            if Events.key(event, K_RETURN):
+                if len(self.text) > 0:
+                    run_command(self.text)
+                    self.text = ""
+                    self.mask_text = self.text
+                    self.cursor_index = 0
+                    self.stored_text = ""
+                    self.history_index = None
+                    self.autocomplete_text = ""
+                    self.autocomplete_from = get_commands()
+
+            if Events.key(event, K_BACKSPACE):
+                if self.cursor_index > 0:
+                    left = self.text[:self.cursor_index-1]
+                    right = self.text[self.cursor_index:]
+                    self.text = left + right
+                    self.mask_text = left
+                    self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
+                    if self.cursor_index > 0:
+                        self.cursor_index -= 1
+
+            if Events.key(event, K_TAB):
+                self.text = self.text + self.autocomplete_text
+                self.mask_text = self.text
+                self.cursor_index = len(self.text)
+                self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
+
+            if Events.key(event, K_r, 64):
+                self.text = ""
+                self.mask_text = ""
+                self.cursor_index = len(self.text)
+                self.autocomplete_text = ""
+                self.autocomplete_from = _globals.history_input
+
+            if Events.key(event, K_LEFT):
+                self.mask_text = self.mask_text[:-1]
+                if self.cursor_index > 0:
+                    self.cursor_index -= 1
+            if Events.key(event, K_RIGHT):
+                self.mask_text = self.text[:len(self.mask_text) + 1]
+                if self.cursor_index < len(self.text):
+                    self.cursor_index += 1
+                    
+            if Events.key(event, K_HOME):
+                self.mask_text = ""
+                self.cursor_index = 0
+            if Events.key(event, K_END):
+                self.mask_text = self.text
+                self.cursor_index = len(self.text)
+
+            if Events.key(event, K_UP):
+                if len(_globals.history_input):
+                    if self.history_index is None:
+                        self.history_index = 0
+                        self.stored_text = self.text
+                    elif self.history_index < len(_globals.history_input) - 1:
+                        self.history_index += 1
+
+                    self.text = _globals.history_input[self.history_index]
+                    self.mask_text = self.text
+                    self.cursor_index = len(self.text)
+            if Events.key(event, K_DOWN):
+                if self.history_index is not None:
+                    if self.history_index > 0:
+                        self.history_index -= 1
+                        self.text = _globals.history_input[self.history_index]
+                    elif self.history_index == 0:
+                        self.history_index = None
+                        self.text = self.stored_text
+
+                    self.mask_text = self.text
+                    self.cursor_index = len(self.text)
+
+
+    # @incomplete- if i want to scroll in greater increments, the end of the scroll has the text that
+    # much further down from the top of the screen and should stop at the edge of the top of the screen
+    #if pygame.event.peek(MOUSEBUTTONDOWN):
+        #event = pygame.event.get(MOUSEBUTTONDOWN)[0]
+        if Events.type(event, MOUSEBUTTONDOWN):
+            if Events.button(event, 4):
+                if self.history_y_position < 0:
+                    self.scroll_offset += self.font.size(self.text)[1]
+            if Events.button(event, 5):
+                if self.scroll_offset != 0:
+                    self.scroll_offset -= self.font.size(self.text)[1]
 
     def update_end_position(self):
         if self.state == CState.CLOSED:
@@ -113,118 +226,6 @@ class Console:
             self.end_position.y = self.update_end_position()
 
     def update(self, dt):
-        if self.state != CState.CLOSED:
-            for event in pygame.event.get():
-                if event.type == KEYDOWN:
-
-
-
-                    if event.key == K_ESCAPE:
-                        self.open(CState.CLOSED)
-                    if event.key == K_BACKQUOTE and not event.mod:
-                        if self.state == CState.OPEN_SMALL:
-                            self.open(CState.CLOSED)
-                        else:
-                            self.open(CState.OPEN_SMALL)
-                    if event.key == K_BACKQUOTE and event.mod == 1:
-                        if self.state == CState.OPEN_BIG:
-                            self.open(CState.CLOSED)
-                        else:
-                            self.open(CState.OPEN_BIG)
-                    # @incomplete- this line is rediculouse. need to get textinput events in the event queue
-                    if event.unicode in self.textinput_list and event.unicode != "":
-                        left = self.text[:self.cursor_index]
-                        right = self.text[self.cursor_index:]
-                        self.text = left + event.unicode + right
-                        self.mask_text = left + event.unicode 
-                        self.cursor_index += 1
-                        self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
-
-                    if event.key == K_RETURN:
-                        if len(self.text) > 0:
-                            run_command(self.text)
-                            self.text = ""
-                            self.mask_text = self.text
-                            self.cursor_index = 0
-                            self.stored_text = ""
-                            self.history_index = None
-                            self.autocomplete_text = ""
-                            self.autocomplete_from = get_commands()
-
-                    if event.key == K_BACKSPACE:
-                        if self.cursor_index > 0:
-                            left = self.text[:self.cursor_index-1]
-                            right = self.text[self.cursor_index:]
-                            self.text = left + right
-                            self.mask_text = left
-                            self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
-                            if self.cursor_index > 0:
-                                self.cursor_index -= 1
-
-                    if event.key == K_TAB:
-                        self.text = self.text + self.autocomplete_text
-                        self.mask_text = self.text
-                        self.cursor_index = len(self.text)
-                        self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
-
-                    if event.key == K_r and event.mod == 64:
-                        self.text = ""
-                        self.mask_text = ""
-                        self.cursor_index = len(self.text)
-                        self.autocomplete_text = ""
-                        self.autocomplete_from = _globals.history_input
-
-                    if event.key == K_LEFT:
-                        self.mask_text = self.mask_text[:-1]
-                        if self.cursor_index > 0:
-                            self.cursor_index -= 1
-                    if event.key == K_RIGHT:
-                        self.mask_text = self.text[:len(self.mask_text) + 1]
-                        if self.cursor_index < len(self.text):
-                            self.cursor_index += 1
-                            
-                    if event.key == K_HOME:
-                        self.mask_text = ""
-                        self.cursor_index = 0
-                    if event.key == K_END:
-                        self.mask_text = self.text
-                        self.cursor_index = len(self.text)
-
-                    if event.key == K_UP:
-                        if len(_globals.history_input):
-                            if self.history_index is None:
-                                self.history_index = 0
-                                self.stored_text = self.text
-                            elif self.history_index < len(_globals.history_input) - 1:
-                                self.history_index += 1
-
-                            self.text = _globals.history_input[self.history_index]
-                            self.mask_text = self.text
-                            self.cursor_index = len(self.text)
-                    if event.key == K_DOWN:
-                        if self.history_index is not None:
-                            if self.history_index > 0:
-                                self.history_index -= 1
-                                self.text = _globals.history_input[self.history_index]
-                            elif self.history_index == 0:
-                                self.history_index = None
-                                self.text = self.stored_text
-
-                            self.mask_text = self.text
-                            self.cursor_index = len(self.text)
-
-
-            # @incomplete- if i want to scroll in greater increments, the end of the scroll has the text that
-            # much further down from the top of the screen and should stop at the edge of the top of the screen
-            #if pygame.event.peek(MOUSEBUTTONDOWN):
-                #event = pygame.event.get(MOUSEBUTTONDOWN)[0]
-                if event.type == MOUSEBUTTONDOWN:
-                    if event.button == 4:
-                        if self.history_y_position < 0:
-                            self.scroll_offset += self.font.size(self.text)[1]
-                    if event.button == 5:
-                        if self.scroll_offset != 0:
-                            self.scroll_offset -= self.font.size(self.text)[1]
 
 
         lerp_distance = v2distance(self.start_position, self.end_position)

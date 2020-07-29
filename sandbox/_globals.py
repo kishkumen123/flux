@@ -9,3 +9,5 @@ history_input = []
 editor = 1
 selection = None
 font = pygame.font.SysFont("consolas", 18)
+
+should_ignore_input = 0
