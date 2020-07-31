@@ -125,15 +125,16 @@ while _globals.running:
 
     #import pdb; pdb.set_trace()
     canvas_id = UI.do_canvas(UIID(), pygame.Rect(300, 300, 250, 400), 18, padding=v4(10,10,10,10))
-    print(len(EM.entities.values()))
+    #print(len(EM.entities.values()))
+    UI.do_label(UIID(), "Entities", 18, canvas_id)
     for e in EM.entities.values():
         if UI.do_button(UIID(), e._id, 18, canvas_id, tab=True):
-            print(e._id)
+            _globals.selection = e
 
-    canvas = UI.get_canvas(canvas_id)
-    if canvas.selected_element is not None:
-        e = EM.get(canvas.selected_element)
-        _globals.selection = e
+    #canvas = UI.get_canvas(canvas_id)
+    #if canvas.selected_element is not None:
+    #    e = EM.get(canvas.selected_element)
+    #    _globals.selection = e
 
     canvas_id = UI.do_canvas(UIID(), pygame.Rect(1, 300, 250, 400), 18, padding=v4(10,10,10,10))
     if _globals.selection:
