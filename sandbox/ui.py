@@ -261,12 +261,18 @@ class UI:
             UI.interactive = _id
 
         if UI.interactive == _id:
-            color = UI.text_color_bright
             if _id not in cls.text_dict.keys():
                 text = str(value)
                 cls.text_dict[_id] = text
             else:
                 text = cls.text_dict[_id]
+
+            try:
+                value_type(text)
+                color = UI.text_color_bright
+            except:
+                color = UI.color_red
+
 
             if cls.event is not None:
                 if cls.event.type == KEYDOWN:

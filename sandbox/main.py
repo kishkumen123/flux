@@ -47,6 +47,7 @@ while _globals.running:
                 sys.exit(0)
             #handle_global_event(event)
             if console.is_open():
+                #TODO(Rafik): fix event skips, probably cause of the global variable
                 console.handle_event(event)
             elif UI.interactive:
                 UI.handle_event(event)
@@ -105,36 +106,11 @@ while _globals.running:
     #                Controller.shift = False
 
 
-    #canvas_id = UI.do_canvas(UIID(), pygame.Rect(300, 300, 250, 400), 18, padding=v4(10,10,10,10))
-    #if UI.do_button(UIID(), "button17", 18, canvas_id):
-    #    print("1")
-    #if UI.do_button(UIID(), "button2", 18, canvas_id):
-    #    print("2")
-    #UI.do_label(UIID(), "Label1", 18, canvas_id)
-    #UI.do_label(UIID(), "Label1", 18, canvas_id)
-    #if UI.do_button(UIID(), "button3", 18, canvas_id):
-    #    print("3")
-    #if UI.do_button(UIID(), "button4", 18, canvas_id):
-    #    print("4")
-    #if UI.do_button(UIID(), "button5", 18, canvas_id):
-    #    print("5")
-    #UI.do_textinput(UIID(), 18, canvas_id)
-    #UI.do_textinput(UIID(), 18, canvas_id)
-    #UI.do_textinput(UIID(), 18, canvas_id)
-    #UI.do_textinput(UIID(), 18, canvas_id)
-
-    #import pdb; pdb.set_trace()
     canvas_id = UI.do_canvas(UIID(), pygame.Rect(300, 300, 250, 400), 18, padding=v4(10,10,10,10))
-    #print(len(EM.entities.values()))
     UI.do_label(UIID(), "Entities", 18, canvas_id)
     for e in EM.entities.values():
         if UI.do_button(UIID(), e._id, 18, canvas_id, tab=True):
             _globals.selection = e
-
-    #canvas = UI.get_canvas(canvas_id)
-    #if canvas.selected_element is not None:
-    #    e = EM.get(canvas.selected_element)
-    #    _globals.selection = e
 
     canvas_id = UI.do_canvas(UIID(), pygame.Rect(1, 300, 250, 400), 18, padding=v4(10,10,10,10))
     if _globals.selection:
@@ -150,23 +126,6 @@ while _globals.running:
                 _globals.selection.__dict__[label].x = UI.do_param(UIID(), 18, value[0], canvas_id, align=2)
                 _globals.selection.__dict__[label].y = UI.do_param(UIID(), 18, value[1], canvas_id)
 
-    #UI.do_label(UIID(), "Name", 18, canvas_id)
-    #UI.do_label(UIID(), "Position", 18, canvas_id)
-    #UI.do_textinput(UIID(), 18, canvas_id, "100", align=3)
-    #UI.do_textinput(UIID(), 18, canvas_id, "200")
-    #UI.do_textinput(UIID(), 18, canvas_id, "300")
-    #UI.do_label(UIID(), "Velocity", 18, canvas_id)
-    #UI.do_textinput(UIID(), 18, canvas_id, "10", align=3)
-    #UI.do_textinput(UIID(), 18, canvas_id, "50")
-    #UI.do_textinput(UIID(), 18, canvas_id, "20")
-    #UI.do_label(UIID(), "Scale", 18, canvas_id)
-    #UI.do_textinput(UIID(), 18, canvas_id, "10", align=2)
-    #UI.do_textinput(UIID(), 18, canvas_id, "20")
-
-    #canvas_id = UI.do_canvas(UIID(), pygame.Rect(500, 100, 250, 400), 18, padding=v4(10,10,10,10))
-    #if _globals.selection is not None:
-    #    for item in _globals.selection.__dict__.items():
-    #        UI.do_button(UIID(), str(item), 18, canvas_id)
 
     if UI.hot_flag == 0:
         UI.hot = 0
