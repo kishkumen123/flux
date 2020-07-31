@@ -1,4 +1,5 @@
 import pygame
+import string
 
 
 pygame.font.init()
@@ -11,3 +12,8 @@ selection = None
 font = pygame.font.SysFont("consolas", 18)
 
 should_ignore_input = 0
+
+# @incomplete- this needs to go away once we make textinput events
+textinput_list = string.digits + string.ascii_letters + string.punctuation + " "
+textinput_list = textinput_list.replace("`", "")
+textinput_list = textinput_list.replace("~", "")

@@ -1,5 +1,5 @@
-position=v2(230, 230)
 sprite_source="yellow.jpg"
+position=v2(230, 230)
 sprite=textures[e.sprite_source]
 rect=e.sprite.get_rect()
 group=5

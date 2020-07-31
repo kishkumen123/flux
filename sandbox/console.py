@@ -10,6 +10,7 @@ import _globals
 from fmath import v2lerp, v2, v2distance
 from commands import init_commands, run_command, get_commands
 from events import Events
+from _globals import textinput_list
 
 
 class CState(Enum):
@@ -55,17 +56,13 @@ class Console:
         self.font = font
         self.tag_surface = self.font.render(self.tag_text, True, self.tag_color)
 
-        # @incomplete- this needs to go away once we make textinput events
-        self.textinput_list = string.digits + string.ascii_letters + string.punctuation + " "
-        self.textinput_list = self.textinput_list.replace("`", "")
-        self.textinput_list = self.textinput_list.replace("~", "")
         self.event = None
 
     def is_open(self):
         return self.state != CState.CLOSED
 
     def handle_event(self, event):
-        if Events.type(event, KEYDOWN):
+        if event.type == KEYDOWN:
             if Events.key(event, K_ESCAPE):
                 self.open(CState.CLOSED)
                 pygame.key.set_repeat(0,0)
@@ -83,7 +80,7 @@ class Console:
                     self.open(CState.OPEN_BIG)
 
             # @incomplete- this line is rediculouse. need to get textinput events in the event queue
-            if event.unicode in self.textinput_list and event.unicode != "":
+            if event.unicode in textinput_list and event.unicode != "":
                 left = self.text[:self.cursor_index]
                 right = self.text[self.cursor_index:]
                 self.text = left + event.unicode + right
@@ -169,7 +166,7 @@ class Console:
     # much further down from the top of the screen and should stop at the edge of the top of the screen
     #if pygame.event.peek(MOUSEBUTTONDOWN):
         #event = pygame.event.get(MOUSEBUTTONDOWN)[0]
-        if Events.type(event, MOUSEBUTTONDOWN):
+        if event.type == MOUSEBUTTONDOWN:
             if Events.button(event, 4):
                 if self.history_y_position < 0:
                     self.scroll_offset += self.font.size(self.text)[1]
@@ -226,8 +223,6 @@ class Console:
             self.end_position.y = self.update_end_position()
 
     def update(self, dt):
-
-
         lerp_distance = v2distance(self.start_position, self.end_position)
         self.animate_console(lerp_distance, dt)
 

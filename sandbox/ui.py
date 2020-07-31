@@ -4,38 +4,16 @@ import _globals
 from pygame.locals import *
 from fmath import v2, v4
 from events import Events
+from controller import Controller
+from _globals import textinput_list
 
 
-class CANVAS_ID:
+class UIID:
     _id=1
 
     def __new__(cls):
-        result = CANVAS_ID._id
-        CANVAS_ID._id += 1
-        return result
-
-class BUTTON_ID:
-    _id=1
-
-    def __new__(cls):
-        result = BUTTON_ID._id
-        BUTTON_ID._id += 1
-        return result
-
-class LABEL_ID:
-    _id=1
-
-    def __new__(cls):
-        result = LABEL_ID._id
-        LABEL_ID._id += 1
-        return result
-
-class TEXTINPUT_ID:
-    _id=1
-
-    def __new__(cls):
-        result = TEXTINPUT_ID._id
-        TEXTINPUT_ID._id += 1
+        result = cls._id
+        cls._id += 1
         return result
 
 
@@ -52,34 +30,40 @@ class Canvas:
         self.counter=0
         self.move_offset=None
         self.side_offset=None
+        self.right_offset=None
+        self.bottom_offset=None
         self.stored_text = {}
+        self.selected_element = None
 
 
 class UI:
     hot = 0
     active = 0
     hot_flag = 0
-    ihot = 0
-    iactive = 0
     interactive = 0
     screen=None
-    text_input=""
-    text_color_light= (184, 148, 103)
-    text_color_dark = (111, 93, 70)
+    text_color_bright= (184, 148, 103)
+    text_color_dim = (111, 93, 70)
+    color_red = (139, 45, 21)
     canvases = {}
+    text_dict = {}
     event = None
+    size_y=30
+    align_amount = None
+    align_counter = None
+    align_width = None
+
+    @classmethod
+    def get_canvas(cls, _id):
+        return cls.canvases[_id]
 
     @classmethod
     def handle_event(cls, event):
-        pass
+        cls.event = event
 
     @classmethod
-    def reset_ids(cls, exclude_canvas=False):
-        if not exclude_canvas:
-            CANVAS_ID._id = 1
-        BUTTON_ID._id = 1
-        LABEL_ID._id = 1
-        TEXTINPUT_ID._id = 1
+    def reset_ids(cls):
+        UIID._id = 1
 
     #TODO(Rafik): make sure to figure out how to fix 2 buttons overlapping on each other
     @classmethod
@@ -90,59 +74,29 @@ class UI:
             UI.hot = _id
             UI.hot_flag = 1
 
-        if UI.active == _id and Events.mbutton_up(1):
-            if rect.collidepoint(pygame.mouse.get_pos()):
-                result = True
-            UI.hot = 0
-            UI.hot_flag = 0
-            UI.active = 0
+        if UI.active == _id:
+            for event in Events():
+                if event.type == MOUSEBUTTONUP and not Controller.shift:
+                    if event.button == 1:
+                        if rect.collidepoint(pygame.mouse.get_pos()):
+                            result = True
+                        UI.hot = 0
+                        UI.hot_flag = 0
+                        UI.active = 0
+                        Events.consume(event)
 
-        elif UI.hot == _id and Events.mbutton_down(1):
-            if UI.active == 0: 
-                UI.active = _id
-
+        elif UI.hot == _id:
+            for event in Events():
+                if event.type == MOUSEBUTTONDOWN and not Controller.shift:
+                    if event.button == 1:
+                        if UI.active == 0: 
+                            UI.active = _id
+                            Events.consume(event)
         return result
 
     @classmethod
-    def mouse_up(cls):
-        for event in Events():
-            if Events.type(event, MOUSEBUTTONUP):
-                if Events.button(event, 1):
-                    return True
-        return False
-
-    @classmethod
-    def mouse_down(cls):
-        for event in Events():
-            if Events.type(event, MOUSEBUTTONDOWN):
-                if Events.button(event, 1):
-                    return True
-        return False
-
-    @classmethod
-    def ihot_active(cls, _id, rect, _type):
-
-        if rect.collidepoint(pygame.mouse.get_pos()):
-            UI.ihot = _id
-
-        if UI.iactive == _id and cls.mouse_up():
-            if rect.collidepoint(pygame.mouse.get_pos()) and _type is TEXTINPUT_ID:
-                if UI.interactive != _id:
-                    #UI.text = ""
-                    UI.interactive = _id
-            else:
-                #UI.text = ""
-                UI.interactive = 0
-            UI.ihot = 0
-            UI.iactive = 0
-
-        elif UI.ihot == _id and cls.mouse_down():
-            if UI.iactive == 0: 
-                UI.iactive = _id
-
-    @classmethod
     def register_canvas(cls, _id, rect, font_size, padding, spacing):
-        UI.reset_ids(True)
+        #UI.reset_ids(True)
         if UI.canvases.get(_id) is not None:
             UI.canvases[_id].children = 0
             UI.canvases[_id].counter = 0
@@ -168,82 +122,204 @@ class UI:
         canvas = UI.canvases.get(_id)
         UI.canvases[_id].mask_rect = pygame.Rect(canvas.rect.x + padding[0], canvas.rect.y + padding[2], canvas.rect.w - padding[1] - padding[0], canvas.rect.h - padding[3] - padding[2])
 
-        pygame.draw.rect(UI.screen, (184, 148, 103), UI.canvases[_id].rect, 4)
-        pygame.draw.rect(UI.screen, (49, 49, 47), UI.canvases[_id].rect)
+        border = pygame.draw.rect(UI.screen, (184, 148, 103), UI.canvases[_id].rect, 4)
+        canvas = pygame.draw.rect(UI.screen, (49, 49, 47), UI.canvases[_id].rect)
+        #mask = pygame.draw.rect(UI.screen, UI.text_color_dim, UI.canvases[_id].mask_rect)
         return _id
 
     @classmethod
-    def do_button(cls, _id, text, font_size, canvas_id=None, padding=v4(0,0,0,0), spacing=v2(0,0)):
+    def do_button(cls, _id, text, font_size, canvas_id=None, tab=False, align=None):
         UI.increment_children(_id, canvas_id)
         canvas = UI.canvases[canvas_id]
-        rect = pygame.Rect(canvas.mask_rect.x, canvas.mask_rect.y + (30 * canvas.counter), canvas.mask_rect.w, 30)
+        rect = pygame.Rect(canvas.mask_rect.x, canvas.mask_rect.y + (UI.size_y * canvas.counter), canvas.mask_rect.w, UI.size_y)
 
         result = UI.hot_active(_id, rect)
 
-        border = pygame.draw.rect(UI.screen, (111, 93, 70), rect, 4)
+        if result:
+            if tab:
+                canvas.selected_element = _id
+
+        if UI.active == _id or canvas.selected_element == _id:
+            border = pygame.draw.rect(UI.screen, UI.text_color_bright, rect, 4)
+            text_surface = _globals.font.render(str(text), True, UI.text_color_bright)
+        else:
+            border = pygame.draw.rect(UI.screen, UI.text_color_dim, rect, 4)
+            text_surface = _globals.font.render(str(text), True, UI.text_color_dim)
         button = pygame.draw.rect(UI.screen, (40, 38, 36), rect)
 
-        text_surface = _globals.font.render(text, True, (111, 93, 70))
         center_height = rect.y + (rect.h/2 - text_surface.get_height()/2)
-        UI.screen.blit(text_surface, (rect.x + 5, center_height))
+        center_width = rect.x + (rect.w/2 - text_surface.get_width()/2)
+        UI.screen.blit(text_surface, (center_width, center_height))
 
-        UI.increment_counter(canvas)
+        if align is None:
+            UI.increment_counter(canvas)
         return result
 
     @classmethod
-    def do_label(cls, _id, text, font_size, canvas_id=None, padding=v4(0,0,0,0), spacing=v2(0,0)):
+    def do_label(cls, _id, text, font_size, canvas_id=None):
         UI.increment_children(_id, canvas_id)
         canvas = UI.canvases[canvas_id]
 
-        rect = pygame.Rect(canvas.mask_rect.x, canvas.mask_rect.y + (30 * canvas.counter), canvas.mask_rect.w, 30)
+        rect = pygame.Rect(canvas.mask_rect.x, canvas.mask_rect.y + (UI.size_y * canvas.counter), canvas.mask_rect.w, UI.size_y)
 
         text_surface = _globals.font.render(text, True, (184, 148, 103))
         center_height = canvas.mask_rect.y + (rect.h/2 - text_surface.get_height()/2)
-        UI.screen.blit(text_surface, (canvas.mask_rect.x + 5, center_height + (30 * canvas.counter) + 4))
+        UI.screen.blit(text_surface, (canvas.mask_rect.x + 5, center_height + (UI.size_y * canvas.counter) + 4))
 
         UI.increment_counter(canvas)
         return True
 
     @classmethod
-    def do_textinput(cls, _id, font_size, _type, canvas_id=None, padding=v4(0,0,0,0), spacing=v2(0,0)):
+    def do_textinput(cls, _id, font_size, canvas_id=None, _text="", align=None):
         UI.increment_children(_id, canvas_id)
         canvas = UI.canvases[canvas_id]
-        rect = pygame.Rect(canvas.mask_rect.x, canvas.mask_rect.y + (30 * canvas.counter), canvas.mask_rect.w, 30)
+        if align:
+            cls.align_amount = align
+            cls.align_counter = 0
+            cls.align_width = canvas.mask_rect.w / align
 
-        UI.ihot_active(_id, rect, _type)
+        if cls.align_amount:
+            rect = pygame.Rect(canvas.mask_rect.x + cls.align_counter * cls.align_width, canvas.mask_rect.y + (UI.size_y * canvas.counter), cls.align_width - 10, UI.size_y)
+        else:
+            rect = pygame.Rect(canvas.mask_rect.x, canvas.mask_rect.y + (UI.size_y * canvas.counter), canvas.mask_rect.w, UI.size_y)
 
-        #if UI.interactive == _id:
-        #if self.event is not None:
-        #    if self.event.type == KEYDOWN:
-        #        if event.key == K_ESCAPE:
-        #            UI.interactive = 0
-        #        if event.key == K_RETURN:
-        #            UI.interactive = 0
-        #        if event.key == K_BACKSPACE:
-        #            UI.text = UI.text[:-1]
-        #        textinput_list = string.digits + string.ascii_letters + string.punctuation + " "
-        #        textinput_list = textinput_list.replace("`", "")
-        #        textinput_list = textinput_list.replace("~", "")
-        #        if event.unicode in textinput_list and event.unicode != "":
-        #            UI.text_input = event.unicode
+        if _id not in cls.text_dict.keys():
+            cls.text_dict[_id] = _text
+        text = cls.text_dict[_id]
 
-        #if UI.interactive == 0:
-        #    if canvas.stored_text.get(_id):
-        #        text = canvas.stored_text[_id]
-        #    else:
-        #        text = ""
+        result = UI.hot_active(_id, rect)
+        if result:
+            UI.interactive = _id
 
-        #if UI.interactive == _id:
-        #    canvas.stored_text[_id] += UI.text_input
-        #    text_surface = _globals.font.render(canvas.stored_text[_id], True, UI.text_color_light)
-        #else:
-        #    text_surface = _globals.font.render(canvas.stored_text[_id], True, UI.text_color_dark)
+        if UI.interactive == _id:
+            if cls.event is not None:
+                if cls.event.type == KEYDOWN:
+                    if cls.event.key == K_ESCAPE:
+                        UI.interactive = 0 
+                        Events.consume(cls.event)
+                    if cls.event.key == K_RETURN:
+                        UI.interactive = 0 
+                        Events.consume(cls.event)
+                    if cls.event.key == K_BACKSPACE:
+                        text = text[:-1]
+                        Events.consume(cls.event)
+                    if cls.event.unicode in textinput_list and cls.event.unicode != "":
+                        text += cls.event.unicode
+                        Events.consume(cls.event)
+                if cls.event.type == MOUSEBUTTONDOWN:
+                    if cls.event.button == 1 or cls.event.button == 3:
+                        if not UI.hot:
+                            UI.interactive = 0
+                            Events.consume(cls.event)
+                cls.event = None
 
-        border = pygame.draw.rect(UI.screen, (111, 93, 70), rect, 4)
+            text_surface = _globals.font.render(text, True, UI.text_color_bright)
+            border = pygame.draw.rect(UI.screen, UI.text_color_bright, rect, 4)
+        else:
+            text_surface = _globals.font.render(text, True, UI.text_color_dim)
+            border = pygame.draw.rect(UI.screen, UI.text_color_dim, rect, 4)
+
         button = pygame.draw.rect(UI.screen, (40, 38, 36), rect)
 
         center_height = canvas.mask_rect.y + (rect.h/2 - text_surface.get_height()/2)
-        UI.screen.blit(text_surface, (canvas.mask_rect.x + 5, center_height + (30 * canvas.counter) + 4))
+        if cls.align_amount:
+            UI.screen.blit(text_surface, (canvas.mask_rect.x + 5 + cls.align_counter * cls.align_width, center_height + (UI.size_y * canvas.counter)))
 
-        UI.increment_counter(canvas)
+            cls.align_counter += 1
+            if cls.align_counter == cls.align_amount:
+                cls.align_amount = None
+                cls.align_counter = None
+                cls.align_width = None
+
+        else:
+            UI.screen.blit(text_surface, (canvas.mask_rect.x + 5, center_height + (UI.size_y * canvas.counter)))
+
+        UI.text_dict[_id] = text
+        if not cls.align_amount:
+            UI.increment_counter(canvas)
         return True
+
+    @classmethod
+    def do_param(cls, _id, font_size, value, canvas_id=None, align=None):
+        UI.increment_children(_id, canvas_id)
+        canvas = UI.canvases[canvas_id]
+        if align:
+            cls.align_amount = align
+            cls.align_counter = 0
+            cls.align_width = canvas.mask_rect.w / align
+
+        if cls.align_amount:
+            rect = pygame.Rect(canvas.mask_rect.x + cls.align_counter * cls.align_width, canvas.mask_rect.y + (UI.size_y * canvas.counter), cls.align_width - 10, UI.size_y)
+        else:
+            rect = pygame.Rect(canvas.mask_rect.x, canvas.mask_rect.y + (UI.size_y * canvas.counter), canvas.mask_rect.w, UI.size_y)
+
+        text = ""
+        value_type = type(value)
+        color = UI.text_color_dim
+        result = UI.hot_active(_id, rect)
+        if result:
+            UI.interactive = _id
+
+        if UI.interactive == _id:
+            color = UI.text_color_bright
+            if _id not in cls.text_dict.keys():
+                text = str(value)
+                cls.text_dict[_id] = text
+            else:
+                text = cls.text_dict[_id]
+
+            if cls.event is not None:
+                if cls.event.type == KEYDOWN:
+                    if cls.event.key == K_ESCAPE:
+                        try:
+                            value = value_type(text)
+                            UI.interactive = 0 
+                        except:
+                            pass
+                        Events.consume(cls.event)
+                    if cls.event.key == K_RETURN:
+                        try:
+                            value = value_type(text)
+                            UI.interactive = 0 
+                        except:
+                            pass
+                        Events.consume(cls.event)
+                    if cls.event.key == K_BACKSPACE:
+                        text = text[:-1]
+                        Events.consume(cls.event)
+                    if cls.event.unicode in textinput_list and cls.event.unicode != "":
+                        text += cls.event.unicode
+                        Events.consume(cls.event)
+                if cls.event.type == MOUSEBUTTONDOWN:
+                    if cls.event.button == 1 or cls.event.button == 3:
+                        if not UI.hot:
+                            UI.interactive = 0
+                            Events.consume(cls.event)
+                cls.event = None
+            cls.text_dict[_id] = text
+            text_surface = _globals.font.render(text, True, color)
+        else:
+            if _id in cls.text_dict.keys():
+                del cls.text_dict[_id]
+            color = UI.text_color_dim
+            text_surface = _globals.font.render(str(value), True, color)
+
+        border = pygame.draw.rect(UI.screen, color, rect, 4)
+        button = pygame.draw.rect(UI.screen, (40, 38, 36), rect)
+
+        center_height = canvas.mask_rect.y + (rect.h/2 - text_surface.get_height()/2)
+        if cls.align_amount:
+            UI.screen.blit(text_surface, (canvas.mask_rect.x + 5 + cls.align_counter * cls.align_width, center_height + (UI.size_y * canvas.counter)))
+
+            cls.align_counter += 1
+            if cls.align_counter == cls.align_amount:
+                cls.align_amount = None
+                cls.align_counter = None
+                cls.align_width = None
+
+        else:
+            UI.screen.blit(text_surface, (canvas.mask_rect.x + 5, center_height + (UI.size_y * canvas.counter)))
+
+        if not cls.align_amount:
+            UI.increment_counter(canvas)
+        return value

@@ -2,6 +2,7 @@ import pygame
 import random
 import _globals
 
+from pygame.locals import *
 from entity_manager import EM
 from controller import Controller
 from entity_manager import EM, Properties, textures
@@ -28,26 +29,25 @@ class UIMouseMove():
         #print(UI.hot)
 
         #if Events.mbutton_down(1) and not Controller.shift and not UI.hot:
-        if Events.mbutton_up(1):
-            if cls.canvas is not None:
-                cls.canvas.move_offset = None
-                cls.canvas = None
-                cls.found = False
+        for event in Events():
+            if event.type == MOUSEBUTTONUP:
+                if event.button == 1:
+                    if cls.canvas is not None:
+                        cls.canvas.move_offset = None
+                        cls.canvas = None
+                        cls.found = False
+                        Events.consume(event)
 
-        if Events.mbutton_down(1) and not UI.hot:
-            print("OK")
-            for c in sorted_canvases:
-                if c.rect.collidepoint(pygame.mouse.get_pos()):
-                    if c.move_offset is None and not cls.found:
-                        UIMouseMove.found = True
-                        c.move_offset = (pygame.mouse.get_pos()[0] - c.rect.x, pygame.mouse.get_pos()[1] - c.rect.y)
-                        cls.canvas = c
-
-                #if c.move_offset and e.property.MouseMovable:
-        #else:
-            #if cls.canvas is not None:
-                #cls.canvas.move_offset = None
-                #UIMouseMove.found = False
+        for event in Events():
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1 and not Controller.shift:
+                    for c in sorted_canvases:
+                        if c.rect.collidepoint(pygame.mouse.get_pos()):
+                            if c.move_offset is None and not cls.found:
+                                UIMouseMove.found = True
+                                c.move_offset = (pygame.mouse.get_pos()[0] - c.rect.x, pygame.mouse.get_pos()[1] - c.rect.y)
+                                cls.canvas = c
+                                Events.consume(event)
 
         if cls.canvas is not None:
             cls.canvas.rect.x = pygame.mouse.get_pos()[0] - cls.canvas.move_offset[0]
@@ -57,9 +57,10 @@ class UIMouseMove():
 class UIResize():
     found = False
     side = []
+    c = None
 
     @classmethod
-    def update(self):
+    def update(cls):
         entities = []
 
         for c in UI.canvases.values():
@@ -68,49 +69,58 @@ class UIResize():
         sorted_canvases.reverse()
 
 
-        for c in sorted_canvases:
-            if Controller.m1 and Controller.shift:
-                if c.rect.collidepoint(pygame.mouse.get_pos()):
-                    if c.side_offset is None and not UIResize.found:
-                        UIResize.found = True
-                        c.side_offset = (pygame.mouse.get_pos()[0] - c.rect.x, pygame.mouse.get_pos()[1] - c.rect.y)
-                        c.right_offset = (c.rect.x + c.rect.w) - pygame.mouse.get_pos()[0]
-                        c.bottom_offset = (c.rect.y + c.rect.h) - pygame.mouse.get_pos()[1]
+        for event in Events():
+            if event.type == MOUSEBUTTONUP:
+                if event.button == 1:
+                    if cls.c is not None:
+                        cls.c.side_offset = None
+                        cls.c.right_offset = None
+                        cls.c.bottom_offset = None
+                        cls.side = []
+                        cls.found = False
+                        cls.c = None
 
-                        distances = [
-                            ("left", abs(c.rect.x - pygame.mouse.get_pos()[0])), 
-                            ("right", abs(c.rect.x + c.rect.w - pygame.mouse.get_pos()[0])), 
-                            ("top", abs(c.rect.y - pygame.mouse.get_pos()[1])), 
-                            ("bottom", abs(c.rect.y + c.rect.h - pygame.mouse.get_pos()[1]))
-                        ]
-                        distances.sort(key = lambda x: x[1])
-                        if distances[0][1] < 15 and distances[1][1] < 15:
-                            UIResize.side.append(distances[0][0])
-                            UIResize.side.append(distances[1][0])
-                        else:
-                            UIResize.side.append(distances[0][0])
+        for event in Events():
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1 and Controller.shift:
+                    for c in sorted_canvases:
+                        if c.rect.collidepoint(pygame.mouse.get_pos()):
+                            if c.side_offset is None and not UIResize.found:
+                                UIResize.found = True
+                                c.side_offset = (pygame.mouse.get_pos()[0] - c.rect.x, pygame.mouse.get_pos()[1] - c.rect.y)
+                                c.right_offset = (c.rect.x + c.rect.w) - pygame.mouse.get_pos()[0]
+                                c.bottom_offset = (c.rect.y + c.rect.h) - pygame.mouse.get_pos()[1]
 
-                #if c.side_offset and e.property.MouseMovable:
-                if c.side_offset:
-                    for i, _ in enumerate(UIResize.side):
-                        if UIResize.side[i] == "left":
-                            x = pygame.mouse.get_pos()[0] - c.side_offset[0]
-                            c.rect.w -= x - c.rect.x
-                            c.rect.x = x
-                        if UIResize.side[i] == "right":
-                            c.rect.w = (pygame.mouse.get_pos()[0] - c.rect.x) + c.right_offset
-                        if UIResize.side[i] == "top":
-                            y = pygame.mouse.get_pos()[1] - c.side_offset[1]
-                            c.rect.h -= y - c.rect.y
-                            c.rect.y = y
-                        if UIResize.side[i] == "bottom":
-                            c.rect.h = (pygame.mouse.get_pos()[1] - c.rect.y) + c.bottom_offset
+                                cls.c = c
 
-                    #c.rect.y = pygame.mouse.get_pos()[1] - c.side_offset[1]
-            else:
-                c.side_offset = None
-                UIResize.side = []
-                UIResize.found = False
+                                distances = [
+                                    ("left", abs(c.rect.x - pygame.mouse.get_pos()[0])), 
+                                    ("right", abs(c.rect.x + c.rect.w - pygame.mouse.get_pos()[0])), 
+                                    ("top", abs(c.rect.y - pygame.mouse.get_pos()[1])), 
+                                    ("bottom", abs(c.rect.y + c.rect.h - pygame.mouse.get_pos()[1]))
+                                ]
+                                distances.sort(key = lambda x: x[1])
+                                if distances[0][1] < 15 and distances[1][1] < 15:
+                                    UIResize.side.append(distances[0][0])
+                                    UIResize.side.append(distances[1][0])
+                                else:
+                                    UIResize.side.append(distances[0][0])
+
+        if cls.c is not None:
+            for i, _ in enumerate(UIResize.side):
+                if UIResize.side[i] == "left":
+                    x = pygame.mouse.get_pos()[0] - cls.c.side_offset[0]
+                    cls.c.rect.w -= x - cls.c.rect.x
+                    cls.c.rect.x = x
+                if UIResize.side[i] == "right":
+                    cls.c.rect.w = (pygame.mouse.get_pos()[0] - cls.c.rect.x) + cls.c.right_offset
+                if UIResize.side[i] == "top":
+                    y = pygame.mouse.get_pos()[1] - cls.c.side_offset[1]
+                    cls.c.rect.h -= y - cls.c.rect.y
+                    cls.c.rect.y = y
+                if UIResize.side[i] == "bottom":
+                    new_h = (pygame.mouse.get_pos()[1] - cls.c.rect.y) + cls.c.bottom_offset
+                    cls.c.rect.h = new_h
 
 
 
@@ -128,6 +138,7 @@ class RenderSystem():
         for e in sorted_entities:
             e.rect.x = e.position[0]
             e.rect.y = e.position[1]
+            # TODO(Rafik): get rid of thie UIpanel UIbutton stuff
             if e.property.UIPanel:
                 pygame.draw.rect(screen, e.color, e.rect)
             elif e.property.UIButton:
@@ -135,6 +146,7 @@ class RenderSystem():
                 screen.blit(e.text_surface, (e.position.x, e.position.y))
             else:
                 e.sprite = pygame.transform.scale(e.sprite, (e.scale[0], e.scale[1]))
+                e.rect = pygame.Rect(e.rect.x, e.rect.y, e.sprite.get_rect().w, e.sprite.get_rect().h)
                 screen.blit(e.sprite, (e.rect.x, e.rect.y))
 
 
@@ -185,9 +197,10 @@ class MovePlayer():
 
 class MouseMoveSprite():
     found = False
+    e = None
 
     @classmethod
-    def update(self):
+    def update(cls):
         entities = []
 
         for e in EM.entities.values():
@@ -196,33 +209,43 @@ class MouseMoveSprite():
         sorted_entities = SM.sort_sprites(entities)
         sorted_entities.reverse()
 
-
-        for e in sorted_entities:
-            if Controller.m1:
-                if e.rect.collidepoint(pygame.mouse.get_pos()):
-                    if e.move_offset is None and not MouseMoveSprite.found:
-                        MouseMoveSprite.found = True
-                        e.move_offset = (pygame.mouse.get_pos()[0] - e.position[0], pygame.mouse.get_pos()[1] - e.position[1])
+        for event in Events():
+            if event.type == MOUSEBUTTONUP:
+                if event.button == 1:
+                    if cls.e is not None:
+                        cls.e.move_offset = None
                         if e.children:
                             for _id in e.children:
                                 e_child = EM.get(_id)
-                                e_child.move_offset = (pygame.mouse.get_pos()[0] - e_child.position[0], pygame.mouse.get_pos()[1] - e_child.position[1])
+                                e_child.move_offset = None
+                        cls.e = None
+                        cls.found = False
+                        Events.consume(event)
 
-                if e.move_offset and e.property.MouseMovable:
-                    e.position.x = pygame.mouse.get_pos()[0] - e.move_offset[0]
-                    e.position.y = pygame.mouse.get_pos()[1] - e.move_offset[1]
-                    if e.children:
-                        for _id in e.children:
-                            e_child = EM.get(_id)
-                            e_child.position.x = pygame.mouse.get_pos()[0] - e_child.move_offset[0]
-                            e_child.position.y = pygame.mouse.get_pos()[1] - e_child.move_offset[1]
-            else:
-                e.move_offset = None
-                if e.children:
-                    for _id in e.children:
-                        e_child = EM.get(_id)
-                        e_child.move_offset = None
-                MouseMoveSprite.found = False
+        #TODO(Rafik): this children itteration seems odd. i think i need to do this in the draw call once, not everywhere
+        for event in Events():
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1 and not Controller.shift:
+                    for e in sorted_entities:
+                        if e.rect.collidepoint(pygame.mouse.get_pos()):
+                            if e.move_offset is None and not cls.found:
+                                MouseMoveSprite.found = True
+                                e.move_offset = (pygame.mouse.get_pos()[0] - e.position[0], pygame.mouse.get_pos()[1] - e.position[1])
+                                if e.children:
+                                    for _id in e.children:
+                                        e_child = EM.get(_id)
+                                        e_child.move_offset = (pygame.mouse.get_pos()[0] - e_child.position[0], pygame.mouse.get_pos()[1] - e_child.position[1])
+                                cls.e = e
+                                Events.consume(event)
+
+        if cls.e is not None and cls.e.property.MouseMovable:
+            cls.e.position.x = pygame.mouse.get_pos()[0] - cls.e.move_offset[0]
+            cls.e.position.y = pygame.mouse.get_pos()[1] - cls.e.move_offset[1]
+            if e.children:
+                for _id in cls.e.children:
+                    e_child = EM.get(_id)
+                    e_child.position.x = pygame.mouse.get_pos()[0] - e_child.move_offset[0]
+                    e_child.position.y = pygame.mouse.get_pos()[1] - e_child.move_offset[1]
 
 
 class ParticleSystem:
@@ -285,11 +308,15 @@ class SelectSystem:
         sorted_entities = SM.sort_sprites(entities)
         sorted_entities.reverse()
 
-        for e in sorted_entities:
-            if Controller.m1 and not SelectSystem.selected:
-                if e.rect.collidepoint(pygame.mouse.get_pos()):
-                    _globals.selection = e
-                    SelectSystem.selected = True
-                    break
-        if Controller.m1 is False:
-            SelectSystem.selected = False
+        for event in Events():
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    cls.selected = False
+                    for e in sorted_entities:
+                        if e.rect.collidepoint(pygame.mouse.get_pos()):
+                            _globals.selection = e
+                            cls.selected = True
+                            break
+                    #if not cls.selected:
+                        #_globals.selection = None
+                        #cls.selected = False

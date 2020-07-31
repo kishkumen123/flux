@@ -110,6 +110,7 @@ class EM():
                     e.__dict__["_id"] = eval(os.path.basename(_file).split("_")[-1])
                 EM.add(e)
 
+    #TODO(Rafik): change entity delimiter to "var val" instead of "var = val"
     @classmethod
     def load_entity(cls, entity, data):
         _file = glob.glob("data/entities/" + entity)[0]

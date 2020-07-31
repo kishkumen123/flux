@@ -1,6 +1,6 @@
+sprite_source="blue.jpg"
 position=v2(200, 200)
 
-sprite_source="blue.jpg"
 sprite=textures[e.sprite_source]
 rect=e.sprite.get_rect()
 group=1

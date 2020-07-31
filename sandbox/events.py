@@ -12,16 +12,16 @@ class Events:
         return _event.type == _type
 
     @classmethod
-    def key(cls, _event, _key, _mod=0):
+    def key(cls, _event, _key, _mod=0, consume=True):
         result =  _event.key == _key and _event.mod == _mod
-        if result:
+        if result and consume:
             cls.consume(_event)
         return result
 
     @classmethod
-    def button(cls, _event, _button):
+    def button(cls, _event, _button, consume=True):
         result = _event.button == _button
-        if result:
+        if result and consume:
             cls.consume(_event)
         return result
 
@@ -29,6 +29,7 @@ class Events:
     def mbutton_down(cls, _button):
         for event in cls.events:
             if cls.type(event, MOUSEBUTTONDOWN):
+                #if cls.button(event, _button):
                 if event.button == _button:
                     return True
         return False
@@ -38,6 +39,7 @@ class Events:
         for event in cls.events:
             if cls.type(event, MOUSEBUTTONUP):
                 if event.button == _button:
+                #if cls.button(event, _button):
                     return True
         return False
 
