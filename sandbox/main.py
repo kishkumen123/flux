@@ -113,8 +113,15 @@ while _globals.running:
             _globals.selection = e
 
     canvas_id = UI.do_canvas(UIID(), pygame.Rect(1, 300, 250, 400), 18, padding=v4(10,10,10,10))
+    UI.do_label(UIID(), "Data", 18, canvas_id)
+    #UI.do_label(UIID(), "", 18, canvas_id)
     if _globals.selection:
+        UI.do_label(UIID(), "_____________", 18, canvas_id)
         for label, value in _globals.selection.__dict__.items():
+            #TODO(Rafik): make params slidable with m1 down on the x axies
+            #@incomplete - need to figure out how to not hard code this stuff. or maybe its ok for a little while
+            #@incomplete - need to make sure i can re assign all variables that i want to re assign including names 
+
             if label == "sprite_source":
                 UI.do_label(UIID(), value, 18, canvas_id)
             if label == "position":
