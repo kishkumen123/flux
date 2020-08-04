@@ -62,7 +62,7 @@ while _globals.running:
                             Events.consume(event)
                 if event.type == MOUSEBUTTONDOWN:
                     if event.button == 1 or event.button == 3:
-                        if not UI.hot:
+                        if not UI.hot and UI.valid_input:
                             UI.interactive = 0
                             Events.consume(event)
                 UI.handle_event(event)
@@ -84,31 +84,36 @@ while _globals.running:
                     if event.key == K_LSHIFT:
                         Controller.shift = False
 
-    canvas_id = UI.do_canvas(UIID(), pygame.Rect(300, 300, 250, 400), 18, padding=v4(10,10,10,10))
-    UI.do_label(UIID(), "Entities", 18, canvas_id)
+    UI.do_canvas(UIID(), pygame.Rect(0, 0, 250, 400), 18, padding=v4(10,10,10,10))
+    UI.do_label(UIID(), "Hot - %s" % str(UI.hot), 18)
+    UI.do_label(UIID(), "Active - %s" % str(UI.active), 18)
+
+    UI.do_canvas(UIID(), pygame.Rect(300, 300, 250, 400), 18, padding=v4(10,10,10,10))
+    UI.do_label(UIID(), "Entities", 18)
+    UI.do_textinput(DUIID(), 18, "")
     for e in EM.entities.values():
-        if UI.do_button(DUIID(), e._id, 18, canvas_id, tab=True):
+        if UI.do_button(DUIID(), e._id, 18, tab=True):
             _globals.selection = e
 
-    canvas_id = UI.do_canvas(UIID(), pygame.Rect(1, 300, 250, 400), 18, padding=v4(10,10,10,10))
-    UI.do_label(UIID(), "Data", 18, canvas_id)
+    UI.do_canvas(UIID(), pygame.Rect(1, 300, 250, 400), 18, padding=v4(10,10,10,10))
+    UI.do_label(UIID(), "Data", 18)
     if _globals.selection:
-        UI.do_label(UIID(), "_____________", 18, canvas_id)
+        UI.do_label(UIID(), "_____________", 18)
         for label, value in _globals.selection.__dict__.items():
             #TODO(Rafik): make params slidable with m1 down on the x axies
             #@incomplete - need to figure out how to not hard code this stuff. or maybe its ok for a little while
             #@incomplete - need to make sure i can re assign all variables that i want to re assign including names 
 
             if label == "sprite_source":
-                UI.do_label(UIID(), value, 18, canvas_id)
+                UI.do_label(UIID(), value, 18)
             if label == "position":
-                UI.do_label(UIID(), label, 18, canvas_id)
-                _globals.selection.__dict__[label].x = UI.do_param(UIID(), 18, value[0], canvas_id, align=2)
-                _globals.selection.__dict__[label].y = UI.do_param(UIID(), 18, value[1], canvas_id)
+                UI.do_label(UIID(), label, 18)
+                _globals.selection.__dict__[label].x = UI.do_param(UIID(), 18, value[0], align=2)
+                _globals.selection.__dict__[label].y = UI.do_param(UIID(), 18, value[1])
             if label == "scale":
-                UI.do_label(UIID(), label, 18, canvas_id)
-                _globals.selection.__dict__[label].x = UI.do_param(UIID(), 18, value[0], canvas_id, align=2)
-                _globals.selection.__dict__[label].y = UI.do_param(UIID(), 18, value[1], canvas_id)
+                UI.do_label(UIID(), label, 18)
+                _globals.selection.__dict__[label].x = UI.do_param(UIID(), 18, value[0], align=2)
+                _globals.selection.__dict__[label].y = UI.do_param(UIID(), 18, value[1])
 
 
     if UI.hot_flag == 0:
