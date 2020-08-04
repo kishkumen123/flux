@@ -135,16 +135,9 @@ class RenderSystem():
         for e in sorted_entities:
             e.rect.x = e.position[0]
             e.rect.y = e.position[1]
-            # TODO(Rafik): get rid of thie UIpanel UIbutton stuff
-            if e.property.UIPanel:
-                pygame.draw.rect(screen, e.color, e.rect)
-            elif e.property.UIButton:
-                pygame.draw.rect(screen, e.color, e.rect)
-                screen.blit(e.text_surface, (e.position.x, e.position.y))
-            else:
-                e.sprite = pygame.transform.scale(e.sprite, (e.scale[0], e.scale[1]))
-                e.rect = pygame.Rect(e.rect.x, e.rect.y, e.sprite.get_rect().w, e.sprite.get_rect().h)
-                screen.blit(e.sprite, (e.rect.x, e.rect.y))
+            e.sprite = pygame.transform.scale(e.sprite, (e.scale[0], e.scale[1]))
+            e.rect = pygame.Rect(e.rect.x, e.rect.y, e.sprite.get_rect().w, e.sprite.get_rect().h)
+            screen.blit(e.sprite, (e.rect.x, e.rect.y))
 
 
 class ScaleSprite():

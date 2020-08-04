@@ -1,4 +1,4 @@
-
+import pygame
 import math
 
 def v2lerp(source, dest, f):
@@ -46,3 +46,17 @@ class v4():
 #TODO(Rafik): MAKE A FUCKING CLAMP METHOD
 def clamp(): pass
 
+def get_mouse_direction(mouse_pos):
+    directions = [(1,0), (0,1), (-1,0), (0,-1)]
+    for cord in direction:
+        if mouse_pos[0] > 0:
+            return "right"
+        if mouse_pos[1] > 0:
+            return "down"
+        if mouse_pos[0] < 0:
+            return "left"
+        if mouse_pos[1] < 0:
+            return "up"
+
+    directions = {(1,0): "right", (0,1): "down", (-1,0): "left", (0,-1): "up"}
+    return directions.get(mouse_pos)

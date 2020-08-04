@@ -2,7 +2,7 @@ import pygame
 import _globals
 
 from pygame.locals import *
-from fmath import v2, v4
+from fmath import v2, v4, get_mouse_direction
 from events import Events
 from controller import Controller
 from _globals import textinput_list
@@ -64,6 +64,8 @@ class UI:
     align_counter = None
     align_width = None
 
+    m1 = False
+
     @classmethod
     def get_canvas(cls, _id):
         return cls.canvases[_id]
@@ -71,6 +73,29 @@ class UI:
     @classmethod
     def handle_event(cls, event):
         text = cls.text_dict.get(cls.interactive)
+        direction = None
+        
+        if event.type == MOUSEMOTION:
+            direction = event.rel
+        if event.type == MOUSEBUTTONDOWN:
+            if event.button == 1:
+                cls.m1 = True
+                #Events.consume(event)
+        if event.type == MOUSEBUTTONUP:
+            if event.button == 1:
+                cls.m1 = False
+                #Events.consume(event)
+
+        if cls.m1:
+            if cls.interactive and cls.interactive == cls.active:
+                text = cls.text_dict[cls.interactive]
+                value = int(text)
+                if direction is not None:
+                    if direction[0] > 0:
+                        value += 1
+                    if direction[0] < 0:
+                        value -= 1
+                cls.text_dict[cls.interactive] = str(value)
 
         if event.type == KEYDOWN:
             if event.key == K_BACKSPACE:
@@ -94,28 +119,15 @@ class UI:
     def hot_active(cls, _id, rect):
         result = False
 
-        #if _id == 3:
-            #print("hot flag %s" % cls.hot_flag)
         if rect.collidepoint(pygame.mouse.get_pos()):
-            #if _id == 3:
-                #print("YES")
             UI.hot = _id
             UI.hot_flag = 1
-        #else:
-            #if _id == 3:
-                #print("NOT")
 
         if UI.active == _id:
-            print(1)
             for event in Events():
-                print(2)
                 if event.type == MOUSEBUTTONUP and not Controller.shift:
-                    print(3)
                     if event.button == 1:
-                        print(4)
-                        #import pdb; pdb.set_trace()
                         if rect.collidepoint(pygame.mouse.get_pos()):
-                            print(5)
                             result = True
                         UI.hot = 0
                         UI.hot_flag = 0
@@ -177,12 +189,7 @@ class UI:
         canvas = UI.canvases[cls.cc_id]
         rect = pygame.Rect(canvas.mask_rect.x, canvas.mask_rect.y + (canvas.size_y * canvas.counter), canvas.mask_rect.w, canvas.size_y)
 
-        print(_id)
         result = UI.hot_active(_id, rect)
-
-
-        #if text == 4:
-            #print(result)
         if result:
             if tab:
                 canvas.selected_element = _id
@@ -307,6 +314,11 @@ class UI:
                 cls.valid_input = False
 
             text_surface = _globals.font.render(text, True, color)
+            if len(cls.text_dict[_id]) > 0:
+                try:
+                    value = value_type(cls.text_dict[_id])
+                except:
+                    pass
         else:
             if _id in cls.text_dict.keys():
                 value = value_type(cls.text_dict[_id])

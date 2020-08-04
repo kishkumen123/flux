@@ -45,7 +45,6 @@ while _globals.running:
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit(0)
-            #handle_global_event(event)
             if console.is_open():
                 pygame.key.set_repeat(400,40)
                 console.handle_event(event)
@@ -64,8 +63,9 @@ while _globals.running:
                     if event.button == 1 or event.button == 3:
                         if not UI.hot and UI.valid_input:
                             UI.interactive = 0
-                            Events.consume(event)
+                            #Events.consume(event)
                 UI.handle_event(event)
+
             else:
                 if Events.type(event, KEYDOWN):
                     if Events.key(event, K_ESCAPE):
@@ -87,6 +87,7 @@ while _globals.running:
     UI.do_canvas(UIID(), pygame.Rect(0, 0, 250, 400), 18, padding=v4(10,10,10,10))
     UI.do_label(UIID(), "Hot - %s" % str(UI.hot), 18)
     UI.do_label(UIID(), "Active - %s" % str(UI.active), 18)
+    UI.do_label(UIID(), "Interactive - %s" % str(UI.interactive), 18)
 
     UI.do_canvas(UIID(), pygame.Rect(300, 300, 250, 400), 18, padding=v4(10,10,10,10))
     UI.do_label(UIID(), "Entities", 18)
@@ -100,10 +101,6 @@ while _globals.running:
     if _globals.selection:
         UI.do_label(UIID(), "_____________", 18)
         for label, value in _globals.selection.__dict__.items():
-            #TODO(Rafik): make params slidable with m1 down on the x axies
-            #@incomplete - need to figure out how to not hard code this stuff. or maybe its ok for a little while
-            #@incomplete - need to make sure i can re assign all variables that i want to re assign including names 
-
             if label == "sprite_source":
                 UI.do_label(UIID(), value, 18)
             if label == "position":
