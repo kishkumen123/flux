@@ -26,9 +26,6 @@ class UIMouseMove():
         sorted_canvases = SM.sort_ui(entities)
         sorted_canvases.reverse()
 
-        #print(UI.hot)
-
-        #if Events.mbutton_down(1) and not Controller.shift and not UI.hot:
         for event in Events():
             if event.type == MOUSEBUTTONUP:
                 if event.button == 1:
@@ -249,10 +246,19 @@ class MouseMoveSprite():
 
 
 class ParticleSystem:
+    m1_down = False
 
     @classmethod
-    def update(self, screen, dt):
-        if Controller.m3:
+    def update(cls, screen, dt):
+        for event in Events():
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 3:
+                    cls.m1_down = True
+            if event.type == MOUSEBUTTONUP:
+                if event.button == 3:
+                    cls.m1_down = False
+
+        if cls.m1_down:
             EM.load_entity("entity_5", {})
 
 
@@ -263,7 +269,7 @@ class ParticleSystem:
                     e.position.x += e.velocity.x * dt
                     e.position.y += e.velocity.y * dt
 
-                    #e.velocity.y += 1000 * dt
+                    e.velocity.y += 1000 * dt
                     if (e.circle_radius - 10*dt) > 0:
                         e.circle_radius -= 10 * dt
                     else:

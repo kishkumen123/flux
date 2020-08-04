@@ -62,6 +62,16 @@ class Console:
         return self.state != CState.CLOSED
 
     def handle_event(self, event):
+        if event.type == TEXTINPUT:
+            if event.text != "~" and event.text != "`":
+                left = self.text[:self.cursor_index]
+                right = self.text[self.cursor_index:]
+                self.text = left + event.text + right
+                self.mask_text = left + event.text 
+                self.cursor_index += 1
+                self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
+                Events.consume(event)
+
         if event.type == KEYDOWN:
             if Events.key(event, K_ESCAPE):
                 self.open(CState.CLOSED)
@@ -78,15 +88,6 @@ class Console:
                     pygame.key.set_repeat(0,0)
                 else:
                     self.open(CState.OPEN_BIG)
-
-            # @incomplete- this line is rediculouse. need to get textinput events in the event queue
-            if event.unicode in textinput_list and event.unicode != "":
-                left = self.text[:self.cursor_index]
-                right = self.text[self.cursor_index:]
-                self.text = left + event.unicode + right
-                self.mask_text = left + event.unicode 
-                self.cursor_index += 1
-                self.autocomplete_text = self.get_autocomplete_text(self.autocomplete_from)
 
             if Events.key(event, K_RETURN):
                 if len(self.text) > 0:

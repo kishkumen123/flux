@@ -8,7 +8,7 @@ from console import Console, CState
 from entity_manager import EM, load_textures
 from systems import RenderSystem, ScaleSprite, TranslateSprite, MovePlayer, CS, ParticleSystem, MouseMoveSprite, SelectSystem, UIMouseMove, UIResize
 from controller import Controller
-from ui import UI, UIID
+from ui import UI, UIID, DUIID
 from fmath import v2, v4
 from events import Events
 
@@ -47,9 +47,24 @@ while _globals.running:
                 sys.exit(0)
             #handle_global_event(event)
             if console.is_open():
-                #TODO(Rafik): fix event skips, probably cause of the global variable
+                pygame.key.set_repeat(400,40)
                 console.handle_event(event)
             elif UI.interactive:
+                pygame.key.set_repeat(400,40)
+                if event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        if UI.valid_input:
+                            UI.interactive = 0 
+                            Events.consume(event)
+                    if event.key == K_RETURN:
+                        if UI.valid_input:
+                            UI.interactive = 0 
+                            Events.consume(event)
+                if event.type == MOUSEBUTTONDOWN:
+                    if event.button == 1 or event.button == 3:
+                        if not UI.hot:
+                            UI.interactive = 0
+                            Events.consume(event)
                 UI.handle_event(event)
             else:
                 if Events.type(event, KEYDOWN):
@@ -59,62 +74,24 @@ while _globals.running:
 
                     if Events.key(event, K_BACKQUOTE):
                         console.open(CState.OPEN_SMALL)
-                        pygame.key.set_repeat(400,40)
                     if Events.key(event, K_BACKQUOTE, 1):
-                        pygame.key.set_repeat(400,40)
                         console.open(CState.OPEN_BIG)
-                    #dont consume, only here to set controller because pygame fails to add a mod to their mouse events
+
+                #dont consume, only here to set controller because pygame fails to add a mod to their mouse events
                     if event.key == K_LSHIFT:
                         Controller.shift = True
                 if Events.type(event, KEYUP):
-                    #dont consume, only here to set controller because pygame fails to add a mod to their mouse events
                     if event.key == K_LSHIFT:
                         Controller.shift = False
-
-            #if Events.type(event, MOUSEBUTTONDOWN):
-            #    if Events.button(event, 1):
-            #        Controller.m1 = True
-            #if Events.type(event, MOUSEBUTTONUP):
-            #    if Events.button(event, 1):
-            #        Controller.m1 = False
-
-    #            if event.key == K_a:
-    #                Controller.left = True
-    #            if event.key == K_d:
-    #                Controller.right = True
-    #            if event.key == K_w:
-    #                Controller.up = True
-    #            if event.key == K_s:
-    #                Controller.down = True
-    #            if event.key == K_LALT:
-    #                Controller.alt = True
-    #            if event.key == K_LSHIFT:
-    #                Controller.shift = True
-
-    #        if event.type == KEYUP:
-    #            if event.key == K_a:
-    #                Controller.left = False
-    #            if event.key == K_d:
-    #                Controller.right = False
-    #            if event.key == K_w:
-    #                Controller.up = False
-    #            if event.key == K_s:
-    #                Controller.down = False
-    #            if event.key == K_LALT:
-    #                Controller.alt = False
-    #            if event.key == K_LSHIFT:
-    #                Controller.shift = False
-
 
     canvas_id = UI.do_canvas(UIID(), pygame.Rect(300, 300, 250, 400), 18, padding=v4(10,10,10,10))
     UI.do_label(UIID(), "Entities", 18, canvas_id)
     for e in EM.entities.values():
-        if UI.do_button(UIID(), e._id, 18, canvas_id, tab=True):
+        if UI.do_button(DUIID(), e._id, 18, canvas_id, tab=True):
             _globals.selection = e
 
     canvas_id = UI.do_canvas(UIID(), pygame.Rect(1, 300, 250, 400), 18, padding=v4(10,10,10,10))
     UI.do_label(UIID(), "Data", 18, canvas_id)
-    #UI.do_label(UIID(), "", 18, canvas_id)
     if _globals.selection:
         UI.do_label(UIID(), "_____________", 18, canvas_id)
         for label, value in _globals.selection.__dict__.items():
@@ -142,7 +119,7 @@ while _globals.running:
     #ScaleSprite.update(dt)
     #TranslateSprite.update(dt)
     #MovePlayer.update(dt)
-    #ParticleSystem.update(screen, dt)
+    ParticleSystem.update(screen, dt)
     #CS.update()
     SelectSystem.update()
     UIResize.update()
