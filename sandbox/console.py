@@ -197,7 +197,8 @@ class Console:
                 left = auto[:len(self.text)]
                 right = auto[len(self.text):]
                 if self.text == left and len(self.text) < len(auto):
-                    return right
+                    return right + " "
+        return ""
 
     def draw_everything(self):
         console_rect = pygame.draw.rect(self.screen, self.background_color, ((0, 0), (self.current_position.x, self.current_position.y)))

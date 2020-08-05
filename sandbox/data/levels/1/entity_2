@@ -1,0 +1,12 @@
+children=[]
+sprite_source="red.jpg"
+position=v2(284, 713)
+sprite=textures[e.sprite_source]
+rect=e.sprite.get_rect()
+group=4
+layer=0
+scale=v2(50, 50)
+move_offset=None
+Renderable=1
+Movable=0
+MouseMovable=1

@@ -11,6 +11,7 @@ from controller import Controller
 from ui import UI, UIID, DUIID
 from fmath import v2, v4
 from events import Events
+from commands import command_load
 
 
 pygame.init()
@@ -28,7 +29,7 @@ console = Console(screen, _globals.font)
 UI.screen = screen
 
 load_textures("data/textures/*")
-EM.load_entities("data/entities/*")
+command_load("1")
 
 
 pygame.key.set_repeat(0,0)
@@ -84,10 +85,8 @@ while _globals.running:
                     if event.key == K_LSHIFT:
                         Controller.shift = False
 
-    UI.do_canvas(UIID(), pygame.Rect(0, 0, 250, 400), 18, padding=v4(10,10,10,10))
-    UI.do_label(UIID(), "Hot - %s" % str(UI.hot), 18)
-    UI.do_label(UIID(), "Active - %s" % str(UI.active), 18)
-    UI.do_label(UIID(), "Interactive - %s" % str(UI.interactive), 18)
+    UI.do_canvas(UIID(), pygame.Rect(0, 910, 250, 400), 18, padding=v4(10,10,10,10))
+    UI.do_label(UIID(), "level - %s" % str(_globals.level_loaded), 18)
 
     UI.do_canvas(UIID(), pygame.Rect(300, 300, 250, 400), 18, padding=v4(10,10,10,10))
     UI.do_label(UIID(), "Entities", 18)
@@ -96,7 +95,7 @@ while _globals.running:
         if UI.do_button(DUIID(), e._id, 18, tab=True):
             _globals.selection = e
 
-    UI.do_canvas(UIID(), pygame.Rect(1, 300, 250, 400), 18, padding=v4(10,10,10,10))
+    UI.do_canvas(UIID(), pygame.Rect(0, 610, 250, 400), 18, padding=v4(10,10,10,10))
     UI.do_label(UIID(), "Data", 18)
     if _globals.selection:
         UI.do_label(UIID(), "_____________", 18)

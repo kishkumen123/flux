@@ -14,27 +14,27 @@ textures = {}
 #class Mappings(Enum): // might be used for faster entity lookups
     #Renderable = "Renderable"
 
-class Properties:
-    def __init__(self):
-        self.Renderable = 0
-        self.Movable = 0
-        self.MouseMovable = 0
-        self.IsParticle = 0
-        self.UIPanel = 0
-        self.UIButton = 0
-
-    def __getattr__(self, attr):
-        return None
-
-    def __repr__(self):
-        return "<%s>" % self.__dict__
+#class Properties:
+#    def __init__(self):
+#        self.Renderable = 0
+#        self.Movable = 0
+#        self.MouseMovable = 0
+#        self.IsParticle = 0
+#        self.UIPanel = 0
+#        self.UIButton = 0
+#
+#    def __getattr__(self, attr):
+#        return None
+#
+#    def __repr__(self):
+#        return "<%s>" % self.__dict__
 
 
 #TODO:(Rafik) make it raise a better exception when it tries to access a variable that doesnt exist
 class Entity():
     def __init__(self):
         self._id = None
-        self.property = Properties()
+        #self.property = Properties()
         self.children = []
 
     def __repr__(self):
@@ -100,10 +100,11 @@ class EM():
                         name, value = line.split("=")
                         
                         if e:
-                            if name in e.property.__dict__.keys():
-                                e.property.__dict__[name] = eval(value)
-                            else:
-                                e.__dict__[name] = eval(value)
+                            #if name in e.property.__dict__.keys():
+                            #    e.property.__dict__[name] = eval(value)
+                            #else:
+                            #    e.__dict__[name] = eval(value)
+                            e.__dict__[name] = eval(value)
                             
             if e: 
                 if e._id is None:
@@ -113,7 +114,7 @@ class EM():
     #TODO(Rafik): change entity delimiter to "var val" instead of "var = val"
     @classmethod
     def load_entity(cls, entity, data):
-        _file = glob.glob("data/entities/" + entity)[0]
+        _file = glob.glob("data/particles/" + entity)[0]
         e = None
         with open(_file) as f:
             e = Entity()
@@ -130,10 +131,11 @@ class EM():
                         line = line.replace(" ", "")
                         value = line.split("=")[1]
 
-                    if name in e.property.__dict__.keys():
-                        e.property.__dict__[name] = eval(value)
-                    else:
-                        e.__dict__[name] = eval(value)
+                    #if name in e.property.__dict__.keys():
+                    #    e.property.__dict__[name] = eval(value)
+                    #else:
+                    #    e.__dict__[name] = eval(value)
+                    e.__dict__[name] = eval(value)
                                 
             if e._id is None:
                 e.__dict__["_id"] = eval(os.path.basename(_file).split("_")[-1])

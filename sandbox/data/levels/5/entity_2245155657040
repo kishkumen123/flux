@@ -1,0 +1,7 @@
+children=[]
+position=v2(684.5999999999999, 357.68899999999996)
+velocity=v2(-56, 75.0)
+circle_color=(184, 148, 103)
+circle_radius=12.249999999999998
+alive_time=10
+IsParticle=1

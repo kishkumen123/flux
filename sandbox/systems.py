@@ -5,7 +5,7 @@ import _globals
 from pygame.locals import *
 from entity_manager import EM
 from controller import Controller
-from entity_manager import EM, Properties, textures
+from entity_manager import EM, textures
 from sprite_manager import SM
 from ui import UI
 from events import Events
@@ -128,7 +128,7 @@ class RenderSystem():
         entities = []
 
         for e in EM.entities.values():
-            if e.property.Renderable:
+            if e.Renderable:
                 entities.append(e)
         sorted_entities = SM.sort_sprites(entities)
 
@@ -164,7 +164,7 @@ class MovePlayer():
     @classmethod
     def update(cls, dt):
         for e in EM.entities.values():
-            if e.property.Movable:
+            if e.Movable:
                 MovePlayer.move(e, 100, dt)
 
                 if e.children:
@@ -194,7 +194,7 @@ class MouseMoveSprite():
         entities = []
 
         for e in EM.entities.values():
-            if e.property.Renderable:
+            if e.Renderable:
                 entities.append(e)
         sorted_entities = SM.sort_sprites(entities)
         sorted_entities.reverse()
@@ -228,7 +228,7 @@ class MouseMoveSprite():
                                 cls.e = e
                                 Events.consume(event)
 
-        if cls.e is not None and cls.e.property.MouseMovable:
+        if cls.e is not None and cls.e.MouseMovable:
             cls.e.position.x = pygame.mouse.get_pos()[0] - cls.e.move_offset[0]
             cls.e.position.y = pygame.mouse.get_pos()[1] - cls.e.move_offset[1]
             if e.children:
@@ -257,7 +257,7 @@ class ParticleSystem:
 
         entities = list(EM.entities.values())
         for e in entities:
-            if e.property.IsParticle:
+            if e.IsParticle:
                 if e.circle_radius > 0:
                     e.position.x += e.velocity.x * dt
                     e.position.y += e.velocity.y * dt
@@ -288,7 +288,7 @@ class CS:
                     CS.player_sprite_rect = e.rect
 
         for e in EM.entities.values():
-            if e._id != 3 and e.property.Renderable:
+            if e._id != 3 and e.Renderable:
                 if CS.player_sprite_rect.colliderect(e.rect):
                     CS.colliders.append(e._id)
 
@@ -302,7 +302,7 @@ class SelectSystem:
         entities = []
 
         for e in EM.entities.values():
-            if e.property.Renderable:
+            if e.Renderable:
                 entities.append(e)
         sorted_entities = SM.sort_sprites(entities)
         sorted_entities.reverse()

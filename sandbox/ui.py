@@ -2,7 +2,7 @@ import pygame
 import _globals
 
 from pygame.locals import *
-from fmath import v2, v4, get_mouse_direction
+from fmath import v2, v4
 from events import Events
 from controller import Controller
 from _globals import textinput_list

@@ -1,4 +1,6 @@
 import _globals
+import os
+from entity_manager import EM
 
 commands = {}
 
@@ -18,18 +20,14 @@ class CommandInfo:
 
 
 def init_commands():
-    add_command("editor", command_editor, tooltip="enables/disables editor mode")
-    add_command("save_level", command_save_level, 1, 1, tooltip="saves the current level to a file")
-    add_command("new_level", command_new_level, tooltip="creates a blank new level")
-    add_command("quit", command_quit, tooltip="quit the engine")
-    add_command("exit", command_quit, tooltip="quit the engine")
-    add_command("clear", command_clear, tooltip="clears console history")
-    add_command("help", command_help, 0, 1, tooltip="lists all commands")
-    add_command("helpppppp", command_help, 0, 1, tooltip="lists all commands")
-    add_command("helpbbbbb", command_help, 0, 1, tooltip="lists all commands")
-    add_command("hel_2", command_help, 0, 1, tooltip="lists all commands")
-    add_command("cursor_underscored", command_cursor_underscored, 1, 1, tooltip="changes whether the cursor is underscored or full (0, 1)")
-    add_command("selection_data", command_selection_data, tooltip="shows selection data")
+    add_command("edit",     command_editor,           tooltip="enables/disables editor mode")
+    add_command("save",     command_save,       tooltip="saves the current level to the folder it was loaded from")
+    add_command("new_save", command_new_save, 1, 1, tooltip="saves a new level to a new specified folder")
+    add_command("load",     command_load,  1, 1, tooltip="load an existing level")
+    add_command("quit",     command_quit,             tooltip="quit the engine")
+    add_command("exit",     command_quit,             tooltip="quit the engine")
+    add_command("clear",    command_clear,            tooltip="clears console history")
+    add_command("help",     command_help,       0, 1, tooltip="lists all commands")
 
 
 def add_command(name, proc, arg_count_min=0, arg_count_max=0, tooltip=""):
@@ -105,22 +103,80 @@ def command_editor(arguments):
     else:
         command_output("invalid arguments. 0 or 1")
 
+def command_new_save(arguments):
+    path = "data/levels/"
+    if arguments:
+        path += str(arguments[0])
+        dir_path = os.path.normpath(os.path.join(os.getcwd(), path))
+        if os.path.isdir(dir_path):
+            command_output("level dir %s already exists, use save" % arguments[0])
+        else:
+            os.mkdir(dir_path)
+            for ent in EM.entities.values():
+                data = ""
+                items = list(ent.__dict__.items())
+                for i in items:
+                    if i[0] == "_id":
+                        continue
+                    if i[0] == "sprite":
+                        data += "%s=%s\n" % (i[0], "textures[e.sprite_source]")
+                    elif i[0] == "rect":
+                        data += "%s=%s\n" % (i[0], "e.sprite.get_rect()")
+                    elif isinstance(i[1], str):
+                        data += "%s=\"%s\"\n" % (i[0], i[1])
+                    else:
+                        data += "%s=%s\n" % (i[0], i[1])
 
-def command_cursor_underscored(arguments):
-    pass
+                file_name = "entity_%s" % ent.__dict__["_id"]
+                with open(os.path.join(dir_path, file_name), "w") as f:
+                    f.write(data)
 
+            command_output("new save %s" % arguments[0])
+    else:
+        command_output("invalid number of arguments. Expected 1.")
 
-def command_selection_data(arguments):
-    pass
+def command_save(arguments):
+    path = "data/levels/"
+    if arguments:
+        command_output("invalid number of arguments. Expected 0.")
+    else:
+        path += _globals.level_loaded
+        dir_path = os.path.normpath(os.path.join(os.getcwd(), path))
+        for ent in EM.entities.values():
+            data = ""
+            items = list(ent.__dict__.items())
+            for i in items:
+                if i[0] == "_id":
+                    continue
+                if i[0] == "sprite":
+                    data += "%s=%s\n" % (i[0], "textures[e.sprite_source]")
+                elif i[0] == "rect":
+                    data += "%s=%s\n" % (i[0], "e.sprite.get_rect()")
+                elif isinstance(i[1], str):
+                    data += "%s=\"%s\"\n" % (i[0], i[1])
+                else:
+                    data += "%s=%s\n" % (i[0], i[1])
 
+            file_name = "entity_%s" % ent.__dict__["_id"]
+            with open(os.path.join(dir_path, file_name), "w") as f:
+                f.write(data)
 
-def command_save_level(arguments):
-    pass
+        command_output("saved %s" % _globals.level_loaded)
 
-
-def command_new_level(arguments):
-    pass
-
+def command_load(arguments):
+    path = "data/levels/"
+    if arguments:
+        path += str(arguments[0])
+        dir_path = os.path.normpath(os.path.join(os.getcwd(), path))
+        if _globals.level_loaded == arguments[0]:
+            command_output("level %s already loaded!" % arguments[0])
+        elif os.path.isdir(dir_path):
+            EM.load_entities(path + "/*")
+            _globals.level_loaded = arguments[0]
+        else:
+            command_output("path %s does not exists" % arguments[0])
+    else:
+        command_output("invalid number of arguments. Expected 1.")
 
 def command_help(arguments):
     if arguments:
