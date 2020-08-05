@@ -88,9 +88,8 @@ while _globals.running:
     UI.do_canvas(UIID(), pygame.Rect(0, 910, 250, 400), 18, padding=v4(10,10,10,10))
     UI.do_label(UIID(), "level - %s" % str(_globals.level_loaded), 18)
 
-    UI.do_canvas(UIID(), pygame.Rect(300, 300, 250, 400), 18, padding=v4(10,10,10,10))
+    UI.do_canvas(UIID(), pygame.Rect(1026, 0, 250, 400), 18, padding=v4(10,10,10,10))
     UI.do_label(UIID(), "Entities", 18)
-    UI.do_textinput(DUIID(), 18, "")
     for e in EM.entities.values():
         if UI.do_button(DUIID(), e._id, 18, tab=True):
             _globals.selection = e
