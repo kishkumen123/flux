@@ -12,7 +12,6 @@ from events import Events
 
 
 
-
 class UIMouseMove():
     found = False
     canvas = None

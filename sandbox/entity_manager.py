@@ -11,24 +11,6 @@ from enum import Enum
 textures = {}
 
 
-#class Mappings(Enum): // might be used for faster entity lookups
-    #Renderable = "Renderable"
-
-#class Properties:
-#    def __init__(self):
-#        self.Renderable = 0
-#        self.Movable = 0
-#        self.MouseMovable = 0
-#        self.IsParticle = 0
-#        self.UIPanel = 0
-#        self.UIButton = 0
-#
-#    def __getattr__(self, attr):
-#        return None
-#
-#    def __repr__(self):
-#        return "<%s>" % self.__dict__
-
 
 #TODO:(Rafik) make it raise a better exception when it tries to access a variable that doesnt exist
 class Entity():
@@ -100,10 +82,6 @@ class EM():
                         name, value = line.split("=")
                         
                         if e:
-                            #if name in e.property.__dict__.keys():
-                            #    e.property.__dict__[name] = eval(value)
-                            #else:
-                            #    e.__dict__[name] = eval(value)
                             e.__dict__[name] = eval(value)
                             
             if e: 
@@ -131,10 +109,6 @@ class EM():
                         line = line.replace(" ", "")
                         value = line.split("=")[1]
 
-                    #if name in e.property.__dict__.keys():
-                    #    e.property.__dict__[name] = eval(value)
-                    #else:
-                    #    e.__dict__[name] = eval(value)
                     e.__dict__[name] = eval(value)
                                 
             if e._id is None:
